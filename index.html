@@ -2,7 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  >
 
   <title>Spades</title>
 
@@ -11,107 +15,566 @@
   <style>
     * {
       box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      min-height: 100%;
     }
 
     body {
-      margin: 0;
       min-height: 100vh;
-      font-family: Arial, sans-serif;
-      background: #0b0f14;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
+
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+      color: #ffffff;
+
+      background:
+        radial-gradient(
+          circle at 50% -10%,
+          #29493b 0%,
+          #14281f 30%,
+          #09130f 70%,
+          #050907 100%
+        );
+
+      overflow-x: hidden;
     }
 
-    .container {
-      width: 90%;
-      max-width: 420px;
-      padding: 30px 20px;
+    body::before {
+      content: "";
+
+      position: fixed;
+      inset: 0;
+
+      pointer-events: none;
+
+      background:
+        radial-gradient(
+          circle at center,
+          transparent 20%,
+          rgba(0, 0, 0, 0.48) 100%
+        );
+    }
+
+    .app {
+      position: relative;
+      z-index: 1;
+
+      width: 100%;
+      max-width: 520px;
+
+      min-height: 100vh;
+
+      margin: auto;
+
+      padding:
+        30px 18px
+        calc(30px + env(safe-area-inset-bottom));
+    }
+
+    /* HEADER */
+
+    .header {
+      text-align: center;
+
+      margin-bottom: 30px;
     }
 
     .logo {
-      font-size: 70px;
-      margin-bottom: 10px;
+      font-size: 58px;
+
+      line-height: 1;
+
+      margin-bottom: 12px;
+
+      text-shadow:
+        0 5px 20px rgba(0, 0, 0, 0.55);
     }
 
-    h1 {
-      font-size: 42px;
-      margin: 0 0 10px;
+    .title {
+      margin: 0;
+
+      font-size: 32px;
+
+      font-weight: 800;
+
+      letter-spacing: 5px;
     }
 
     .subtitle {
-      color: #aeb6c2;
-      font-size: 17px;
-      margin-bottom: 35px;
-    }
+      margin-top: 10px;
 
-    .player {
-      color: #8f9aaa;
-      margin-bottom: 25px;
+      color: #aebdb5;
+
       font-size: 14px;
+
+      letter-spacing: 0.5px;
     }
 
-    button {
+    /* GAMES */
+
+    .games {
+      display: flex;
+
+      flex-direction: column;
+
+      gap: 16px;
+    }
+
+    .game-card {
+      position: relative;
+
       width: 100%;
-      padding: 16px;
-      border: none;
-      border-radius: 12px;
-      background: #2196f3;
-      color: white;
-      font-size: 18px;
-      font-weight: bold;
+
+      min-height: 145px;
+
+      padding: 22px;
+
+      border-radius: 20px;
+
+      border:
+        1px solid
+        rgba(255, 255, 255, 0.10);
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(255, 255, 255, 0.10),
+          rgba(255, 255, 255, 0.035)
+        );
+
+      box-shadow:
+        0 12px 30px
+        rgba(0, 0, 0, 0.30);
+
+      backdrop-filter: blur(12px);
+
+      overflow: hidden;
+
       cursor: pointer;
+
+      transition:
+        transform 0.15s ease,
+        border-color 0.15s ease;
     }
 
-    button:active {
+    .game-card:active {
       transform: scale(0.98);
+    }
+
+    .game-card::after {
+      content: "";
+
+      position: absolute;
+
+      width: 170px;
+      height: 170px;
+
+      right: -80px;
+      top: -80px;
+
+      border-radius: 50%;
+
+      background:
+        rgba(255, 255, 255, 0.035);
+    }
+
+    .featured {
+      border-color:
+        rgba(255, 255, 255, 0.18);
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(48, 106, 78, 0.50),
+          rgba(255, 255, 255, 0.045)
+        );
+    }
+
+    .game-content {
+      position: relative;
+
+      z-index: 2;
+
+      display: flex;
+
+      align-items: center;
+
+      gap: 17px;
+    }
+
+    .game-icon {
+      flex:
+        0 0 64px;
+
+      width: 64px;
+      height: 64px;
+
+      border-radius: 17px;
+
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      font-size: 36px;
+
+      background:
+        rgba(255, 255, 255, 0.09);
+
+      box-shadow:
+        inset 0 1px
+        rgba(255, 255, 255, 0.08);
+    }
+
+    .game-info {
+      flex: 1;
+
+      min-width: 0;
+    }
+
+    .game-name {
+      margin: 0;
+
+      font-size: 20px;
+
+      font-weight: 800;
+    }
+
+    .game-description {
+      margin: 7px 0 0;
+
+      color: #a8b5af;
+
+      font-size: 13px;
+
+      line-height: 1.4;
+    }
+
+    .game-meta {
+      display: inline-block;
+
+      margin-top: 10px;
+
+      padding: 5px 9px;
+
+      border-radius: 8px;
+
+      background:
+        rgba(255, 255, 255, 0.07);
+
+      color: #d3ddd8;
+
+      font-size: 10px;
+
+      font-weight: 800;
+
+      letter-spacing: 0.8px;
+    }
+
+    .arrow {
+      position: relative;
+
+      z-index: 2;
+
+      font-size: 28px;
+
+      color: #8e9c95;
+    }
+
+    /* COMING SOON */
+
+    .disabled {
+      opacity: 0.55;
+
+      cursor: default;
+    }
+
+    .disabled:active {
+      transform: none;
+    }
+
+    .coming-badge {
+      display: inline-block;
+
+      margin-top: 10px;
+
+      padding: 5px 9px;
+
+      border-radius: 8px;
+
+      background:
+        rgba(255, 255, 255, 0.06);
+
+      color: #8d9993;
+
+      font-size: 10px;
+
+      font-weight: 800;
+
+      letter-spacing: 1px;
+    }
+
+    /* FOOTER */
+
+    .footer {
+      margin-top: 28px;
+
+      text-align: center;
+
+      color: #65746d;
+
+      font-size: 10px;
+
+      letter-spacing: 1.5px;
+    }
+
+    @media (max-height: 650px) {
+
+      .app {
+        padding-top: 18px;
+      }
+
+      .header {
+        margin-bottom: 20px;
+      }
+
+      .logo {
+        font-size: 42px;
+      }
+
+      .title {
+        font-size: 27px;
+      }
+
+      .game-card {
+        min-height: 125px;
+
+        padding: 17px;
+      }
+
+      .game-icon {
+        width: 56px;
+        height: 56px;
+
+        flex-basis: 56px;
+
+        font-size: 30px;
+      }
     }
   </style>
 </head>
 
 <body>
 
-  <div class="container">
+  <main class="app">
 
-    <div class="logo">♠️</div>
+    <!-- HEADER -->
 
-    <h1>SPADES</h1>
+    <header class="header">
 
-    <div class="subtitle">
-      6 Player Team Card Game
-    </div>
+      <div class="logo">
+        ♠
+      </div>
 
-    <div class="player" id="playerInfo">
-      Connecting to Telegram...
-    </div>
+      <h1 class="title">
+        SPADES
+      </h1>
 
-    <button onclick="createGame()">
-      CREATE GAME
-    </button>
+      <div class="subtitle">
+        Choose your game
+      </div>
 
-  </div>
+    </header>
+
+
+    <!-- GAME OPTIONS -->
+
+    <section class="games">
+
+
+      <!-- 6 PLAYER GAME -->
+
+      <article
+        class="game-card featured"
+        onclick="selectGame('six')"
+      >
+
+        <div class="game-content">
+
+          <div class="game-icon">
+            ♠
+          </div>
+
+          <div class="game-info">
+
+            <h2 class="game-name">
+              Spades 6
+            </h2>
+
+            <p class="game-description">
+              Team card game for six players.
+            </p>
+
+            <span class="game-meta">
+              6 PLAYERS
+            </span>
+
+          </div>
+
+          <div class="arrow">
+            ›
+          </div>
+
+        </div>
+
+      </article>
+
+
+      <!-- 4 PLAYER GAME -->
+
+      <article
+        class="game-card"
+        onclick="selectGame('four')"
+      >
+
+        <div class="game-content">
+
+          <div class="game-icon">
+            ♠
+          </div>
+
+          <div class="game-info">
+
+            <h2 class="game-name">
+              Classic Spades
+            </h2>
+
+            <p class="game-description">
+              Classic four-player Spades card game.
+            </p>
+
+            <span class="game-meta">
+              4 PLAYERS
+            </span>
+
+          </div>
+
+          <div class="arrow">
+            ›
+          </div>
+
+        </div>
+
+      </article>
+
+
+      <!-- 2 PLAYER GAME -->
+
+      <article
+        class="game-card disabled"
+        onclick="comingSoon()"
+      >
+
+        <div class="game-content">
+
+          <div class="game-icon">
+            🃏
+          </div>
+
+          <div class="game-info">
+
+            <h2 class="game-name">
+              Coming Soon
+            </h2>
+
+            <p class="game-description">
+              A new two-player card game.
+            </p>
+
+            <span class="coming-badge">
+              2 PLAYERS • SOON
+            </span>
+
+          </div>
+
+          <div class="arrow">
+            ›
+          </div>
+
+        </div>
+
+      </article>
+
+    </section>
+
+
+    <footer class="footer">
+      PLAY • COMPETE • WIN
+    </footer>
+
+  </main>
+
 
   <script>
+
     const tg = window.Telegram.WebApp;
 
     tg.ready();
+
     tg.expand();
 
-    const user = tg.initDataUnsafe?.user;
 
-    if (user) {
-      document.getElementById("playerInfo").innerText =
-        "Welcome, " + (user.first_name || "Player");
-    } else {
-      document.getElementById("playerInfo").innerText =
-        "Welcome, Player";
+    function selectGame(game) {
+
+      if (game === "six") {
+
+        tg.showAlert(
+          "Spades 6 selected!"
+        );
+
+        /*
+          NEXT STEP:
+
+          We will replace this alert
+          with the real 6-player lobby.
+        */
+      }
+
+
+      if (game === "four") {
+
+        tg.showAlert(
+          "Classic Spades selected!"
+        );
+
+        /*
+          NEXT STEP:
+
+          We will build the 4-player
+          game separately.
+        */
+      }
+
     }
 
-    function createGame() {
-      alert("Game lobby coming next!");
+
+    function comingSoon() {
+
+      tg.showAlert(
+        "This game is coming soon!"
+      );
+
     }
+
   </script>
 
 </body>
