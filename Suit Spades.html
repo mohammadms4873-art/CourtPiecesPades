@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
 
   <meta
@@ -8,11 +10,12 @@
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
   >
 
-  <title>Spades 6</title>
+  <title>Suit Spades</title>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <style>
+
     * {
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
@@ -27,27 +30,37 @@
     }
 
     body {
+
       min-height: 100vh;
 
-      font-family: Arial, sans-serif;
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
 
-      color: white;
+      color: #ffffff;
 
       background:
         radial-gradient(
-          circle at 50% 45%,
-          #28523e 0%,
-          #12271d 45%,
-          #050b08 100%
+          circle at 50% 40%,
+          #28553f 0%,
+          #153021 40%,
+          #07100b 100%
         );
 
       overflow: hidden;
     }
 
-    /* HEADER */
 
-    .top {
+    /* =========================
+       TOP BAR
+    ========================= */
+
+    .topbar {
+
       height: 62px;
+
+      width: 100%;
 
       padding: 0 14px;
 
@@ -63,58 +76,81 @@
       border-bottom:
         1px solid
         rgba(255,255,255,0.08);
+
     }
 
-    .logo {
-      font-size: 19px;
+
+    .game-title {
+
+      font-size: 17px;
 
       font-weight: 800;
 
-      letter-spacing: 2px;
+      letter-spacing: 1.5px;
     }
 
+
     .scores {
+
       display: flex;
 
       gap: 7px;
     }
 
-    .score {
-      padding: 6px 9px;
+
+    .score-box {
+
+      padding:
+        6px 9px;
 
       border-radius: 8px;
 
       background:
         rgba(255,255,255,0.08);
 
-      font-size: 11px;
+      font-size: 10px;
+
+      font-weight: 700;
     }
 
-    /* TABLE */
+
+    /* =========================
+       GAME TABLE
+    ========================= */
 
     .table {
+
       position: relative;
 
       width: 100%;
 
-      height: calc(100vh - 62px);
+      height:
+        calc(100vh - 62px);
+
     }
 
-    /* PLAYERS */
+
+    /* =========================
+       PLAYER
+    ========================= */
 
     .player {
-      position: absolute;
 
-      z-index: 10;
+      position: absolute;
 
       width: 70px;
 
       text-align: center;
+
+      z-index: 20;
     }
 
+
     .avatar {
-      width: 43px;
-      height: 43px;
+
+      width: 44px;
+
+      height: 44px;
 
       margin: auto;
 
@@ -123,40 +159,47 @@
       display: flex;
 
       align-items: center;
+
       justify-content: center;
 
       background:
         linear-gradient(
           145deg,
           #ffffff,
-          #b7c3be
+          #b7c5bf
         );
 
       color: #102019;
 
-      font-size: 12px;
+      font-size: 11px;
 
       font-weight: 800;
 
       box-shadow:
         0 5px 15px
-        rgba(0,0,0,0.35);
+        rgba(0,0,0,0.4);
     }
 
+
     .player-name {
+
       margin-top: 4px;
 
-      color: #c4d0ca;
+      color: #c5d1cb;
 
       font-size: 9px;
 
       white-space: nowrap;
     }
 
-    /* PLAYER POSITIONS */
 
-    .p1 {
-      bottom: 112px;
+    /* =========================
+       PLAYER POSITIONS
+    ========================= */
+
+    .player1 {
+
+      bottom: 115px;
 
       left: 50%;
 
@@ -164,19 +207,25 @@
         translateX(-50%);
     }
 
-    .p2 {
+
+    .player2 {
+
       bottom: 235px;
 
-      left: 4px;
+      left: 3px;
     }
 
-    .p3 {
+
+    .player3 {
+
       top: 160px;
 
-      left: 4px;
+      left: 3px;
     }
 
-    .p4 {
+
+    .player4 {
+
       top: 72px;
 
       left: 50%;
@@ -185,21 +234,29 @@
         translateX(-50%);
     }
 
-    .p5 {
+
+    .player5 {
+
       top: 160px;
 
-      right: 4px;
+      right: 3px;
     }
 
-    .p6 {
+
+    .player6 {
+
       bottom: 235px;
 
-      right: 4px;
+      right: 3px;
     }
 
-    /* ACTIVE PLAYER */
+
+    /* =========================
+       ACTIVE PLAYER
+    ========================= */
 
     .active .avatar {
+
       outline:
         3px solid
         rgba(255,255,255,0.75);
@@ -209,28 +266,27 @@
         rgba(255,255,255,0.25);
     }
 
-    /* CENTER TABLE */
+
+    /* =========================
+       CENTER
+    ========================= */
 
     .center {
+
       position: absolute;
 
       top: 50%;
+
       left: 50%;
 
       transform:
         translate(-50%, -50%);
 
-      width: 170px;
-      height: 170px;
+      width: 165px;
+
+      height: 165px;
 
       border-radius: 50%;
-
-      border:
-        1px solid
-        rgba(255,255,255,0.08);
-
-      background:
-        rgba(0,0,0,0.12);
 
       display: flex;
 
@@ -239,59 +295,46 @@
       justify-content: center;
 
       text-align: center;
+
+      background:
+        rgba(0,0,0,0.12);
+
+      border:
+        1px solid
+        rgba(255,255,255,0.08);
+
     }
 
-    .game-info {
-      color: #b7c5be;
+
+    .center-info {
+
+      color: #b8c6bf;
 
       font-size: 11px;
 
-      line-height: 1.6;
+      line-height: 1.7;
     }
 
-    .game-info strong {
-      color: white;
+
+    .center-info strong {
+
+      color: #ffffff;
 
       font-size: 15px;
     }
 
-    /* PLAYED CARDS */
 
-    .played-card {
-      position: absolute;
-
-      width: 48px;
-      height: 68px;
-
-      border-radius: 7px;
-
-      background: white;
-
-      color: #111;
-
-      display: none;
-
-      align-items: center;
-
-      justify-content: center;
-
-      font-size: 19px;
-
-      font-weight: 700;
-
-      box-shadow:
-        0 5px 14px
-        rgba(0,0,0,0.4);
-    }
-
-    /* HAND */
+    /* =========================
+       HAND
+    ========================= */
 
     .hand {
+
       position: absolute;
 
-      bottom: 3px;
-
       left: 50%;
+
+      bottom: 5px;
 
       transform:
         translateX(-50%);
@@ -308,13 +351,18 @@
 
       gap: 2px;
 
-      z-index: 20;
+      z-index: 50;
     }
 
-    /* CARD */
+
+    /* =========================
+       CARD
+    ========================= */
 
     .card {
+
       width: 38px;
+
       height: 70px;
 
       flex-shrink: 0;
@@ -337,7 +385,7 @@
 
       box-shadow:
         0 5px 12px
-        rgba(0,0,0,0.38);
+        rgba(0,0,0,0.4);
 
       cursor: pointer;
 
@@ -345,18 +393,26 @@
         transform 0.15s ease;
     }
 
+
     .card.red {
-      color: #d32632;
+
+      color: #d32835;
     }
+
 
     .card.selected {
+
       transform:
-        translateY(-16px);
+        translateY(-18px);
     }
 
-    /* MESSAGE */
+
+    /* =========================
+       MESSAGE
+    ========================= */
 
     .message {
+
       position: fixed;
 
       top: 75px;
@@ -368,7 +424,8 @@
 
       z-index: 100;
 
-      padding: 9px 14px;
+      padding:
+        9px 14px;
 
       border-radius: 10px;
 
@@ -382,9 +439,13 @@
       white-space: nowrap;
     }
 
-    /* START SCREEN */
+
+    /* =========================
+       START SCREEN
+    ========================= */
 
     .start-screen {
+
       position: fixed;
 
       inset: 0;
@@ -400,19 +461,22 @@
       padding: 20px;
 
       background:
-        rgba(3,8,6,0.94);
+        rgba(3,8,6,0.95);
     }
 
+
     .start-box {
+
       width: 100%;
 
       max-width: 370px;
 
-      padding: 30px 24px;
-
-      text-align: center;
+      padding:
+        30px 24px;
 
       border-radius: 22px;
+
+      text-align: center;
 
       background:
         rgba(255,255,255,0.07);
@@ -426,22 +490,30 @@
         rgba(0,0,0,0.4);
     }
 
+
     .start-icon {
-      font-size: 60px;
+
+      font-size: 62px;
 
       margin-bottom: 12px;
     }
 
-    .start-box h1 {
+
+    .start-title {
+
       margin: 0;
 
       font-size: 29px;
 
+      font-weight: 800;
+
       letter-spacing: 3px;
     }
 
-    .start-box p {
-      margin-top: 13px;
+
+    .start-subtitle {
+
+      margin-top: 10px;
 
       color: #aebdb5;
 
@@ -450,10 +522,12 @@
       line-height: 1.6;
     }
 
+
     .start-button {
+
       width: 100%;
 
-      margin-top: 20px;
+      margin-top: 22px;
 
       padding: 15px;
 
@@ -461,9 +535,9 @@
 
       border-radius: 12px;
 
-      background: white;
+      background: #ffffff;
 
-      color: #111;
+      color: #111111;
 
       font-size: 17px;
 
@@ -472,515 +546,627 @@
       cursor: pointer;
     }
 
+
     .start-button:active {
-      transform: scale(0.98);
+
+      transform:
+        scale(0.98);
     }
 
-    /* MOBILE */
+
+    /* =========================
+       MOBILE
+    ========================= */
 
     @media (max-height: 650px) {
 
-      .player.p2,
-      .player.p6 {
+      .player2,
+      .player6 {
+
         bottom: 195px;
       }
 
-      .player.p3,
-      .player.p5 {
+
+      .player3,
+      .player5 {
+
         top: 125px;
       }
 
+
       .center {
+
         width: 145px;
+
         height: 145px;
       }
 
+
       .hand {
+
         height: 95px;
       }
 
+
       .card {
+
         width: 34px;
-        height: 64px;
+
+        height: 63px;
 
         font-size: 14px;
       }
+
     }
 
   </style>
+
 </head>
+
 
 <body>
 
 
-<!-- HEADER -->
+  <!-- =========================
+       TOP BAR
+  ========================== -->
 
-<header class="top">
+  <header class="topbar">
 
-  <div class="logo">
-    SPADES ♠
-  </div>
-
-  <div class="scores">
-
-    <div class="score">
-      BLUE <span id="blueScore">0</span>
+    <div class="game-title">
+      SUIT SPADES ♠
     </div>
 
-    <div class="score">
-      RED <span id="redScore">0</span>
-    </div>
+    <div class="scores">
 
-  </div>
+      <div class="score-box">
+        BLUE:
+        <span id="blueScore">
+          0
+        </span>
+      </div>
 
-</header>
-
-
-<!-- GAME TABLE -->
-
-<main class="table">
-
-
-  <!-- PLAYER 1 -->
-
-  <div class="player p1 active">
-
-    <div class="avatar">
-      YOU
-    </div>
-
-    <div class="player-name">
-      Player 1
-    </div>
-
-  </div>
-
-
-  <!-- PLAYER 2 -->
-
-  <div class="player p2">
-
-    <div class="avatar">
-      P2
-    </div>
-
-    <div class="player-name">
-      Player 2
-    </div>
-
-  </div>
-
-
-  <!-- PLAYER 3 -->
-
-  <div class="player p3">
-
-    <div class="avatar">
-      P3
-    </div>
-
-    <div class="player-name">
-      Player 3
-    </div>
-
-  </div>
-
-
-  <!-- PLAYER 4 -->
-
-  <div class="player p4">
-
-    <div class="avatar">
-      P4
-    </div>
-
-    <div class="player-name">
-      Player 4
-    </div>
-
-  </div>
-
-
-  <!-- PLAYER 5 -->
-
-  <div class="player p5">
-
-    <div class="avatar">
-      P5
-    </div>
-
-    <div class="player-name">
-      Player 5
-    </div>
-
-  </div>
-
-
-  <!-- PLAYER 6 -->
-
-  <div class="player p6">
-
-    <div class="avatar">
-      P6
-    </div>
-
-    <div class="player-name">
-      Player 6
-    </div>
-
-  </div>
-
-
-  <!-- CENTER -->
-
-  <div class="center">
-
-    <div class="game-info">
-
-      TRICK
-
-      <br>
-
-      <strong id="trickNumber">
-        1
-      </strong>
-
-      / 9
-
-      <br>
-
-      Trump:
-      <strong>♠</strong>
-
-      <br>
-
-      Turn:
-      <strong id="turnPlayer">
-        P1
-      </strong>
+      <div class="score-box">
+        RED:
+        <span id="redScore">
+          0
+        </span>
+      </div>
 
     </div>
 
-  </div>
+  </header>
 
 
-  <!-- PLAYER HAND -->
+  <!-- =========================
+       TABLE
+  ========================== -->
+
+  <main class="table">
+
+
+    <!-- PLAYER 1 -->
+
+    <div class="player player1 active">
+
+      <div class="avatar">
+        YOU
+      </div>
+
+      <div class="player-name">
+        Player 1
+      </div>
+
+    </div>
+
+
+    <!-- PLAYER 2 -->
+
+    <div class="player player2">
+
+      <div class="avatar">
+        P2
+      </div>
+
+      <div class="player-name">
+        Player 2
+      </div>
+
+    </div>
+
+
+    <!-- PLAYER 3 -->
+
+    <div class="player player3">
+
+      <div class="avatar">
+        P3
+      </div>
+
+      <div class="player-name">
+        Player 3
+      </div>
+
+    </div>
+
+
+    <!-- PLAYER 4 -->
+
+    <div class="player player4">
+
+      <div class="avatar">
+        P4
+      </div>
+
+      <div class="player-name">
+        Player 4
+      </div>
+
+    </div>
+
+
+    <!-- PLAYER 5 -->
+
+    <div class="player player5">
+
+      <div class="avatar">
+        P5
+      </div>
+
+      <div class="player-name">
+        Player 5
+      </div>
+
+    </div>
+
+
+    <!-- PLAYER 6 -->
+
+    <div class="player player6">
+
+      <div class="avatar">
+        P6
+      </div>
+
+      <div class="player-name">
+        Player 6
+      </div>
+
+    </div>
+
+
+    <!-- =========================
+         CENTER
+    ========================== -->
+
+    <div class="center">
+
+      <div class="center-info">
+
+        TRICK
+
+        <br>
+
+        <strong id="trickNumber">
+          1
+        </strong>
+
+        / 9
+
+        <br>
+
+        Trump:
+
+        <strong>
+          ♠
+        </strong>
+
+        <br>
+
+        Turn:
+
+        <strong id="turn">
+          P1
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <!-- =========================
+         PLAYER HAND
+    ========================== -->
+
+    <div
+      class="hand"
+      id="hand"
+    ></div>
+
+
+  </main>
+
+
+  <!-- MESSAGE -->
 
   <div
-    class="hand"
-    id="hand"
+    class="message"
+    id="message"
   ></div>
 
 
-</main>
+  <!-- =========================
+       START SCREEN
+  ========================== -->
 
+  <div
+    class="start-screen"
+    id="startScreen"
+  >
 
-<!-- MESSAGE -->
+    <div class="start-box">
 
-<div
-  class="message"
-  id="message"
-></div>
+      <div class="start-icon">
+        ♠
+      </div>
 
+      <h1 class="start-title">
+        SUIT SPADES
+      </h1>
 
-<!-- START SCREEN -->
+      <div class="start-subtitle">
 
-<div
-  class="start-screen"
-  id="startScreen"
->
+        6 Player Team Card Game
 
-  <div class="start-box">
+        <br><br>
 
-    <div class="start-icon">
-      ♠
+        Blue Team:
+        Players 1, 3, 5
+
+        <br>
+
+        Red Team:
+        Players 2, 4, 6
+
+        <br><br>
+
+        Trump:
+        <strong>Spades ♠</strong>
+
+      </div>
+
+      <button
+        class="start-button"
+        onclick="startGame()"
+      >
+        START GAME
+      </button>
+
     </div>
-
-    <h1>
-      SPADES 6
-    </h1>
-
-    <p>
-      Six-player team card game.
-      <br><br>
-
-      Blue Team:
-      Players 1, 3, 5
-
-      <br>
-
-      Red Team:
-      Players 2, 4, 6
-
-      <br><br>
-
-      Trump:
-      <strong>Spades ♠</strong>
-    </p>
-
-    <button
-      class="start-button"
-      onclick="startGame()"
-    >
-      START GAME
-    </button>
 
   </div>
 
-</div>
+
+  <!-- =========================
+       JAVASCRIPT
+  ========================== -->
+
+  <script>
 
 
-<script>
+    /* TELEGRAM */
 
-  /* TELEGRAM */
+    const tg =
+      window.Telegram.WebApp;
 
-  const tg =
-    window.Telegram.WebApp;
+    tg.ready();
 
-  tg.ready();
-
-  tg.expand();
+    tg.expand();
 
 
-  /* GAME DATA */
+    /* =========================
+       CARDS
+    ========================== */
 
-  const suits = [
-    "♠",
-    "♥",
-    "♦",
-    "♣"
-  ];
-
-  const ranks = [
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
-    "10",
-    "J",
-    "Q",
-    "K",
-    "A"
-  ];
+    const suits = [
+      "♠",
+      "♥",
+      "♦",
+      "♣"
+    ];
 
 
-  let deck = [];
+    const ranks = [
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10",
+      "J",
+      "Q",
+      "K",
+      "A"
+    ];
 
-  let playerHand = [];
 
-  let currentPlayer = 1;
+    let deck = [];
 
-  let trickNumber = 1;
+    let playerHand = [];
 
 
-  /* CREATE DECK */
+    /* =========================
+       CREATE DECK
+    ========================== */
 
-  function createDeck() {
+    function createDeck() {
 
-    deck = [];
+      deck = [];
 
-    for (const suit of suits) {
 
-      for (const rank of ranks) {
+      /* 52 STANDARD CARDS */
 
-        deck.push({
-          suit: suit,
-          rank: rank
-        });
+      for (const suit of suits) {
+
+        for (const rank of ranks) {
+
+          deck.push({
+
+            suit: suit,
+
+            rank: rank
+
+          });
+
+        }
+
+      }
+
+
+      /* RED JOKER */
+
+      deck.push({
+
+        suit: "JOKER",
+
+        rank: "RED"
+
+      });
+
+
+      /* BLACK JOKER */
+
+      deck.push({
+
+        suit: "JOKER",
+
+        rank: "BLACK"
+
+      });
+
+    }
+
+
+    /* =========================
+       SHUFFLE
+    ========================== */
+
+    function shuffle(array) {
+
+      for (
+        let i = array.length - 1;
+        i > 0;
+        i--
+      ) {
+
+        const j =
+          Math.floor(
+            Math.random() *
+            (i + 1)
+          );
+
+
+        [
+          array[i],
+          array[j]
+        ] = [
+          array[j],
+          array[i]
+        ];
 
       }
 
     }
 
-    // Two Jokers
 
-    deck.push({
-      suit: "JOKER",
-      rank: "RED"
-    });
+    /* =========================
+       START
+    ========================== */
 
-    deck.push({
-      suit: "JOKER",
-      rank: "BLACK"
-    });
+    function startGame() {
 
-  }
+      document
+        .getElementById(
+          "startScreen"
+        )
+        .style.display = "none";
 
 
-  /* SHUFFLE */
+      createDeck();
 
-  function shuffle(array) {
+      shuffle(deck);
 
-    for (
-      let i = array.length - 1;
-      i > 0;
-      i--
-    ) {
 
-      const j =
-        Math.floor(
-          Math.random() * (i + 1)
+      /* DEAL 9 CARDS TO PLAYER 1 */
+
+      playerHand =
+        deck.slice(0, 9);
+
+
+      renderHand();
+
+
+      showMessage(
+        "Game started"
+      );
+
+    }
+
+
+    /* =========================
+       SHOW HAND
+    ========================== */
+
+    function renderHand() {
+
+      const hand =
+        document.getElementById(
+          "hand"
         );
 
-      [
-        array[i],
-        array[j]
-      ] = [
-        array[j],
-        array[i]
-      ];
+
+      hand.innerHTML = "";
+
+
+      playerHand.forEach(
+        (card, index) => {
+
+          const cardElement =
+            document.createElement(
+              "div"
+            );
+
+
+          cardElement.className =
+            "card";
+
+
+          /* RED SUITS */
+
+          if (
+            card.suit === "♥" ||
+            card.suit === "♦"
+          ) {
+
+            cardElement.classList.add(
+              "red"
+            );
+
+          }
+
+
+          /* JOKER */
+
+          if (
+            card.suit === "JOKER"
+          ) {
+
+            cardElement.textContent =
+              "🃏";
+
+          }
+
+          else {
+
+            cardElement.textContent =
+              card.rank +
+              card.suit;
+
+          }
+
+
+          cardElement.onclick =
+            function() {
+
+              selectCard(index);
+
+            };
+
+
+          hand.appendChild(
+            cardElement
+          );
+
+        }
+      );
 
     }
 
-  }
+
+    /* =========================
+       SELECT CARD
+    ========================== */
+
+    function selectCard(index) {
+
+      const cards =
+        document.querySelectorAll(
+          ".card"
+        );
 
 
-  /* START GAME */
+      cards.forEach(
+        function(card) {
 
-  function startGame() {
-
-    document
-      .getElementById("startScreen")
-      .style.display = "none";
-
-    createDeck();
-
-    shuffle(deck);
-
-    dealPlayerCards();
-
-    showMessage(
-      "Game started!"
-    );
-
-  }
-
-
-  /* DEAL 9 CARDS TO PLAYER 1 */
-
-  function dealPlayerCards() {
-
-    playerHand =
-      deck.slice(0, 9);
-
-    renderHand();
-
-  }
-
-
-  /* RENDER HAND */
-
-  function renderHand() {
-
-    const hand =
-      document.getElementById("hand");
-
-    hand.innerHTML = "";
-
-    playerHand.forEach(
-      (card, index) => {
-
-        const element =
-          document.createElement("div");
-
-        element.className =
-          "card";
-
-        if (
-          card.suit === "♥" ||
-          card.suit === "♦"
-        ) {
-
-          element.classList.add("red");
+          card.classList.remove(
+            "selected"
+          );
 
         }
-
-        if (
-          card.suit === "JOKER"
-        ) {
-
-          element.textContent =
-            "🃏";
-
-        } else {
-
-          element.textContent =
-            card.rank +
-            card.suit;
-
-        }
-
-        element.onclick =
-          () => selectCard(index);
-
-        hand.appendChild(element);
-
-      }
-    );
-
-  }
-
-
-  /* SELECT CARD */
-
-  function selectCard(index) {
-
-    const cards =
-      document.querySelectorAll(
-        ".card"
       );
 
-    cards.forEach(
-      card =>
-        card.classList.remove(
+
+      cards[index]
+        .classList.add(
           "selected"
-        )
-    );
+        );
 
-    cards[index]
-      .classList.add(
-        "selected"
+
+      showMessage(
+        "Card selected"
       );
 
-    showMessage(
-      "Card selected"
-    );
-
-  }
+    }
 
 
-  /* MESSAGE */
+    /* =========================
+       MESSAGE
+    ========================== */
 
-  function showMessage(text) {
+    function showMessage(text) {
 
-    const message =
-      document.getElementById(
-        "message"
+      const message =
+        document.getElementById(
+          "message"
+        );
+
+
+      message.textContent =
+        text;
+
+
+      message.style.display =
+        "block";
+
+
+      setTimeout(
+        function() {
+
+          message.style.display =
+            "none";
+
+        },
+        1600
       );
 
-    message.textContent =
-      text;
+    }
 
-    message.style.display =
-      "block";
+  </script>
 
-    setTimeout(
-      () => {
-
-        message.style.display =
-          "none";
-
-      },
-      1600
-    );
-
-  }
-
-</script>
 
 </body>
-  </html>
+
+        </html>
