@@ -1,0 +1,2316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  >
+
+  <title>Spades</title>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      min-height: 100%;
+    }
+
+    body {
+
+      min-height: 100vh;
+
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+      color: #ffffff;
+
+      background:
+        radial-gradient(
+          circle at 50% -10%,
+          #29493b 0%,
+          #14281f 30%,
+          #09130f 70%,
+          #050907 100%
+        );
+
+      overflow-x: hidden;
+    }
+
+
+    body::before {
+
+      content: "";
+
+      position: fixed;
+
+      inset: 0;
+
+      pointer-events: none;
+
+      background:
+        radial-gradient(
+          circle at center,
+          transparent 20%,
+          rgba(0, 0, 0, 0.48) 100%
+        );
+
+    }
+
+
+    .app {
+
+      position: relative;
+
+      z-index: 1;
+
+      width: 100%;
+
+      max-width: 520px;
+
+      min-height: 100vh;
+
+      margin: auto;
+
+      padding:
+        25px 18px
+        calc(30px + env(safe-area-inset-bottom));
+
+    }
+
+
+    /* ==================================================
+       SCREEN SYSTEM
+    ================================================== */
+
+    .screen {
+      display: none;
+      animation: fadeIn 0.18s ease;
+    }
+
+
+    .screen.active {
+      display: block;
+    }
+
+
+    @keyframes fadeIn {
+
+      from {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+    }
+
+
+    /* ==================================================
+       HEADER
+    ================================================== */
+
+    .header {
+
+      text-align: center;
+
+      margin-bottom: 28px;
+
+    }
+
+
+    .logo {
+
+      font-size: 58px;
+
+      line-height: 1;
+
+      margin-bottom: 12px;
+
+      text-shadow:
+        0 5px 20px rgba(0, 0, 0, 0.55);
+
+    }
+
+
+    .title {
+
+      margin: 0;
+
+      font-size: 30px;
+
+      font-weight: 800;
+
+      letter-spacing: 2px;
+
+    }
+
+
+    .subtitle {
+
+      margin-top: 9px;
+
+      color: #aebdb5;
+
+      font-size: 13px;
+
+      line-height: 1.6;
+
+    }
+
+
+    /* ==================================================
+       CARDS
+    ================================================== */
+
+    .cards {
+
+      display: flex;
+
+      flex-direction: column;
+
+      gap: 15px;
+
+    }
+
+
+    .card {
+
+      position: relative;
+
+      width: 100%;
+
+      min-height: 125px;
+
+      padding: 21px;
+
+      border-radius: 20px;
+
+      border:
+        1px solid
+        rgba(255, 255, 255, 0.10);
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(255, 255, 255, 0.10),
+          rgba(255, 255, 255, 0.035)
+        );
+
+      box-shadow:
+        0 12px 30px
+        rgba(0, 0, 0, 0.30);
+
+      backdrop-filter: blur(12px);
+
+      cursor: pointer;
+
+      transition:
+        transform 0.15s ease,
+        border-color 0.15s ease;
+
+    }
+
+
+    .card:active {
+
+      transform: scale(0.98);
+
+    }
+
+
+    .featured {
+
+      border-color:
+        rgba(255, 255, 255, 0.18);
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(48, 106, 78, 0.50),
+          rgba(255, 255, 255, 0.045)
+        );
+
+    }
+
+
+    .card-content {
+
+      display: flex;
+
+      align-items: center;
+
+      gap: 16px;
+
+    }
+
+
+    .icon {
+
+      width: 62px;
+
+      height: 62px;
+
+      flex:
+        0 0 62px;
+
+      border-radius: 17px;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      font-size: 34px;
+
+      background:
+        rgba(255, 255, 255, 0.09);
+
+      box-shadow:
+        inset 0 1px
+        rgba(255, 255, 255, 0.08);
+
+    }
+
+
+    .info {
+
+      flex: 1;
+
+      min-width: 0;
+
+    }
+
+
+    .name {
+
+      margin: 0;
+
+      font-size: 18px;
+
+      font-weight: 800;
+
+    }
+
+
+    .description {
+
+      margin: 7px 0 0;
+
+      color: #a8b5af;
+
+      font-size: 12px;
+
+      line-height: 1.5;
+
+    }
+
+
+    .meta {
+
+      display: inline-block;
+
+      margin-top: 9px;
+
+      padding: 5px 9px;
+
+      border-radius: 8px;
+
+      background:
+        rgba(255, 255, 255, 0.07);
+
+      color: #d3ddd8;
+
+      font-size: 9px;
+
+      font-weight: 800;
+
+      letter-spacing: 0.5px;
+
+    }
+
+
+    .arrow {
+
+      font-size: 28px;
+
+      color: #8e9c95;
+
+      flex: 0 0 auto;
+
+    }
+
+
+    /* ==================================================
+       GUIDE
+    ================================================== */
+
+    .guide-card {
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(78, 91, 62, 0.45),
+          rgba(255, 255, 255, 0.04)
+        );
+
+    }
+
+
+    /* ==================================================
+       BACK BUTTON
+    ================================================== */
+
+    .back-button {
+
+      width: 100%;
+
+      margin-top: 22px;
+
+      padding: 14px;
+
+      border:
+        1px solid
+        rgba(255, 255, 255, 0.10);
+
+      border-radius: 14px;
+
+      background:
+        rgba(255, 255, 255, 0.05);
+
+      color: #c5d0cb;
+
+      font-size: 14px;
+
+      cursor: pointer;
+
+    }
+
+
+    .back-button:active {
+
+      transform: scale(0.98);
+
+    }
+
+
+    /* ==================================================
+       GUIDE DETAIL
+    ================================================== */
+
+    .guide-box {
+
+      padding: 22px;
+
+      border-radius: 20px;
+
+      border:
+        1px solid
+        rgba(255, 255, 255, 0.10);
+
+      background:
+        rgba(255, 255, 255, 0.055);
+
+      line-height: 1.8;
+
+    }
+
+
+    .guide-box h2 {
+
+      margin:
+        0 0 10px;
+
+      font-size: 20px;
+
+    }
+
+
+    .guide-box h3 {
+
+      margin:
+        22px 0 7px;
+
+      font-size: 16px;
+
+      color: #dce8e2;
+
+    }
+
+
+    .guide-box p {
+
+      margin: 7px 0;
+
+      color: #b7c3bd;
+
+      font-size: 13px;
+
+    }
+
+
+    .guide-list {
+
+      margin: 8px 0;
+
+      padding-left: 20px;
+
+      color: #b7c3bd;
+
+      font-size: 13px;
+
+      line-height: 1.8;
+
+    }
+
+
+    /* ==================================================
+       LOBBY
+    ================================================== */
+
+    .lobby-box {
+
+      padding: 22px;
+
+      border-radius: 22px;
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(255, 255, 255, 0.10),
+          rgba(255, 255, 255, 0.035)
+        );
+
+      border:
+        1px solid
+        rgba(255, 255, 255, 0.10);
+
+      box-shadow:
+        0 15px 40px
+        rgba(0, 0, 0, 0.30);
+
+      text-align: center;
+
+    }
+
+
+    .lobby-icon {
+
+      font-size: 50px;
+
+      margin-bottom: 10px;
+
+    }
+
+
+    .lobby-title {
+
+      margin: 0;
+
+      font-size: 22px;
+
+    }
+
+
+    .lobby-subtitle {
+
+      color: #aebdb5;
+
+      font-size: 13px;
+
+      margin-top: 8px;
+
+      line-height: 1.6;
+
+    }
+
+
+    .players {
+
+      display: grid;
+
+      grid-template-columns:
+        repeat(2, 1fr);
+
+      gap: 10px;
+
+      margin-top: 22px;
+
+    }
+
+
+    .player {
+
+      min-height: 65px;
+
+      padding: 11px;
+
+      border-radius: 14px;
+
+      background:
+        rgba(255, 255, 255, 0.06);
+
+      border:
+        1px solid
+        rgba(255, 255, 255, 0.08);
+
+      display: flex;
+
+      align-items: center;
+
+      gap: 9px;
+
+      text-align: left;
+
+    }
+
+
+    .player-avatar {
+
+      width: 38px;
+
+      height: 38px;
+
+      flex:
+        0 0 38px;
+
+      border-radius: 50%;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      background:
+        #24543c;
+
+      font-size: 18px;
+
+    }
+
+
+    .player-name {
+
+      font-size: 12px;
+
+      color: #dce5e1;
+
+    }
+
+
+    .player-status {
+
+      margin-top: 3px;
+
+      font-size: 9px;
+
+      color: #7f9188;
+
+    }
+
+
+    .waiting {
+
+      margin-top: 20px;
+
+      color: #aebdb5;
+
+      font-size: 12px;
+
+    }
+
+
+    .loading {
+
+      display: inline-block;
+
+      width: 8px;
+
+      height: 8px;
+
+      margin-right: 5px;
+
+      border-radius: 50%;
+
+      background: #6eaa8b;
+
+      animation:
+        pulse 1s infinite;
+
+    }
+
+
+    @keyframes pulse {
+
+      0%, 100% {
+        opacity: 0.3;
+      }
+
+      50% {
+        opacity: 1;
+      }
+
+    }
+
+
+    /* ==================================================
+       PRIVATE ROOM MODAL
+    ================================================== */
+
+    .modal {
+
+      position: fixed;
+
+      inset: 0;
+
+      z-index: 50;
+
+      display: none;
+
+      align-items: center;
+
+      justify-content: center;
+
+      padding: 20px;
+
+      background:
+        rgba(0, 0, 0, 0.72);
+
+      backdrop-filter: blur(8px);
+
+    }
+
+
+    .modal.show {
+
+      display: flex;
+
+    }
+
+
+    .modal-box {
+
+      width: 100%;
+
+      max-width: 420px;
+
+      padding: 24px;
+
+      border-radius: 22px;
+
+      background:
+        linear-gradient(
+          145deg,
+          #193329,
+          #0b1712
+        );
+
+      border:
+        1px solid
+        rgba(255, 255, 255, 0.12);
+
+      box-shadow:
+        0 20px 60px
+        rgba(0, 0, 0, 0.5);
+
+    }
+
+
+    .modal-title {
+
+      margin:
+        0 0 10px;
+
+      text-align: center;
+
+      font-size: 21px;
+
+    }
+
+
+    .modal-text {
+
+      margin:
+        0 0 18px;
+
+      text-align: center;
+
+      color: #aebdb5;
+
+      font-size: 12px;
+
+      line-height: 1.7;
+
+    }
+
+
+    .room-input {
+
+      width: 100%;
+
+      padding: 14px;
+
+      border:
+        1px solid
+        rgba(255, 255, 255, 0.12);
+
+      border-radius: 12px;
+
+      outline: none;
+
+      background:
+        rgba(0, 0, 0, 0.25);
+
+      color: white;
+
+      font-size: 16px;
+
+      text-align: center;
+
+    }
+
+
+    .room-input::placeholder {
+
+      color: #718078;
+
+    }
+
+
+    .modal-buttons {
+
+      display: flex;
+
+      gap: 10px;
+
+      margin-top: 15px;
+
+    }
+
+
+    .modal-button {
+
+      flex: 1;
+
+      padding: 13px;
+
+      border: none;
+
+      border-radius: 12px;
+
+      font-size: 14px;
+
+      cursor: pointer;
+
+    }
+
+
+    .primary-button {
+
+      background:
+        #347653;
+
+      color: white;
+
+    }
+
+
+    .secondary-button {
+
+      background:
+        rgba(255, 255, 255, 0.08);
+
+      color: #b7c2bd;
+
+    }
+
+
+    /* ==================================================
+       FOOTER
+    ================================================== */
+
+    .footer {
+
+      margin-top: 28px;
+
+      text-align: center;
+
+      color: #65746d;
+
+      font-size: 9px;
+
+      letter-spacing: 1.5px;
+
+    }
+
+
+    @media (max-height: 650px) {
+
+      .app {
+        padding-top: 18px;
+      }
+
+      .header {
+        margin-bottom: 20px;
+      }
+
+      .logo {
+        font-size: 43px;
+      }
+
+      .title {
+        font-size: 26px;
+      }
+
+      .card {
+        min-height: 115px;
+        padding: 17px;
+      }
+
+      .icon {
+        width: 55px;
+        height: 55px;
+        flex-basis: 55px;
+        font-size: 30px;
+      }
+
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+
+<main class="app">
+
+
+  <!-- =================================================
+       HOME SCREEN
+  ================================================== -->
+
+  <section
+    id="homeScreen"
+    class="screen active"
+  >
+
+    <header class="header">
+
+      <div class="logo">
+        ♠
+      </div>
+
+      <h1 class="title">
+        SPADES
+      </h1>
+
+      <div class="subtitle">
+        Choose your game
+      </div>
+
+    </header>
+
+
+    <section class="cards">
+
+
+      <!-- SUIT SPADES -->
+
+      <article
+        class="card featured"
+        onclick="selectGame('suit')"
+      >
+
+        <div class="card-content">
+
+          <div class="icon">
+            ♠
+          </div>
+
+          <div class="info">
+
+            <h2 class="name">
+              Suit Spades
+            </h2>
+
+            <p class="description">
+              Special team card game designed for six players.
+            </p>
+
+            <span class="meta">
+              6 PLAYERS
+            </span>
+
+          </div>
+
+          <div class="arrow">
+            ›
+          </div>
+
+        </div>
+
+      </article>
+
+
+      <!-- CLASSIC SPADES -->
+
+      <article
+        class="card"
+        onclick="selectGame('classic')"
+      >
+
+        <div class="card-content">
+
+          <div class="icon">
+            ♠
+          </div>
+
+          <div class="info">
+
+            <h2 class="name">
+              Classic Spades
+            </h2>
+
+            <p class="description">
+              The classic four-player Spades card game.
+            </p>
+
+            <span class="meta">
+              4 PLAYERS
+            </span>
+
+          </div>
+
+          <div class="arrow">
+            ›
+          </div>
+
+        </div>
+
+      </article>
+
+
+      <!-- TWO PLAYER -->
+
+      <article
+        class="card"
+        onclick="selectGame('two')"
+      >
+
+        <div class="card-content">
+
+          <div class="icon">
+            🃏
+          </div>
+
+          <div class="info">
+
+            <h2 class="name">
+              2 Player
+            </h2>
+
+            <p class="description">
+              A fast two-player card game.
+            </p>
+
+            <span class="meta">
+              2 PLAYERS
+            </span>
+
+          </div>
+
+          <div class="arrow">
+            ›
+          </div>
+
+        </div>
+
+      </article>
+
+
+      <!-- GAME GUIDE -->
+
+      <article
+        class="card guide-card"
+        onclick="openGuide()"
+      >
+
+        <div class="card-content">
+
+          <div class="icon">
+            📖
+          </div>
+
+          <div class="info">
+
+            <h2 class="name">
+              Game Guide
+            </h2>
+
+            <p class="description">
+              Learn the rules and how to play each game.
+            </p>
+
+            <span class="meta">
+              GUIDE
+            </span>
+
+          </div>
+
+          <div class="arrow">
+            ›
+          </div>
+
+        </div>
+
+      </article>
+
+
+    </section>
+
+
+    <footer class="footer">
+      PLAY • COMPETE • WIN
+    </footer>
+
+  </section>
+
+
+
+  <!-- =================================================
+       GAME TYPE SCREEN
+  ================================================== -->
+
+  <section
+    id="gameTypeScreen"
+    class="screen"
+  >
+
+    <header class="header">
+
+      <div class="logo">
+        ♠
+      </div>
+
+      <h1
+        id="gameTypeTitle"
+        class="title"
+      >
+        Suit Spades
+      </h1>
+
+      <div class="subtitle">
+        Choose your game mode
+      </div>
+
+    </header>
+
+
+    <section class="cards">
+
+
+      <!-- PUBLIC GAME -->
+
+      <article
+        class="card featured"
+        onclick="chooseTable('public')"
+      >
+
+        <div class="card-content">
+
+          <div class="icon">
+            🌐
+          </div>
+
+          <div class="info">
+
+            <h2 class="name">
+              Public Game
+            </h2>
+
+            <p class="description">
+              Join a public table and play with other players.
+            </p>
+
+            <span class="meta">
+              PUBLIC
+            </span>
+
+          </div>
+
+          <div class="arrow">
+            ›
+          </div>
+
+        </div>
+
+      </article>
+
+
+      <!-- PRIVATE GAME -->
+
+      <article
+        class="card"
+        onclick="chooseTable('private')"
+      >
+
+        <div class="card-content">
+
+          <div class="icon">
+            🔒
+          </div>
+
+          <div class="info">
+
+            <h2 class="name">
+              Private Game
+            </h2>
+
+            <p class="description">
+              Create a private table or join your friends with a room code.
+            </p>
+
+            <span class="meta">
+              PRIVATE
+            </span>
+
+          </div>
+
+          <div class="arrow">
+            ›
+          </div>
+
+        </div>
+
+      </article>
+
+
+    </section>
+
+
+    <button
+      class="back-button"
+      onclick="goHome()"
+    >
+      ← Back to Home
+    </button>
+
+
+  </section>
+
+
+
+  <!-- =================================================
+       LOBBY SCREEN
+  ================================================== -->
+
+  <section
+    id="lobbyScreen"
+    class="screen"
+  >
+
+    <header class="header">
+
+      <div class="logo">
+        ♠
+      </div>
+
+      <h1
+        id="lobbyTitle"
+        class="title"
+      >
+        Suit Spades
+      </h1>
+
+      <div
+        id="lobbySubtitle"
+        class="subtitle"
+      >
+        Public Game
+      </div>
+
+    </header>
+
+
+    <div class="lobby-box">
+
+      <div class="lobby-icon">
+        🎮
+      </div>
+
+      <h2 class="lobby-title">
+        Game Lobby
+      </h2>
+
+      <p class="lobby-subtitle">
+        You have joined the table.
+        <br>
+        Waiting for other players...
+      </p>
+
+
+      <div
+        id="players"
+        class="players"
+      >
+
+      </div>
+
+
+      <div class="waiting">
+
+        <span class="loading"></span>
+
+        Waiting for other players...
+
+      </div>
+
+    </div>
+
+
+    <button
+      class="back-button"
+      onclick="backToGameType()"
+    >
+      ← Back
+    </button>
+
+
+  </section>
+
+
+
+  <!-- =================================================
+       GAME GUIDE SCREEN
+  ================================================== -->
+
+  <section
+    id="guideScreen"
+    class="screen"
+  >
+
+    <header class="header">
+
+      <div class="logo">
+        📖
+      </div>
+
+      <h1 class="title">
+        Game Guide
+      </h1>
+
+      <div class="subtitle">
+        Choose a game to learn more
+      </div>
+
+    </header>
+
+
+    <section class="cards">
+
+
+      <!-- SUIT GUIDE -->
+
+      <article
+        class="card featured"
+        onclick="showGuide('suit')"
+      >
+
+        <div class="card-content">
+
+          <div class="icon">
+            ♠
+          </div>
+
+          <div class="info">
+
+            <h2 class="name">
+              Suit Spades
+            </h2>
+
+            <p class="description">
+              Learn about the six-player game.
+            </p>
+
+            <span class="meta">
+              6 PLAYERS
+            </span>
+
+          </div>
+
+          <div class="arrow">
+            ›
+          </div>
+
+        </div>
+
+      </article>
+
+
+      <!-- CLASSIC GUIDE -->
+
+      <article
+        class="card"
+        onclick="showGuide('classic')"
+      >
+
+        <div class="card-content">
+
+          <div class="icon">
+            ♠
+          </div>
+
+          <div class="info">
+
+            <h2 class="name">
+              Classic Spades
+            </h2>
+
+            <p class="description">
+              Learn about the classic four-player game.
+            </p>
+
+            <span class="meta">
+              4 PLAYERS
+            </span>
+
+          </div>
+
+          <div class="arrow">
+            ›
+          </div>
+
+        </div>
+
+      </article>
+
+
+      <!-- TWO PLAYER GUIDE -->
+
+      <article
+        class="card"
+        onclick="showGuide('two')"
+      >
+
+        <div class="card-content">
+
+          <div class="icon">
+            🃏
+          </div>
+
+          <div class="info">
+
+            <h2 class="name">
+              2 Player
+            </h2>
+
+            <p class="description">
+              Learn about the two-player version.
+            </p>
+
+            <span class="meta">
+              2 PLAYERS
+            </span>
+
+          </div>
+
+          <div class="arrow">
+            ›
+          </div>
+
+        </div>
+
+      </article>
+
+
+    </section>
+
+
+    <button
+      class="back-button"
+      onclick="goHome()"
+    >
+      ← Back to Home
+    </button>
+
+  </section>
+
+
+
+  <!-- =================================================
+       GUIDE DETAIL
+  ================================================== -->
+
+  <section
+    id="guideDetailScreen"
+    class="screen"
+  >
+
+    <header class="header">
+
+      <div class="logo">
+        📖
+      </div>
+
+      <h1
+        id="guideDetailTitle"
+        class="title"
+      >
+        Game Guide
+      </h1>
+
+    </header>
+
+
+    <div
+      id="guideDetailContent"
+      class="guide-box"
+    >
+    </div>
+
+
+    <button
+      class="back-button"
+      onclick="openGuide()"
+    >
+      ← Back to Game Guide
+    </button>
+
+
+  </section>
+
+
+</main>
+
+
+
+<!-- =================================================
+     PRIVATE ROOM MODAL
+================================================= -->
+
+<div
+  id="privateModal"
+  class="modal"
+>
+
+  <div class="modal-box">
+
+    <h2 class="modal-title">
+      Private Game
+    </h2>
+
+
+    <p class="modal-text">
+      Enter your friends' room code.
+      <br>
+      Or create a new private room.
+    </p>
+
+
+    <input
+      id="roomCode"
+      class="room-input"
+      type="text"
+      maxlength="8"
+      placeholder="Room Code"
+      autocomplete="off"
+    >
+
+
+    <div class="modal-buttons">
+
+      <button
+        class="modal-button primary-button"
+        onclick="joinPrivateRoom()"
+      >
+        Join Room
+      </button>
+
+
+      <button
+        class="modal-button secondary-button"
+        onclick="createPrivateRoom()"
+      >
+        Create Room
+      </button>
+
+    </div>
+
+
+    <button
+      class="back-button"
+      onclick="closePrivateRoom()"
+      style="margin-top:10px;"
+    >
+      Cancel
+    </button>
+
+  </div>
+
+</div>
+
+
+
+<script>
+
+
+  /* ==================================================
+     TELEGRAM
+  ================================================== */
+
+  const tg =
+    window.Telegram &&
+    window.Telegram.WebApp
+      ? window.Telegram.WebApp
+      : null;
+
+
+  if (tg) {
+
+    tg.ready();
+
+    tg.expand();
+
+  }
+
+
+
+  /* ==================================================
+     GAME STATE
+  ================================================== */
+
+  let selectedGame = null;
+
+
+
+  /* ==================================================
+     SCREEN CONTROL
+  ================================================== */
+
+  function showScreen(id) {
+
+    document
+      .querySelectorAll(".screen")
+      .forEach(function(screen) {
+
+        screen.classList.remove("active");
+
+      });
+
+
+    const target =
+      document.getElementById(id);
+
+
+    if (!target) {
+
+      console.error(
+        "Screen not found:",
+        id
+      );
+
+      return;
+
+    }
+
+
+    target.classList.add("active");
+
+    window.scrollTo(0, 0);
+
+  }
+
+
+
+  /* ==================================================
+     MESSAGE
+  ================================================== */
+
+  function showMessage(message) {
+
+    if (
+      tg &&
+      typeof tg.showAlert === "function"
+    ) {
+
+      tg.showAlert(message);
+
+    } else {
+
+      alert(message);
+
+    }
+
+  }
+
+
+
+  /* ==================================================
+     SELECT GAME
+  ================================================== */
+
+  function selectGame(game) {
+
+    selectedGame = game;
+
+
+    let title = "";
+
+
+    if (game === "suit") {
+
+      title = "Suit Spades";
+
+    }
+
+    else if (game === "classic") {
+
+      title = "Classic Spades";
+
+    }
+
+    else if (game === "two") {
+
+      title = "2 Player";
+
+    }
+
+
+    document
+      .getElementById("gameTypeTitle")
+      .textContent = title;
+
+
+    showScreen(
+      "gameTypeScreen"
+    );
+
+  }
+
+
+
+  /* ==================================================
+     SELECT PUBLIC / PRIVATE
+  ================================================== */
+
+  function chooseTable(type) {
+
+    if (!selectedGame) {
+
+      goHome();
+
+      return;
+
+    }
+
+
+    if (type === "public") {
+
+      openPublicLobby();
+
+      return;
+
+    }
+
+
+    if (type === "private") {
+
+      openPrivateRoom();
+
+      return;
+
+    }
+
+  }
+
+
+
+  /* ==================================================
+     PUBLIC LOBBY
+  ================================================== */
+
+  function openPublicLobby() {
+
+    let gameName = "";
+
+
+    if (selectedGame === "suit") {
+
+      gameName = "Suit Spades";
+
+    }
+
+    else if (selectedGame === "classic") {
+
+      gameName = "Classic Spades";
+
+    }
+
+    else {
+
+      gameName = "2 Player";
+
+    }
+
+
+    document
+      .getElementById("lobbyTitle")
+      .textContent = gameName;
+
+
+    document
+      .getElementById("lobbySubtitle")
+      .textContent =
+      "Public Game";
+
+
+    updateLobbyPlayers();
+
+
+    showScreen(
+      "lobbyScreen"
+    );
+
+  }
+
+
+
+  /* ==================================================
+     LOBBY PLAYERS
+  ================================================== */
+
+  function updateLobbyPlayers() {
+
+    const container =
+      document.getElementById(
+        "players"
+      );
+
+
+    if (!container) {
+
+      return;
+
+    }
+
+
+    let count = 6;
+
+
+    if (selectedGame === "classic") {
+
+      count = 4;
+
+    }
+
+    else if (selectedGame === "two") {
+
+      count = 2;
+
+    }
+
+
+    container.innerHTML = "";
+
+
+    for (
+      let i = 1;
+      i <= count;
+      i++
+    ) {
+
+      const player =
+        document.createElement(
+          "div"
+        );
+
+
+      player.className =
+        "player";
+
+
+      if (i === 1) {
+
+        player.innerHTML = `
+
+          <div class="player-avatar">
+            👤
+          </div>
+
+          <div>
+
+            <div class="player-name">
+              You
+            </div>
+
+            <div class="player-status">
+              Player 1
+            </div>
+
+          </div>
+
+        `;
+
+      }
+
+      else {
+
+        player.innerHTML = `
+
+          <div class="player-avatar">
+            ⏳
+          </div>
+
+          <div>
+
+            <div class="player-name">
+              Waiting
+            </div>
+
+            <div class="player-status">
+              Player ${i}
+            </div>
+
+          </div>
+
+        `;
+
+      }
+
+
+      container.appendChild(
+        player
+      );
+
+    }
+
+  }
+
+
+
+  /* ==================================================
+     PRIVATE ROOM
+  ================================================== */
+
+  function openPrivateRoom() {
+
+    const modal =
+      document.getElementById(
+        "privateModal"
+      );
+
+
+    modal.classList.add("show");
+
+
+    setTimeout(function() {
+
+      document
+        .getElementById("roomCode")
+        .focus();
+
+    }, 100);
+
+  }
+
+
+
+  function closePrivateRoom() {
+
+    document
+      .getElementById("privateModal")
+      .classList.remove("show");
+
+  }
+
+
+
+  /* ==================================================
+     JOIN PRIVATE ROOM
+  ================================================== */
+
+  function joinPrivateRoom() {
+
+    const input =
+      document.getElementById(
+        "roomCode"
+      );
+
+
+    const code =
+      input.value.trim().toUpperCase();
+
+
+    if (!code) {
+
+      showMessage(
+        "Please enter a room code."
+      );
+
+      return;
+
+    }
+
+
+    openPrivateLobby(
+      code
+    );
+
+  }
+
+
+
+  /* ==================================================
+     CREATE PRIVATE ROOM
+  ================================================== */
+
+  function createPrivateRoom() {
+
+    const code =
+      generateRoomCode();
+
+
+    openPrivateLobby(
+      code
+    );
+
+  }
+
+
+
+  /* ==================================================
+     PRIVATE LOBBY
+  ================================================== */
+
+  function openPrivateLobby(code) {
+
+    closePrivateRoom();
+
+
+    let gameName = "";
+
+
+    if (selectedGame === "suit") {
+
+      gameName = "Suit Spades";
+
+    }
+
+    else if (selectedGame === "classic") {
+
+      gameName = "Classic Spades";
+
+    }
+
+    else {
+
+      gameName = "2 Player";
+
+    }
+
+
+    document
+      .getElementById("lobbyTitle")
+      .textContent = gameName;
+
+
+    document
+      .getElementById("lobbySubtitle")
+      .textContent =
+      "Private Game • Room: " + code;
+
+
+    updateLobbyPlayers();
+
+
+    showScreen(
+      "lobbyScreen"
+    );
+
+  }
+
+
+
+  /* ==================================================
+     GENERATE ROOM CODE
+  ================================================== */
+
+  function generateRoomCode() {
+
+    const chars =
+      "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+
+    let code = "";
+
+
+    for (
+      let i = 0;
+      i < 6;
+      i++
+    ) {
+
+      code +=
+        chars.charAt(
+          Math.floor(
+            Math.random() *
+            chars.length
+          )
+        );
+
+    }
+
+
+    return code;
+
+  }
+
+
+
+  /* ==================================================
+     GAME GUIDE
+  ================================================== */
+
+  function openGuide() {
+
+    showScreen(
+      "guideScreen"
+    );
+
+  }
+
+
+
+  /* ==================================================
+     GUIDE DETAILS
+  ================================================== */
+
+  function showGuide(game) {
+
+    const title =
+      document.getElementById(
+        "guideDetailTitle"
+      );
+
+
+    const content =
+      document.getElementById(
+        "guideDetailContent"
+      );
+
+
+    if (game === "suit") {
+
+      title.textContent =
+        "Suit Spades";
+
+
+      content.innerHTML = `
+
+        <h2>♠ Suit Spades</h2>
+
+        <p>
+          Suit Spades is a special six-player team card game.
+        </p>
+
+        <h3>Players</h3>
+
+        <p>
+          Six players compete in two teams of three.
+        </p>
+
+        <h3>Game Goal</h3>
+
+        <p>
+          The goal is to win tricks and score more points
+          than the opposing team.
+        </p>
+
+        <h3>Game Structure</h3>
+
+        <ul class="guide-list">
+
+          <li>6 players</li>
+
+          <li>2 teams</li>
+
+          <li>3 players per team</li>
+
+          <li>Spades are the main suit</li>
+
+          <li>Players compete for tricks</li>
+
+        </ul>
+
+        <h3>Game Modes</h3>
+
+        <p>
+          You can play in a public game or create a private
+          game with your friends.
+        </p>
+
+      `;
+
+    }
+
+
+    else if (game === "classic") {
+
+      title.textContent =
+        "Classic Spades";
+
+
+      content.innerHTML = `
+
+        <h2>♠ Classic Spades</h2>
+
+        <p>
+          Classic Spades is the traditional four-player
+          version of the game.
+        </p>
+
+        <h3>Players</h3>
+
+        <p>
+          Four players compete in two teams of two.
+        </p>
+
+        <h3>Game Goal</h3>
+
+        <p>
+          Win tricks according to your bid and score more
+          points than the opposing team.
+        </p>
+
+        <h3>Game Modes</h3>
+
+        <p>
+          Players can choose between public and private games.
+        </p>
+
+      `;
+
+    }
+
+
+    else {
+
+      title.textContent =
+        "2 Player";
+
+
+      content.innerHTML = `
+
+        <h2>🃏 2 Player</h2>
+
+        <p>
+          A fast two-player version of the card game.
+        </p>
+
+        <h3>Players</h3>
+
+        <p>
+          Two players compete directly against each other.
+        </p>
+
+        <h3>Game Goal</h3>
+
+        <p>
+          Win more tricks and score more points than your opponent.
+        </p>
+
+        <h3>Game Modes</h3>
+
+        <p>
+          The game supports public and private rooms.
+        </p>
+
+      `;
+
+    }
+
+
+    showScreen(
+      "guideDetailScreen"
+    );
+
+  }
+
+
+
+  /* ==================================================
+     NAVIGATION
+  ================================================== */
+
+  function goHome() {
+
+    closePrivateRoom();
+
+    selectedGame = null;
+
+    showScreen(
+      "homeScreen"
+    );
+
+  }
+
+
+
+  function backToGameType() {
+
+    closePrivateRoom();
+
+    showScreen(
+      "gameTypeScreen"
+    );
+
+  }
+
+
+
+  /* ==================================================
+     ESC KEY
+  ================================================== */
+
+  document.addEventListener(
+    "keydown",
+    function(event) {
+
+      if (
+        event.key === "Escape"
+      ) {
+
+        closePrivateRoom();
+
+      }
+
+    }
+  );
+
+
+</script>
+
+
+</body>
+  </html>
