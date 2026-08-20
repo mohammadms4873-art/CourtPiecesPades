@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width,
+      initial-scale=1.0,
+      maximum-scale=1.0,
+      user-scalable=no">
+
+<title>Spades 6</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100%;
+}
+
+body {
+
+    min-height: 100vh;
+
+    font-family: Arial, sans-serif;
+
+    color: white;
+
+    background:
+        radial-gradient(
+            circle at center,
+            #28523e 0%,
+            #12271d 45%,
+            #050b08 100%
+        );
+
+    overflow: hidden;
+}
+
+
+/* TOP */
+
+.top {
+
+    height: 65px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 0 15px;
+
+    background:
+        rgba(0,0,0,0.25);
+
+    border-bottom:
+        1px solid
+        rgba(255,255,255,0.08);
+}
+
+.logo {
+
+    font-size: 20px;
+
+    font-weight: 800;
+
+    letter-spacing: 2px;
+}
+
+.score {
+
+    display: flex;
+
+    gap: 10px;
+
+    font-size: 12px;
+}
+
+.team {
+
+    padding: 7px 10px;
+
+    border-radius: 8px;
+
+    background:
+        rgba(255,255,255,0.08);
+}
+
+
+/* TABLE */
+
+.table {
+
+    position: relative;
+
+    width: 100%;
+
+    height: calc(100vh - 65px);
+}
+
+
+/* PLAYER SEATS */
+
+.player {
+
+    position: absolute;
+
+    text-align: center;
+
+    z-index: 10;
+}
+
+.avatar {
+
+    width: 46px;
+    height: 46px;
+
+    margin: auto;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            145deg,
+            #ffffff,
+            #aebbb5
+        );
+
+    color: #102019;
+
+    font-weight: 800;
+
+    box-shadow:
+        0 5px 15px
+        rgba(0,0,0,0.35);
+}
+
+.name {
+
+    margin-top: 5px;
+
+    font-size: 10px;
+
+    color: #c5d0cb;
+}
+
+
+/* POSITIONS */
+
+.p1 {
+
+    bottom: 115px;
+
+    left: 50%;
+
+    transform: translateX(-50%);
+}
+
+.p2 {
+
+    bottom: 250px;
+
+    left: 5px;
+}
+
+.p3 {
+
+    top: 170px;
+
+    left: 5px;
+}
+
+.p4 {
+
+    top: 90px;
+
+    left: 50%;
+
+    transform: translateX(-50%);
+}
+
+.p5 {
+
+    top: 170px;
+
+    right: 5px;
+}
+
+.p6 {
+
+    bottom: 250px;
+
+    right: 5px;
+}
+
+
+/* CENTER */
+
+.center {
+
+    position: absolute;
+
+    top: 50%;
+    left: 50%;
+
+    transform:
+        translate(-50%, -50%);
+
+    width: 150px;
+    height: 150px;
+
+    border-radius: 50%;
+
+    border:
+        1px solid
+        rgba(255,255,255,0.08);
+
+    background:
+        rgba(0,0,0,0.12);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    text-align: center;
+}
+
+.trick-info {
+
+    color: #b8c6bf;
+
+    font-size: 12px;
+}
+
+
+/* PLAYED CARD */
+
+.played-card {
+
+    position: absolute;
+
+    width: 52px;
+    height: 72px;
+
+    border-radius: 7px;
+
+    background: white;
+
+    color: #111;
+
+    display: none;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 22px;
+
+    box-shadow:
+        0 6px 15px
+        rgba(0,0,0,0.35);
+}
+
+
+/* HAND */
+
+.hand {
+
+    position: absolute;
+
+    bottom: 8px;
+
+    left: 50%;
+
+    transform:
+        translateX(-50%);
+
+    width: 96%;
+
+    height: 105px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: flex-end;
+
+    gap: 2px;
+
+    overflow: visible;
+}
+
+
+/* CARD */
+
+.card {
+
+    width: 39px;
+
+    height: 72px;
+
+    flex-shrink: 0;
+
+    border-radius: 6px;
+
+    background: white;
+
+    color: #111;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 17px;
+
+    font-weight: 700;
+
+    box-shadow:
+        0 5px 12px
+        rgba(0,0,0,0.35);
+
+    cursor: pointer;
+
+    transition:
+        transform .15s;
+}
+
+.card.red {
+
+    color: #d52c35;
+}
+
+.card.selected {
+
+    transform:
+        translateY(-18px);
+}
+
+
+/* START */
+
+.start {
+
+    position: fixed;
+
+    inset: 0;
+
+    z-index: 100;
+
+    background:
+        rgba(3,8,6,0.92);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    text-align: center;
+}
+
+.start-box {
+
+    width: 90%;
+
+    max-width: 360px;
+
+    padding: 30px;
+
+    border-radius: 22px;
+
+    background:
+        rgba(255,255,255,0.07);
+
+    border:
+        1px solid
+        rgba(255,255,255,0.12);
+}
+
+.start-box h1 {
+
+    margin: 0 0 10px;
+
+    font-size: 30px;
+
+    letter-spacing: 3px;
+}
+
+.start-box p {
+
+    color: #aebdb5;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+}
+
+.start-button {
+
+    width: 100%;
+
+    margin-top: 20px;
+
+    padding: 15px;
+
+    border: 0;
+
+    border-radius: 12px;
+
+    background: white;
+
+    color: #111;
+
+    font-size: 17px;
+
+    font-weight: 800;
+}
+
+
+/* MESSAGE */
+
+.message {
+
+    position: fixed;
+
+    top: 78px;
+
+    left: 50%;
+
+    transform:
+        translateX(-50%);
+
+    z-index: 50;
+
+    padding: 9px 14px;
+
+    border-radius: 10px;
+
+    background:
+        rgba(0,0,0,0.55);
+
+    font-size: 12px;
+
+    display: none;
+}
+
+</style>
+</head>
+
+<body>
+
+
+<!-- HEADER -->
+
+<header class="top">
+
+    <div class="logo">
+        SPADES ♠
+    </div>
+
+    <div class="score">
+
+        <div class="team">
+            BLUE <span id="blueScore">0</span>
+        </div>
+
+        <div class="team">
+            RED <span id="redScore">0</span>
+        </div>
+
+    </div>
+
+</header>
+
+
+<!-- TABLE -->
+
+<main class="table">
+
+
+    <!-- PLAYER 1 -->
+
+    <div class="player p1">
+
+        <div class="avatar">
+            P1
+        </div>
+
+        <div class="name">
+            You
+        </div>
+
+    </div>
+
+
+    <!-- PLAYER 2 -->
+
+    <div class="player p2">
+
+        <div class="avatar">
+            P2
+        </div>
+
+        <div class="name">
+            Player 2
+        </div>
+
+    </div>
+
+
+    <!-- PLAYER 3 -->
+
+    <div class="player p3">
+
+        <div class="avatar">
+            P3
+        </div>
+
+        <div class="name">
+            Player 3
+        </div>
+
+    </div>
+
+
+    <!-- PLAYER 4 -->
+
+    <div class="player p4">
+
+        <div class="avatar">
+            P4
+        </div>
+
+        <div class="name">
+            Player 4
+        </div>
+
+    </div>
+
+
+    <!-- PLAYER 5 -->
+
+    <div class="player p5">
+
+        <div class="avatar">
+            P5
+        </div>
+
+        <div class="name">
+            Player 5
+        </div>
+
+    </div>
+
+
+    <!-- PLAYER 6 -->
+
+    <div class="player p6">
+
+        <div class="avatar">
+            P6
+        </div>
+
+        <div class="name">
+            Player 6
+        </div>
+
+    </div>
+
+
+    <!-- CENTER -->
+
+    <div class="center">
+
+        <div class="trick-info">
+
+            TRICK
+            <br>
+
+            <strong id="trickNumber">
+                1
+            </strong>
+            / 9
+
+            <br><br>
+
+            Trump:
+            <strong>♠</strong>
+
+        </div>
+
+    </div>
+
+
+    <!-- HAND -->
+
+    <div
+        class="hand"
+        id="hand"
+    ></div>
+
+
+</main>
+
+
+<!-- MESSAGE -->
+
+<div
+    class="message"
+    id="message"
+></div>
+
+
+<!-- START -->
+
+<div
+    class="start"
+    id="startScreen"
+>
+
+    <div class="start-box">
+
+        <h1>
+            SPADES 6
+        </h1>
+
+        <p>
+            6 Player Team Card Game
+            <br><br>
+
+            Spades ♠ is the permanent trump.
+            <br>
+
+            Choose a card to play.
+        </p>
+
+        <button
+            class="start-button"
+            onclick="startGame()"
+        >
+            START GAME
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* TELEGRAM */
+
+const tg =
+    window.Telegram.WebApp;
+
+tg.ready();
+
+tg.expand();
+
+
+/* DECK */
+
+const suits = [
+    "♠",
+    "♥",
+    "♦",
+    "♣"
+];
+
+const ranks = [
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "J",
+    "Q",
+    "K",
+    "A"
+];
+
+
+let deck = [];
+
+let hand = [];
+
+let currentPlayer = 1;
+
+let trick = 1;
+
+
+/* CREATE DECK */
+
+function createDeck() {
+
+    deck = [];
+
+    for (let suit of suits) {
+
+        for (let rank of ranks) {
+
+            deck.push({
+                suit: suit,
+                rank: rank
+            });
+
+        }
+
+    }
+
+}
+
+
+/* SHUFFLE */
+
+function shuffle(array) {
+
+    for (
+        let i = array.length - 1;
+        i > 0;
+        i--
+    ) {
+
+        const j =
+            Math.floor(
+                Math.random() * (i + 1)
+            );
+
+        [
+            array[i],
+            array[j]
+        ] =
+        [
+            array[j],
+            array[i]
+        ];
+
+    }
+
+}
+
+
+/* START */
+
+function startGame() {
+
+    document
+        .getElementById("startScreen")
+        .style.display = "none";
+
+    createDeck();
+
+    shuffle(deck);
+
+    dealCards();
+
+    showMessage(
+        "Game started!"
+    );
+
+}
+
+
+/* DEAL */
+
+function dealCards() {
+
+    /*
+       6 players × 9 cards
+       = 54
+
+       Standard deck has 52 cards.
+
+       Therefore the final rules need
+       a precise decision about the
+       two Jokers.
+
+       For this prototype we use:
+
+       52 normal cards + 2 Jokers
+    */
+
+    deck.push({
+        suit: "JOKER",
+        rank: "RED"
+    });
+
+    deck.push({
+        suit: "JOKER",
+        rank: "BLACK"
+    });
+
+    shuffle(deck);
+
+    hand = deck.slice(0, 9);
+
+    renderHand();
+
+}
+
+
+/* SHOW HAND */
+
+function renderHand() {
+
+    const handElement =
+        document.getElementById("hand");
+
+    handElement.innerHTML = "";
+
+    hand.forEach(
+        (card, index) => {
+
+            const element =
+                document.createElement("div");
+
+            element.className =
+                "card";
+
+            if (
+                card.suit === "♥" ||
+                card.suit === "♦"
+            ) {
+
+                element.classList.add(
+                    "red"
+                );
+
+            }
+
+            if (
+                card.suit === "JOKER"
+            ) {
+
+                element.innerHTML =
+                    card.rank === "RED"
+                    ? "🃏"
+                    : "🃏";
+
+            } else {
+
+                element.innerHTML =
+                    card.rank +
+                    card.suit;
+
+            }
+
+            element.onclick =
+                () => playCard(index);
+
+            handElement.appendChild(
+                element
+            );
+
+        }
+    );
+
+}
+
+
+/* PLAY CARD */
+
+function playCard(index) {
+
+    if (
+        currentPlayer !== 1
+    ) {
+
+        showMessage(
+            "Wait for your turn."
+        );
+
+        return;
+
+    }
+
+    const card =
+        hand[index];
+
+    /*
+       Temporary validation.
+
+       Full rules including:
+       - leading suit
+       - trump
+       - Jokers
+       - trick winner
+       - team scoring
+
+       will be added next.
+    */
+
+    hand.splice(index, 1);
+
+    renderHand();
+
+    showMessage(
+        "You played " +
+        (
+            card.suit === "JOKER"
+            ? card.rank + " JOKER"
+            : card.rank + card.suit
+        )
+    );
+
+    nextTurn();
+
+}
+
+
+/* NEXT TURN */
+
+function nextTurn() {
+
+    currentPlayer++;
+
+    if (
+        currentPlayer > 6
+    ) {
+
+        currentPlayer = 1;
+
+        trick++;
+
+        if (
+            trick > 9
+        ) {
+
+            endRound();
+
+            return;
+
+        }
+
+        document
+            .getElementById(
+                "trickNumber"
+            )
+            .textContent = trick;
+
+    }
+
+}
+
+
+/* END ROUND */
+
+function endRound() {
+
+    showMessage(
+        "Round complete!"
+    );
+
+}
+
+
+/* MESSAGE */
+
+function showMessage(text) {
+
+    const message =
+        document.getElementById(
+            "message"
+        );
+
+    message.textContent =
+        text;
+
+    message.style.display =
+        "block";
+
+    setTimeout(
+        () => {
+
+            message.style.display =
+                "none";
+
+        },
+        1800
+    );
+
+}
+
+</script>
+
+</body>
+  </html>
