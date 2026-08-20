@@ -1,0 +1,3985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+>
+
+<title>Spades</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://www.youtube.com/iframe_api"></script>
+
+<style>
+
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+  margin:0;
+  padding:0;
+  width:100%;
+  min-height:100%;
+}
+
+body{
+  min-height:100vh;
+  font-family:Arial,Helvetica,sans-serif;
+  color:#fff;
+
+  background:
+    radial-gradient(
+      circle at 50% -10%,
+      #29493b 0%,
+      #14281f 30%,
+      #09130f 70%,
+      #050907 100%
+    );
+
+  overflow-x:hidden;
+}
+
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+
+  background:
+    radial-gradient(
+      circle at center,
+      transparent 20%,
+      rgba(0,0,0,.48) 100%
+    );
+}
+
+.app{
+  position:relative;
+  z-index:1;
+
+  width:100%;
+  max-width:520px;
+  min-height:100vh;
+
+  margin:auto;
+
+  padding:
+    15px 14px
+    calc(88px + env(safe-area-inset-bottom));
+}
+
+
+/* =====================================================
+   SCREENS
+===================================================== */
+
+.screen{
+  display:none;
+}
+
+.screen.active{
+  display:block;
+}
+
+
+/* =====================================================
+   TOP STATUS BAR
+===================================================== */
+
+.top-status{
+
+  position:sticky;
+  top:10px;
+
+  z-index:20;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  gap:10px;
+
+  padding:10px 12px;
+
+  margin-bottom:20px;
+
+  border-radius:16px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(28,67,49,.94),
+      rgba(9,22,16,.94)
+    );
+
+  border:
+    1px solid
+    rgba(255,255,255,.12);
+
+  box-shadow:
+    0 10px 28px
+    rgba(0,0,0,.35);
+
+  backdrop-filter:blur(12px);
+}
+
+.status-player{
+  display:flex;
+  align-items:center;
+  gap:8px;
+
+  min-width:0;
+}
+
+.status-avatar{
+  width:35px;
+  height:35px;
+
+  flex:0 0 35px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  border-radius:50%;
+
+  background:
+    rgba(255,255,255,.09);
+
+  font-size:18px;
+}
+
+.status-name{
+  font-size:11px;
+  color:#aebdb5;
+
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.status-token{
+  display:flex;
+  align-items:center;
+  gap:5px;
+
+  white-space:nowrap;
+
+  color:#f1d879;
+
+  font-size:15px;
+  font-weight:900;
+}
+
+.status-usdt{
+  font-size:9px;
+  color:#8fa39a;
+  margin-top:2px;
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.header{
+  text-align:center;
+  margin-bottom:24px;
+}
+
+.spade{
+  font-size:55px;
+  line-height:1;
+  margin-bottom:10px;
+
+  text-shadow:
+    0 5px 20px
+    rgba(0,0,0,.55);
+}
+
+.title{
+  margin:0;
+  font-size:28px;
+  font-weight:800;
+  letter-spacing:2px;
+}
+
+.subtitle{
+  margin-top:8px;
+  color:#aebdb5;
+  font-size:13px;
+  line-height:1.5;
+}
+
+
+/* =====================================================
+   GAME CARDS
+===================================================== */
+
+.games{
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+}
+
+.game-card{
+
+  position:relative;
+
+  width:100%;
+  min-height:140px;
+
+  padding:21px;
+
+  border-radius:20px;
+
+  border:
+    1px solid
+    rgba(255,255,255,.10);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.10),
+      rgba(255,255,255,.035)
+    );
+
+  box-shadow:
+    0 12px 30px
+    rgba(0,0,0,.30);
+
+  cursor:pointer;
+
+  transition:
+    transform .15s ease;
+}
+
+.game-card:active{
+  transform:scale(.98);
+}
+
+.featured{
+  background:
+    linear-gradient(
+      145deg,
+      rgba(48,106,78,.50),
+      rgba(255,255,255,.045)
+    );
+
+  border-color:
+    rgba(255,255,255,.18);
+}
+
+.game-content{
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+
+.game-icon{
+  width:62px;
+  height:62px;
+
+  flex:0 0 62px;
+
+  border-radius:16px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-size:34px;
+
+  background:
+    rgba(255,255,255,.09);
+}
+
+.game-info{
+  flex:1;
+  min-width:0;
+}
+
+.game-name{
+  margin:0;
+  font-size:19px;
+  font-weight:800;
+}
+
+.game-description{
+  margin:7px 0 0;
+
+  color:#a8b5af;
+
+  font-size:12px;
+  line-height:1.5;
+}
+
+.game-meta{
+
+  display:inline-block;
+
+  margin-top:9px;
+
+  padding:5px 9px;
+
+  border-radius:8px;
+
+  background:
+    rgba(255,255,255,.07);
+
+  color:#d3ddd8;
+
+  font-size:10px;
+  font-weight:800;
+}
+
+.arrow{
+  font-size:28px;
+  color:#8e9c95;
+}
+
+
+/* =====================================================
+   TABLES
+===================================================== */
+
+.tables{
+  display:flex;
+  flex-direction:column;
+  gap:15px;
+}
+
+.table-card{
+
+  position:relative;
+
+  padding:22px;
+  min-height:140px;
+
+  border-radius:20px;
+
+  border:
+    1px solid
+    rgba(255,255,255,.10);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.10),
+      rgba(255,255,255,.035)
+    );
+
+  cursor:pointer;
+}
+
+.public-table{
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(48,106,78,.50),
+      rgba(255,255,255,.045)
+    );
+}
+
+.table-content{
+  display:flex;
+  align-items:center;
+  gap:16px;
+}
+
+.table-icon{
+
+  width:62px;
+  height:62px;
+
+  flex:0 0 62px;
+
+  border-radius:16px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  font-size:32px;
+
+  background:
+    rgba(255,255,255,.09);
+}
+
+.table-info{
+  flex:1;
+}
+
+.table-name{
+  margin:0;
+  font-size:19px;
+  font-weight:800;
+}
+
+.table-description{
+  margin:7px 0 0;
+
+  color:#a8b5af;
+
+  font-size:12px;
+  line-height:1.5;
+}
+
+.table-meta{
+
+  display:inline-block;
+
+  margin-top:9px;
+
+  padding:5px 9px;
+
+  border-radius:8px;
+
+  background:
+    rgba(255,255,255,.07);
+
+  color:#d3ddd8;
+
+  font-size:10px;
+  font-weight:800;
+}
+
+
+/* =====================================================
+   LOBBY
+===================================================== */
+
+.lobby-box{
+
+  padding:22px;
+
+  border-radius:22px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.10),
+      rgba(255,255,255,.035)
+    );
+
+  border:
+    1px solid
+    rgba(255,255,255,.10);
+
+  text-align:center;
+}
+
+.lobby-icon{
+  font-size:50px;
+  margin-bottom:10px;
+}
+
+.lobby-title{
+  margin:0;
+  font-size:23px;
+}
+
+.lobby-subtitle{
+  margin-top:8px;
+
+  color:#aebdb5;
+
+  font-size:13px;
+  line-height:1.6;
+}
+
+.players{
+
+  display:grid;
+
+  grid-template-columns:
+    repeat(2,1fr);
+
+  gap:10px;
+
+  margin-top:22px;
+}
+
+.player{
+
+  min-height:65px;
+
+  padding:12px;
+
+  border-radius:14px;
+
+  background:
+    rgba(255,255,255,.06);
+
+  border:
+    1px solid
+    rgba(255,255,255,.08);
+
+  display:flex;
+  align-items:center;
+  gap:10px;
+
+  text-align:left;
+}
+
+.player-avatar{
+
+  width:38px;
+  height:38px;
+
+  flex:0 0 38px;
+
+  border-radius:50%;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:#24543c;
+}
+
+.player-name{
+  font-size:12px;
+}
+
+.player-status{
+  margin-top:3px;
+  font-size:9px;
+  color:#7f9188;
+}
+
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+
+.back-button{
+
+  width:100%;
+
+  margin-top:20px;
+
+  padding:14px;
+
+  border-radius:14px;
+
+  border:
+    1px solid
+    rgba(255,255,255,.10);
+
+  background:
+    rgba(255,255,255,.05);
+
+  color:#c5d0cb;
+
+  font-size:14px;
+}
+
+
+/* =====================================================
+   GUIDE
+===================================================== */
+
+.guide-box{
+
+  padding:20px;
+
+  border-radius:20px;
+
+  background:
+    rgba(255,255,255,.06);
+
+  border:
+    1px solid
+    rgba(255,255,255,.10);
+
+  margin-bottom:12px;
+}
+
+.guide-box h3{
+  margin:0 0 8px;
+  font-size:17px;
+}
+
+.guide-box p{
+  margin:0;
+
+  color:#aebdb5;
+
+  font-size:12px;
+  line-height:1.7;
+}
+
+
+/* =====================================================
+   AIRDROP
+===================================================== */
+
+.airdrop-header{
+
+  padding:20px;
+
+  border-radius:20px;
+
+  margin-bottom:15px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(48,106,78,.50),
+      rgba(255,255,255,.045)
+    );
+
+  border:
+    1px solid
+    rgba(255,255,255,.12);
+
+  text-align:center;
+}
+
+.airdrop-icon{
+  font-size:42px;
+}
+
+.airdrop-title{
+  margin:7px 0 0;
+  font-size:23px;
+}
+
+.airdrop-subtitle{
+  margin:7px 0 0;
+
+  color:#aebdb5;
+
+  font-size:12px;
+}
+
+.balance-box{
+
+  margin-top:15px;
+
+  padding:16px;
+
+  border-radius:15px;
+
+  background:
+    rgba(0,0,0,.20);
+}
+
+.balance-number{
+
+  font-size:26px;
+  font-weight:900;
+
+  color:#f1d879;
+}
+
+.balance-label{
+  margin-top:4px;
+  color:#87968f;
+  font-size:10px;
+}
+
+.balance-usdt{
+
+  margin-top:8px;
+
+  color:#b5d9c4;
+
+  font-size:13px;
+  font-weight:800;
+}
+
+
+/* =====================================================
+   AIRDROP ITEMS
+===================================================== */
+
+.airdrop-list{
+
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.airdrop-item{
+
+  display:flex;
+  align-items:center;
+
+  gap:13px;
+
+  padding:16px;
+
+  border-radius:17px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.09),
+      rgba(255,255,255,.035)
+    );
+
+  border:
+    1px solid
+    rgba(255,255,255,.08);
+}
+
+.airdrop-item-icon{
+
+  width:45px;
+  height:45px;
+
+  flex:0 0 45px;
+
+  border-radius:13px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:
+    rgba(255,255,255,.08);
+
+  font-size:22px;
+}
+
+.airdrop-item-info{
+  flex:1;
+}
+
+.airdrop-item-title{
+
+  font-size:14px;
+  font-weight:800;
+}
+
+.airdrop-item-text{
+
+  margin-top:4px;
+
+  color:#8e9c95;
+
+  font-size:10px;
+  line-height:1.4;
+}
+
+.airdrop-action{
+
+  border:none;
+
+  padding:9px 11px;
+
+  border-radius:10px;
+
+  background:#347653;
+
+  color:#fff;
+
+  font-size:10px;
+  font-weight:800;
+
+  white-space:nowrap;
+}
+
+.airdrop-action.done{
+  background:#244534;
+  color:#8eb59d;
+}
+
+.airdrop-action.disabled{
+  opacity:.5;
+}
+
+
+/* =====================================================
+   WITHDRAW
+===================================================== */
+
+.withdraw-box{
+
+  margin-top:15px;
+
+  padding:20px;
+
+  border-radius:20px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(241,216,121,.10),
+      rgba(255,255,255,.035)
+    );
+
+  border:
+    1px solid
+    rgba(241,216,121,.16);
+}
+
+.withdraw-title{
+
+  text-align:center;
+
+  font-size:19px;
+  font-weight:900;
+}
+
+.withdraw-info{
+
+  margin-top:9px;
+
+  text-align:center;
+
+  color:#aebdb5;
+
+  font-size:11px;
+  line-height:1.6;
+}
+
+.withdraw-button{
+
+  width:100%;
+
+  margin-top:15px;
+
+  padding:14px;
+
+  border:none;
+
+  border-radius:13px;
+
+  background:#347653;
+
+  color:#fff;
+
+  font-size:14px;
+
+  font-weight:900;
+}
+
+.withdraw-button:disabled{
+
+  opacity:.35;
+
+  cursor:not-allowed;
+}
+
+.withdraw-note{
+
+  margin-top:10px;
+
+  text-align:center;
+
+  color:#687970;
+
+  font-size:9px;
+
+  line-height:1.5;
+}
+
+
+/* =====================================================
+   PROFILE
+===================================================== */
+
+.profile-card{
+
+  padding:22px;
+
+  border-radius:22px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.10),
+      rgba(255,255,255,.035)
+    );
+
+  border:
+    1px solid
+    rgba(255,255,255,.10);
+
+  text-align:center;
+}
+
+.profile-avatar{
+
+  width:75px;
+  height:75px;
+
+  margin:auto;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  border-radius:50%;
+
+  background:#24543c;
+
+  font-size:35px;
+}
+
+.profile-name{
+
+  margin-top:12px;
+
+  font-size:20px;
+  font-weight:900;
+}
+
+.profile-token{
+
+  margin-top:6px;
+
+  color:#f1d879;
+
+  font-size:14px;
+}
+
+
+/* =====================================================
+   MODAL
+===================================================== */
+
+.modal{
+
+  position:fixed;
+
+  inset:0;
+
+  z-index:100;
+
+  display:none;
+
+  align-items:center;
+  justify-content:center;
+
+  padding:18px;
+
+  background:
+    rgba(0,0,0,.78);
+
+  backdrop-filter:blur(8px);
+}
+
+.modal.show{
+  display:flex;
+}
+
+.modal-box{
+
+  width:100%;
+  max-width:440px;
+
+  padding:22px;
+
+  border-radius:22px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #193329,
+      #0b1712
+    );
+
+  border:
+    1px solid
+    rgba(255,255,255,.12);
+
+  box-shadow:
+    0 20px 60px
+    rgba(0,0,0,.60);
+
+  max-height:92vh;
+
+  overflow-y:auto;
+}
+
+.modal-title{
+
+  margin:0;
+
+  text-align:center;
+
+  font-size:22px;
+}
+
+.modal-text{
+
+  margin:8px 0 18px;
+
+  text-align:center;
+
+  color:#aebdb5;
+
+  font-size:12px;
+
+  line-height:1.6;
+}
+
+
+/* =====================================================
+   VIDEO
+===================================================== */
+
+.video-wrapper{
+
+  position:relative;
+
+  width:100%;
+
+  aspect-ratio:16/9;
+
+  overflow:hidden;
+
+  border-radius:14px;
+
+  background:#000;
+}
+
+#youtubePlayer{
+  width:100%;
+  height:100%;
+}
+
+.video-info{
+
+  margin-top:13px;
+
+  text-align:center;
+
+  font-size:12px;
+
+  color:#aebdb5;
+}
+
+.video-number{
+
+  color:#fff;
+
+  font-weight:800;
+}
+
+.reward{
+
+  margin-top:8px;
+
+  color:#f1d879;
+
+  font-size:14px;
+
+  font-weight:800;
+}
+
+.video-status{
+
+  margin-top:10px;
+
+  min-height:20px;
+
+  text-align:center;
+
+  color:#87968f;
+
+  font-size:11px;
+}
+
+.video-button{
+
+  width:100%;
+
+  margin-top:14px;
+
+  padding:14px;
+
+  border:none;
+
+  border-radius:13px;
+
+  background:#347653;
+
+  color:#fff;
+
+  font-size:14px;
+
+  font-weight:800;
+
+  opacity:.45;
+
+  pointer-events:none;
+}
+
+.video-button.ready{
+
+  opacity:1;
+
+  pointer-events:auto;
+}
+
+
+/* =====================================================
+   PRIVATE ROOM
+===================================================== */
+
+.room-input{
+
+  width:100%;
+
+  padding:14px;
+
+  border-radius:12px;
+
+  border:
+    1px solid
+    rgba(255,255,255,.12);
+
+  outline:none;
+
+  background:
+    rgba(0,0,0,.25);
+
+  color:#fff;
+
+  font-size:16px;
+
+  text-align:center;
+}
+
+.modal-buttons{
+
+  display:flex;
+
+  gap:10px;
+
+  margin-top:15px;
+}
+
+.modal-button{
+
+  flex:1;
+
+  padding:13px;
+
+  border:none;
+
+  border-radius:12px;
+
+  font-size:14px;
+}
+
+.create-button{
+
+  background:#347653;
+
+  color:#fff;
+}
+
+.cancel-button{
+
+  background:
+    rgba(255,255,255,.08);
+
+  color:#b7c2bd;
+}
+
+
+/* =====================================================
+   BOTTOM NAV
+===================================================== */
+
+.bottom-nav{
+
+  position:fixed;
+
+  left:50%;
+  bottom:0;
+
+  transform:translateX(-50%);
+
+  z-index:50;
+
+  width:100%;
+  max-width:520px;
+
+  padding:
+    8px 10px
+    calc(8px + env(safe-area-inset-bottom));
+
+  display:grid;
+
+  grid-template-columns:
+    repeat(4,1fr);
+
+  gap:5px;
+
+  background:
+    rgba(7,17,12,.96);
+
+  border-top:
+    1px solid
+    rgba(255,255,255,.10);
+
+  backdrop-filter:blur(15px);
+}
+
+.nav-item{
+
+  min-height:58px;
+
+  border:none;
+
+  background:transparent;
+
+  color:#708078;
+
+  border-radius:13px;
+
+  display:flex;
+
+  flex-direction:column;
+
+  align-items:center;
+
+  justify-content:center;
+
+  gap:4px;
+
+  font-size:9px;
+
+  cursor:pointer;
+}
+
+.nav-icon{
+  font-size:20px;
+}
+
+.nav-item.active{
+
+  background:
+    rgba(52,118,83,.22);
+
+  color:#d9e9e0;
+}
+
+.nav-item.airdrop-active{
+
+  color:#f1d879;
+}
+
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+.footer{
+
+  margin-top:25px;
+
+  text-align:center;
+
+  color:#65746d;
+
+  font-size:9px;
+
+  letter-spacing:1.5px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+
+<main class="app">
+
+
+<!-- =====================================================
+     TOP STATUS
+===================================================== -->
+
+<div class="top-status">
+
+  <div class="status-player">
+
+    <div class="status-avatar">
+      👤
+    </div>
+
+    <div>
+
+      <div
+        id="statusPlayerName"
+        class="status-name"
+      >
+        Player
+      </div>
+
+      <div class="status-usdt">
+        Wallet status: <span id="walletStatus">Not connected</span>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div>
+
+    <div class="status-token">
+
+      🪙
+
+      <span id="topTokenBalance">
+        100
+      </span>
+
+    </div>
+
+    <div
+      id="topTokenUSDT"
+      class="status-usdt"
+    >
+      ≈ 0.10 USDT
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =====================================================
+     HOME
+===================================================== -->
+
+<section
+  id="homeScreen"
+  class="screen active"
+>
+
+<header class="header">
+
+  <div class="spade">
+    ♠
+  </div>
+
+  <h1 class="title">
+    SPADES
+  </h1>
+
+  <div class="subtitle">
+    Choose your game
+  </div>
+
+</header>
+
+
+<section class="games">
+
+
+<article
+  class="game-card featured"
+  onclick="selectGame('suit')"
+>
+
+<div class="game-content">
+
+<div class="game-icon">
+♠
+</div>
+
+<div class="game-info">
+
+<h2 class="game-name">
+Suit Spades
+</h2>
+
+<p class="game-description">
+Team card game for six players.
+</p>
+
+<span class="game-meta">
+6 PLAYERS
+</span>
+
+</div>
+
+<div class="arrow">
+›
+</div>
+
+</div>
+
+</article>
+
+
+<article
+  class="game-card"
+  onclick="selectGame('classic')"
+>
+
+<div class="game-content">
+
+<div class="game-icon">
+♠
+</div>
+
+<div class="game-info">
+
+<h2 class="game-name">
+Classic Spades
+</h2>
+
+<p class="game-description">
+Classic four-player Spades.
+</p>
+
+<span class="game-meta">
+4 PLAYERS
+</span>
+
+</div>
+
+<div class="arrow">
+›
+</div>
+
+</div>
+
+</article>
+
+
+<article
+  class="game-card"
+  onclick="selectGame('two')"
+>
+
+<div class="game-content">
+
+<div class="game-icon">
+🃏
+</div>
+
+<div class="game-info">
+
+<h2 class="game-name">
+Two Player
+</h2>
+
+<p class="game-description">
+Fast card game for two players.
+</p>
+
+<span class="game-meta">
+2 PLAYERS
+</span>
+
+</div>
+
+<div class="arrow">
+›
+</div>
+
+</div>
+
+</article>
+
+
+<article
+  class="game-card"
+  onclick="showScreen('guideScreen')"
+>
+
+<div class="game-content">
+
+<div class="game-icon">
+📖
+</div>
+
+<div class="game-info">
+
+<h2 class="game-name">
+Game Guide
+</h2>
+
+<p class="game-description">
+Learn how the games and token system work.
+</p>
+
+<span class="game-meta">
+GUIDE
+</span>
+
+</div>
+
+<div class="arrow">
+›
+</div>
+
+</div>
+
+</article>
+
+</section>
+
+
+<footer class="footer">
+PLAY • COMPETE • WIN
+</footer>
+
+</section>
+
+
+<!-- =====================================================
+     TABLE SCREEN
+===================================================== -->
+
+<section
+  id="tableScreen"
+  class="screen"
+>
+
+<header class="header">
+
+<div class="spade">
+♠
+</div>
+
+<h1
+  id="gameTitle"
+  class="title"
+>
+Suit Spades
+</h1>
+
+<div class="subtitle">
+Choose your table
+</div>
+
+</header>
+
+
+<section class="tables">
+
+
+<article
+  class="table-card public-table"
+  onclick="chooseTable('public')"
+>
+
+<div class="table-content">
+
+<div class="table-icon">
+🌐
+</div>
+
+<div class="table-info">
+
+<h2 class="table-name">
+Public Game
+</h2>
+
+<p class="table-description">
+Join a public table and play with other players.
+</p>
+
+<span class="table-meta">
+50 TOKENS
+</span>
+
+</div>
+
+<div class="arrow">
+›
+</div>
+
+</div>
+
+</article>
+
+
+<article
+  class="table-card"
+  onclick="chooseTable('private')"
+>
+
+<div class="table-content">
+
+<div class="table-icon">
+🔒
+</div>
+
+<div class="table-info">
+
+<h2 class="table-name">
+Private Game
+</h2>
+
+<p class="table-description">
+Create or join a private table with friends.
+</p>
+
+<span class="table-meta">
+50 TOKENS
+</span>
+
+</div>
+
+<div class="arrow">
+›
+</div>
+
+</div>
+
+</article>
+
+</section>
+
+
+<button
+  class="back-button"
+  onclick="showScreen('homeScreen')"
+>
+← Back
+</button>
+
+</section>
+
+
+<!-- =====================================================
+     LOBBY
+===================================================== -->
+
+<section
+  id="lobbyScreen"
+  class="screen"
+>
+
+<header class="header">
+
+<div class="spade">
+♠
+</div>
+
+<h1
+  id="lobbyTitle"
+  class="title"
+>
+Public Game
+</h1>
+
+<div
+  id="lobbySubtitle"
+  class="subtitle"
+>
+Waiting for players...
+</div>
+
+</header>
+
+
+<div class="lobby-box">
+
+<div class="lobby-icon">
+🎮
+</div>
+
+<h2 class="lobby-title">
+Game Lobby
+</h2>
+
+<p class="lobby-subtitle">
+You have joined the table.
+<br>
+Waiting for other players...
+</p>
+
+
+<div class="players">
+
+<div class="player">
+<div class="player-avatar">👤</div>
+<div>
+<div class="player-name">You</div>
+<div class="player-status">Player 1</div>
+</div>
+</div>
+
+<div class="player">
+<div class="player-avatar">⏳</div>
+<div>
+<div class="player-name">Waiting</div>
+<div class="player-status">Player 2</div>
+</div>
+</div>
+
+<div class="player">
+<div class="player-avatar">⏳</div>
+<div>
+<div class="player-name">Waiting</div>
+<div class="player-status">Player 3</div>
+</div>
+</div>
+
+<div class="player">
+<div class="player-avatar">⏳</div>
+<div>
+<div class="player-name">Waiting</div>
+<div class="player-status">Player 4</div>
+</div>
+</div>
+
+<div class="player">
+<div class="player-avatar">⏳</div>
+<div>
+<div class="player-name">Waiting</div>
+<div class="player-status">Player 5</div>
+</div>
+</div>
+
+<div class="player">
+<div class="player-avatar">⏳</div>
+<div>
+<div class="player-name">Waiting</div>
+<div class="player-status">Player 6</div>
+</div>
+</div>
+
+</div>
+
+</div>
+
+
+<button
+  class="back-button"
+  onclick="showScreen('tableScreen')"
+>
+← Back to Tables
+</button>
+
+</section>
+
+
+<!-- =====================================================
+     GUIDE
+===================================================== -->
+
+<section
+  id="guideScreen"
+  class="screen"
+>
+
+<header class="header">
+
+<div class="spade">
+📖
+</div>
+
+<h1 class="title">
+GAME GUIDE
+</h1>
+
+<div class="subtitle">
+Learn how everything works
+</div>
+
+</header>
+
+
+<div class="guide-box">
+
+<h3>
+Suit Spades
+</h3>
+
+<p>
+A six-player team card game.
+Choose a public or private table and play with your team.
+</p>
+
+</div>
+
+
+<div class="guide-box">
+
+<h3>
+Classic Spades
+</h3>
+
+<p>
+The classic four-player version of Spades.
+</p>
+
+</div>
+
+
+<div class="guide-box">
+
+<h3>
+Two Player
+</h3>
+
+<p>
+A fast two-player card game.
+</p>
+
+</div>
+
+
+<div class="guide-box">
+
+<h3>
+Tokens & USDT
+</h3>
+
+<p>
+10,000 Tokens are equal to 10 USDT.
+The token balance and withdrawal status are displayed in the Airdrop section.
+</p>
+
+</div>
+
+
+<div class="guide-box">
+
+<h3>
+Game Entry
+</h3>
+
+<p>
+Each game entry costs 50 Tokens.
+Before entering a game, the required game video must be watched completely.
+</p>
+
+</div>
+
+
+<div class="guide-box">
+
+<h3>
+Video Progress
+</h3>
+
+<p>
+Each game has its own video list.
+Your progress is saved separately for every game.
+Your first entry shows Video 1, your second entry shows Video 2,
+and so on.
+</p>
+
+</div>
+
+
+<div class="guide-box">
+
+<h3>
+Withdrawal
+</h3>
+
+<p>
+To withdraw USDT, you need at least 10,000 Tokens,
+a connected wallet, and you must watch the withdrawal video completely before each withdrawal.
+</p>
+
+</div>
+
+
+<button
+  class="back-button"
+  onclick="showScreen('homeScreen')"
+>
+← Back
+</button>
+
+</section>
+
+
+<!-- =====================================================
+     AIRDROP
+===================================================== -->
+
+<section
+  id="airdropScreen"
+  class="screen"
+>
+
+<header class="header">
+
+<div class="spade">
+🎁
+</div>
+
+<h1 class="title">
+AIRDROP
+</h1>
+
+<div class="subtitle">
+Complete tasks and earn Tokens
+</div>
+
+</header>
+
+
+<div class="airdrop-header">
+
+<div class="airdrop-icon">
+🎁
+</div>
+
+<h2 class="airdrop-title">
+Airdrop Center
+</h2>
+
+<p class="airdrop-subtitle">
+Earn Tokens and convert them to USDT.
+</p>
+
+
+<div class="balance-box">
+
+<div
+  id="airdropTokenBalance"
+  class="balance-number"
+>
+100
+</div>
+
+<div class="balance-label">
+YOUR TOKENS
+</div>
+
+<div
+  id="airdropUSDT"
+  class="balance-usdt"
+>
+≈ 0.10 USDT
+</div>
+
+</div>
+
+</div>
+
+
+<div class="airdrop-list">
+
+
+<!-- CHANNELS -->
+
+<div class="airdrop-item">
+
+<div class="airdrop-item-icon">
+📺
+</div>
+
+<div class="airdrop-item-info">
+
+<div class="airdrop-item-title">
+Join Channels
+</div>
+
+<div class="airdrop-item-text">
+Join required channels and complete the task.
+</div>
+
+</div>
+
+<button
+  id="channelButton"
+  class="airdrop-action"
+  onclick="completeChannelTask()"
+>
+Complete
+</button>
+
+</div>
+
+
+<!-- REFERRAL -->
+
+<div class="airdrop-item">
+
+<div class="airdrop-item-icon">
+👥
+</div>
+
+<div class="airdrop-item-info">
+
+<div class="airdrop-item-title">
+Invite Friends
+</div>
+
+<div class="airdrop-item-text">
+Invite friends and earn referral rewards.
+</div>
+
+</div>
+
+<button
+  class="airdrop-action"
+  onclick="inviteFriend()"
+>
+Invite
+</button>
+
+</div>
+
+
+<!-- WALLET -->
+
+<div class="airdrop-item">
+
+<div class="airdrop-item-icon">
+💼
+</div>
+
+<div class="airdrop-item-info">
+
+<div class="airdrop-item-title">
+Connect Wallet
+</div>
+
+<div
+  id="walletTaskText"
+  class="airdrop-item-text"
+>
+Connect your wallet for withdrawals.
+</div>
+
+</div>
+
+<button
+  id="walletButton"
+  class="airdrop-action"
+  onclick="connectWallet()"
+>
+Connect
+</button>
+
+</div>
+
+
+<!-- VIDEO -->
+
+<div class="airdrop-item">
+
+<div class="airdrop-item-icon">
+🎬
+</div>
+
+<div class="airdrop-item-info">
+
+<div class="airdrop-item-title">
+Watch Reward Video
+</div>
+
+<div class="airdrop-item-text">
+Watch the reward video completely.
+</div>
+
+</div>
+
+<button
+  class="airdrop-action"
+  onclick="openRewardVideo()"
+>
+Watch
+</button>
+
+</div>
+
+
+</div>
+
+
+<!-- =====================================================
+     WITHDRAW
+===================================================== -->
+
+<div class="withdraw-box">
+
+<div class="withdraw-title">
+💰 Withdraw USDT
+</div>
+
+<div class="withdraw-info">
+
+Minimum withdrawal:
+<strong>10,000 Tokens = 10 USDT</strong>
+
+<br>
+
+Before every withdrawal you must watch
+one withdrawal video completely.
+
+</div>
+
+
+<button
+  id="withdrawButton"
+  class="withdraw-button"
+  onclick="startWithdrawal()"
+>
+Withdraw
+</button>
+
+
+<div class="withdraw-note">
+Wallet connection and balance verification are required.
+</div>
+
+</div>
+
+</section>
+
+
+<!-- =====================================================
+     PROFILE
+===================================================== -->
+
+<section
+  id="profileScreen"
+  class="screen"
+>
+
+<header class="header">
+
+<div class="spade">
+👤
+</div>
+
+<h1 class="title">
+PROFILE
+</h1>
+
+<div class="subtitle">
+Your player account
+</div>
+
+</header>
+
+
+<div class="profile-card">
+
+<div class="profile-avatar">
+👤
+</div>
+
+<div
+  id="profileName"
+  class="profile-name"
+>
+Player
+</div>
+
+<div
+  id="profileToken"
+  class="profile-token"
+>
+🪙 100 Tokens
+</div>
+
+</div>
+
+
+<div class="guide-box">
+
+<h3>
+Wallet
+</h3>
+
+<p>
+Status:
+<strong id="profileWalletStatus">
+Not connected
+</strong>
+</p>
+
+</div>
+
+
+<div class="guide-box">
+
+<h3>
+Conversion Rate
+</h3>
+
+<p>
+10,000 Tokens = 10 USDT
+</p>
+
+</div>
+
+
+<div class="guide-box">
+
+<h3>
+Withdrawal Rule
+</h3>
+
+<p>
+Before each withdrawal, the player must completely watch the withdrawal video.
+</p>
+
+</div>
+
+</section>
+
+
+</main>
+
+
+<!-- =====================================================
+     BOTTOM NAV
+===================================================== -->
+
+<nav class="bottom-nav">
+
+<button
+  id="navHome"
+  class="nav-item active"
+  onclick="navigateBottom('home')"
+>
+
+<span class="nav-icon">
+🏠
+</span>
+
+<span>
+Home
+</span>
+
+</button>
+
+
+<button
+  id="navGame"
+  class="nav-item"
+  onclick="navigateBottom('game')"
+>
+
+<span class="nav-icon">
+🎮
+</span>
+
+<span>
+Game
+</span>
+
+</button>
+
+
+<button
+  id="navAirdrop"
+  class="nav-item airdrop-active"
+  onclick="navigateBottom('airdrop')"
+>
+
+<span class="nav-icon">
+🎁
+</span>
+
+<span>
+Airdrop
+</span>
+
+</button>
+
+
+<button
+  id="navProfile"
+  class="nav-item"
+  onclick="navigateBottom('profile')"
+>
+
+<span class="nav-icon">
+👤
+</span>
+
+<span>
+Profile
+</span>
+
+</button>
+
+</nav>
+
+
+<!-- =====================================================
+     VIDEO MODAL
+===================================================== -->
+
+<div
+  id="videoModal"
+  class="modal"
+>
+
+<div class="modal-box">
+
+<h2
+  id="videoModalTitle"
+  class="modal-title"
+>
+Watch Video
+</h2>
+
+<p
+  id="videoModalText"
+  class="modal-text"
+>
+Watch the complete video.
+</p>
+
+
+<div class="video-wrapper">
+
+<div id="youtubePlayer"></div>
+
+</div>
+
+
+<div class="video-info">
+
+<div>
+
+Video
+
+<span
+  id="videoNumber"
+  class="video-number"
+>
+1
+</span>
+
+</div>
+
+
+<div
+  id="videoReward"
+  class="reward"
+>
++25 Tokens
+</div>
+
+</div>
+
+
+<div
+  id="videoStatus"
+  class="video-status"
+>
+Please watch the complete video.
+</div>
+
+
+<button
+  id="videoContinue"
+  class="video-button"
+  onclick="completeCurrentVideo()"
+>
+Continue
+</button>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     PRIVATE ROOM MODAL
+===================================================== -->
+
+<div
+  id="privateModal"
+  class="modal"
+>
+
+<div class="modal-box">
+
+<h2 class="modal-title">
+Private Game
+</h2>
+
+<p class="modal-text">
+Enter a room code to join your friend's private table.
+</p>
+
+
+<input
+  id="roomCode"
+  class="room-input"
+  type="text"
+  maxlength="8"
+  placeholder="Room Code"
+  autocomplete="off"
+>
+
+
+<div class="modal-buttons">
+
+<button
+  class="modal-button create-button"
+  onclick="submitPrivateRoom()"
+>
+Join
+</button>
+
+<button
+  class="modal-button cancel-button"
+  onclick="closePrivateRoom()"
+>
+Cancel
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+
+
+/* =====================================================
+   TELEGRAM
+===================================================== */
+
+const tg =
+  window.Telegram &&
+  window.Telegram.WebApp
+    ? window.Telegram.WebApp
+    : null;
+
+if(tg){
+
+  tg.ready();
+  tg.expand();
+
+}
+
+
+/* =====================================================
+   VIDEO LISTS
+   REPLACE VIDEO IDs WITH REAL YOUTUBE IDs
+===================================================== */
+
+const VIDEO_LISTS = {
+
+  suit:[
+    "VIDEO_ID_SUIT_1",
+    "VIDEO_ID_SUIT_2",
+    "VIDEO_ID_SUIT_3",
+    "VIDEO_ID_SUIT_4",
+    "VIDEO_ID_SUIT_5"
+  ],
+
+  classic:[
+    "VIDEO_ID_CLASSIC_1",
+    "VIDEO_ID_CLASSIC_2",
+    "VIDEO_ID_CLASSIC_3",
+    "VIDEO_ID_CLASSIC_4",
+    "VIDEO_ID_CLASSIC_5"
+  ],
+
+  two:[
+    "VIDEO_ID_TWO_1",
+    "VIDEO_ID_TWO_2",
+    "VIDEO_ID_TWO_3",
+    "VIDEO_ID_TWO_4",
+    "VIDEO_ID_TWO_5"
+  ]
+
+};
+
+
+/* =====================================================
+   WITHDRAWAL VIDEO
+===================================================== */
+
+const WITHDRAW_VIDEO_ID =
+  "VIDEO_ID_WITHDRAW";
+
+
+/* =====================================================
+   REWARD VIDEO
+===================================================== */
+
+const REWARD_VIDEO_ID =
+  "VIDEO_ID_REWARD";
+
+
+/* =====================================================
+   GAME NAMES
+===================================================== */
+
+const GAME_NAMES = {
+
+  suit:"Suit Spades",
+
+  classic:"Classic Spades",
+
+  two:"Two Player"
+
+};
+
+
+/* =====================================================
+   CONSTANTS
+===================================================== */
+
+const GAME_ENTRY_COST = 50;
+
+const GAME_VIDEO_REWARD = 25;
+
+const AIRDROP_VIDEO_REWARD = 10;
+
+const MIN_WITHDRAW_TOKENS = 10000;
+
+const TOKENS_PER_USDT = 1000;
+
+
+/* =====================================================
+   PLAYER DATA
+===================================================== */
+
+let playerData = {
+
+  tokens:100,
+
+  walletConnected:false,
+
+  walletAddress:"",
+
+  channelTask:false,
+
+  progress:{
+
+    suit:0,
+
+    classic:0,
+
+    two:0
+
+  }
+
+};
+
+
+/* =====================================================
+   VIDEO STATE
+===================================================== */
+
+let currentGame = null;
+
+let currentTable = null;
+
+let currentVideoIndex = 0;
+
+let videoCompleted = false;
+
+let youtubePlayer = null;
+
+let currentVideoType = "game";
+
+
+/* =====================================================
+   LOAD DATA
+===================================================== */
+
+function loadPlayerData(){
+
+  const saved =
+    localStorage.getItem(
+      "spadesPlayerData"
+    );
+
+  if(saved){
+
+    try{
+
+      const parsed =
+        JSON.parse(saved);
+
+      if(
+        typeof parsed.tokens === "number"
+      ){
+
+        playerData.tokens =
+          parsed.tokens;
+
+      }
+
+      if(
+        typeof parsed.walletConnected === "boolean"
+      ){
+
+        playerData.walletConnected =
+          parsed.walletConnected;
+
+      }
+
+      if(parsed.walletAddress){
+
+        playerData.walletAddress =
+          parsed.walletAddress;
+
+      }
+
+      if(
+        typeof parsed.channelTask === "boolean"
+      ){
+
+        playerData.channelTask =
+          parsed.channelTask;
+
+      }
+
+      if(parsed.progress){
+
+        playerData.progress.suit =
+          Number(parsed.progress.suit) || 0;
+
+        playerData.progress.classic =
+          Number(parsed.progress.classic) || 0;
+
+        playerData.progress.two =
+          Number(parsed.progress.two) || 0;
+
+      }
+
+    }catch(error){
+
+      console.log(
+        "Could not load player data.",
+        error
+      );
+
+    }
+
+  }
+
+  updateAllDisplays();
+
+}
+
+
+/* =====================================================
+   SAVE
+===================================================== */
+
+function savePlayerData(){
+
+  localStorage.setItem(
+    "spadesPlayerData",
+    JSON.stringify(playerData)
+  );
+
+}
+
+
+/* =====================================================
+   USDT VALUE
+===================================================== */
+
+function tokenToUSDT(tokens){
+
+  return tokens / TOKENS_PER_USDT;
+
+}
+
+
+/* =====================================================
+   UPDATE ALL DISPLAYS
+===================================================== */
+
+function updateAllDisplays(){
+
+  const tokens =
+    playerData.tokens;
+
+  const usdt =
+    tokenToUSDT(tokens);
+
+
+  document
+    .querySelectorAll(
+      "#topTokenBalance,#airdropTokenBalance,#profileToken"
+    )
+    .forEach(function(element){
+
+      if(element.id === "profileToken"){
+
+        element.textContent =
+          "🪙 " +
+          tokens.toLocaleString() +
+          " Tokens";
+
+      }else{
+
+        element.textContent =
+          tokens.toLocaleString();
+
+      }
+
+    });
+
+
+  const topUSDT =
+    document.getElementById(
+      "topTokenUSDT"
+    );
+
+  if(topUSDT){
+
+    topUSDT.textContent =
+      "≈ " +
+      usdt.toLocaleString(
+        undefined,
+        {
+          minimumFractionDigits:2,
+          maximumFractionDigits:2
+        }
+      ) +
+      " USDT";
+
+  }
+
+
+  const airdropUSDT =
+    document.getElementById(
+      "airdropUSDT"
+    );
+
+  if(airdropUSDT){
+
+    airdropUSDT.textContent =
+      "≈ " +
+      usdt.toLocaleString(
+        undefined,
+        {
+          minimumFractionDigits:2,
+          maximumFractionDigits:2
+        }
+      ) +
+      " USDT";
+
+  }
+
+
+  const walletText =
+    playerData.walletConnected
+      ? "Connected"
+      : "Not connected";
+
+
+  const walletStatus =
+    document.getElementById(
+      "walletStatus"
+    );
+
+  if(walletStatus){
+
+    walletStatus.textContent =
+      walletText;
+
+  }
+
+
+  const profileWalletStatus =
+    document.getElementById(
+      "profileWalletStatus"
+    );
+
+  if(profileWalletStatus){
+
+    profileWalletStatus.textContent =
+      walletText;
+
+  }
+
+
+  const walletButton =
+    document.getElementById(
+      "walletButton"
+    );
+
+  if(walletButton){
+
+    if(playerData.walletConnected){
+
+      walletButton.textContent =
+        "Connected";
+
+      walletButton.classList.add(
+        "done"
+      );
+
+    }else{
+
+      walletButton.textContent =
+        "Connect";
+
+      walletButton.classList.remove(
+        "done"
+      );
+
+    }
+
+  }
+
+
+  const walletTaskText =
+    document.getElementById(
+      "walletTaskText"
+    );
+
+  if(walletTaskText){
+
+    walletTaskText.textContent =
+      playerData.walletConnected
+        ? "Wallet connected and ready for withdrawal."
+        : "Connect your wallet for withdrawals.";
+
+  }
+
+
+  const channelButton =
+    document.getElementById(
+      "channelButton"
+    );
+
+  if(channelButton){
+
+    if(playerData.channelTask){
+
+      channelButton.textContent =
+        "Completed";
+
+      channelButton.classList.add(
+        "done"
+      );
+
+    }
+
+  }
+
+
+  updateWithdrawButton();
+
+}
+
+
+/* =====================================================
+   SCREEN CONTROL
+===================================================== */
+
+function showScreen(screenId){
+
+  document
+    .querySelectorAll(".screen")
+    .forEach(function(screen){
+
+      screen.classList.remove(
+        "active"
+      );
+
+    });
+
+
+  const target =
+    document.getElementById(
+      screenId
+    );
+
+
+  if(target){
+
+    target.classList.add(
+      "active"
+    );
+
+    window.scrollTo(
+      0,
+      0
+    );
+
+  }
+
+
+  updateAllDisplays();
+
+}
+
+
+/* =====================================================
+   BOTTOM NAV
+===================================================== */
+
+function navigateBottom(section){
+
+  document
+    .querySelectorAll(".nav-item")
+    .forEach(function(item){
+
+      item.classList.remove(
+        "active"
+      );
+
+    });
+
+
+  if(section === "home"){
+
+    document
+      .getElementById("navHome")
+      .classList.add("active");
+
+    showScreen(
+      "homeScreen"
+    );
+
+    return;
+
+  }
+
+
+  if(section === "game"){
+
+    document
+      .getElementById("navGame")
+      .classList.add("active");
+
+    showScreen(
+      "homeScreen"
+    );
+
+    return;
+
+  }
+
+
+  if(section === "airdrop"){
+
+    document
+      .getElementById("navAirdrop")
+      .classList.add("active");
+
+    showScreen(
+      "airdropScreen"
+    );
+
+    return;
+
+  }
+
+
+  if(section === "profile"){
+
+    document
+      .getElementById("navProfile")
+      .classList.add("active");
+
+    showScreen(
+      "profileScreen"
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   MESSAGE
+===================================================== */
+
+function showMessage(message){
+
+  if(
+    tg &&
+    typeof tg.showAlert === "function"
+  ){
+
+    tg.showAlert(message);
+
+  }else{
+
+    alert(message);
+
+  }
+
+}
+
+
+/* =====================================================
+   SELECT GAME
+===================================================== */
+
+function selectGame(game){
+
+  if(
+    !VIDEO_LISTS[game] ||
+    VIDEO_LISTS[game].length === 0
+  ){
+
+    showMessage(
+      "Videos are not available for this game yet."
+    );
+
+    return;
+
+  }
+
+
+  currentGame =
+    game;
+
+
+  document.getElementById(
+    "gameTitle"
+  ).textContent =
+    GAME_NAMES[game];
+
+
+  document
+    .getElementById("navGame")
+    .classList.add("active");
+
+  document
+    .getElementById("navHome")
+    .classList.remove("active");
+
+
+  showScreen(
+    "tableScreen"
+  );
+
+}
+
+
+/* =====================================================
+   TABLE
+===================================================== */
+
+function chooseTable(tableType){
+
+  currentTable =
+    tableType;
+
+
+  if(tableType === "private"){
+
+    openPrivateRoom();
+
+    return;
+
+  }
+
+
+  startEntryProcess();
+
+}
+
+
+/* =====================================================
+   PRIVATE ROOM
+===================================================== */
+
+function openPrivateRoom(){
+
+  document
+    .getElementById("privateModal")
+    .classList.add("show");
+
+}
+
+
+function closePrivateRoom(){
+
+  document
+    .getElementById("privateModal")
+    .classList.remove("show");
+
+}
+
+
+function submitPrivateRoom(){
+
+  const code =
+    document
+      .getElementById("roomCode")
+      .value
+      .trim();
+
+
+  if(!code){
+
+    showMessage(
+      "Please enter a room code."
+    );
+
+    return;
+
+  }
+
+
+  currentTable =
+    "private";
+
+
+  closePrivateRoom();
+
+  startEntryProcess();
+
+}
+
+
+/* =====================================================
+   ENTRY PROCESS
+===================================================== */
+
+function startEntryProcess(){
+
+  if(!currentGame){
+
+    return;
+
+  }
+
+
+  if(playerData.tokens < GAME_ENTRY_COST){
+
+    showMessage(
+      "You need at least 50 Tokens to enter this game."
+    );
+
+    return;
+
+  }
+
+
+  const videos =
+    VIDEO_LISTS[currentGame];
+
+
+  let progress =
+    playerData.progress[currentGame] || 0;
+
+
+  if(progress >= videos.length){
+
+    progress = 0;
+
+    playerData.progress[currentGame] =
+      0;
+
+    savePlayerData();
+
+  }
+
+
+  currentVideoIndex =
+    progress;
+
+
+  currentVideoType =
+    "game";
+
+
+  openVideoModal();
+
+}
+
+
+/* =====================================================
+   YOUTUBE API
+===================================================== */
+
+function onYouTubeIframeAPIReady(){
+
+  console.log(
+    "YouTube API ready."
+  );
+
+}
+
+
+/* =====================================================
+   OPEN GAME VIDEO
+===================================================== */
+
+function openVideoModal(){
+
+  let videoId = "";
+
+  if(currentVideoType === "game"){
+
+    const videos =
+      VIDEO_LISTS[currentGame];
+
+    videoId =
+      videos[currentVideoIndex];
+
+  }
+
+
+  if(currentVideoType === "withdraw"){
+
+    videoId =
+      WITHDRAW_VIDEO_ID;
+
+  }
+
+
+  if(currentVideoType === "reward"){
+
+    videoId =
+      REWARD_VIDEO_ID;
+
+  }
+
+
+  if(
+    !videoId ||
+    videoId.indexOf("VIDEO_ID") === 0
+  ){
+
+    showMessage(
+      "Please add the YouTube video ID first."
+    );
+
+    return;
+
+  }
+
+
+  videoCompleted =
+    false;
+
+
+  const modal =
+    document.getElementById(
+      "videoModal"
+    );
+
+  modal.classList.add(
+    "show"
+  );
+
+
+  const title =
+    document.getElementById(
+      "videoModalTitle"
+    );
+
+  const text =
+    document.getElementById(
+      "videoModalText"
+    );
+
+  const reward =
+    document.getElementById(
+      "videoReward"
+    );
+
+  const number =
+    document.getElementById(
+      "videoNumber"
+    );
+
+
+  if(currentVideoType === "game"){
+
+    title.textContent =
+      "Watch Game Video";
+
+    text.textContent =
+      "Watch the complete video to receive 25 Tokens and continue to the game.";
+
+    number.textContent =
+      currentVideoIndex + 1;
+
+    reward.textContent =
+      "+25 Tokens";
+
+  }
+
+
+  if(currentVideoType === "withdraw"){
+
+    title.textContent =
+      "Withdrawal Verification";
+
+    text.textContent =
+      "Watch this video completely to activate your USDT withdrawal.";
+
+    number.textContent =
+      "✓";
+
+    reward.textContent =
+      "Withdrawal Verification";
+
+  }
+
+
+  if(currentVideoType === "reward"){
+
+    title.textContent =
+      "Reward Video";
+
+    text.textContent =
+      "Watch the complete video to receive your reward.";
+
+    number.textContent =
+      "🎁";
+
+    reward.textContent =
+      "+10 Tokens";
+
+  }
+
+
+  document.getElementById(
+    "videoStatus"
+  ).textContent =
+    "Please watch the complete video.";
+
+
+  const continueButton =
+    document.getElementById(
+      "videoContinue"
+    );
+
+
+  continueButton.classList.remove(
+    "ready"
+  );
+
+
+  if(youtubePlayer){
+
+    try{
+
+      youtubePlayer.destroy();
+
+    }catch(error){
+
+      console.log(error);
+
+    }
+
+    youtubePlayer =
+      null;
+
+  }
+
+
+  if(
+    typeof YT === "undefined" ||
+    !YT.Player
+  ){
+
+    setTimeout(
+      openVideoModal,
+      500
+    );
+
+    return;
+
+  }
+
+
+  youtubePlayer =
+    new YT.Player(
+      "youtubePlayer",
+      {
+
+        videoId:videoId,
+
+        playerVars:{
+
+          autoplay:1,
+
+          controls:1,
+
+          rel:0,
+
+          modestbranding:1,
+
+          playsinline:1
+
+        },
+
+        events:{
+
+          onStateChange:
+            onVideoStateChange
+
+        }
+
+      }
+    );
+
+}
+
+
+/* =====================================================
+   VIDEO STATE
+===================================================== */
+
+function onVideoStateChange(event){
+
+  if(
+    event.data ===
+    YT.PlayerState.ENDED
+  ){
+
+    videoCompleted =
+      true;
+
+
+    document.getElementById(
+      "videoStatus"
+    ).textContent =
+      "Video completed successfully.";
+
+
+    document
+      .getElementById(
+        "videoContinue"
+      )
+      .classList.add(
+        "ready"
+      );
+
+  }
+
+}
+
+
+/* =====================================================
+   COMPLETE CURRENT VIDEO
+===================================================== */
+
+function completeCurrentVideo(){
+
+  if(!videoCompleted){
+
+    showMessage(
+      "Please watch the complete video first."
+    );
+
+    return;
+
+  }
+
+
+  if(currentVideoType === "game"){
+
+    completeGameVideo();
+
+    return;
+
+  }
+
+
+  if(currentVideoType === "reward"){
+
+    completeRewardVideo();
+
+    return;
+
+  }
+
+
+  if(currentVideoType === "withdraw"){
+
+    completeWithdrawalVideo();
+
+    return;
+
+  }
+
+}
+
+
+/* =====================================================
+   GAME VIDEO COMPLETE
+===================================================== */
+
+function completeGameVideo(){
+
+  playerData.tokens +=
+    GAME_VIDEO_REWARD;
+
+
+  playerData.progress[currentGame] =
+    currentVideoIndex + 1;
+
+
+  savePlayerData();
+
+
+  if(
+    playerData.tokens <
+    GAME_ENTRY_COST
+  ){
+
+    closeVideoModal();
+
+    updateAllDisplays();
+
+    showMessage(
+      "You received 25 Tokens, but you still do not have enough Tokens to enter the game."
+    );
+
+    return;
+
+  }
+
+
+  playerData.tokens -=
+    GAME_ENTRY_COST;
+
+
+  savePlayerData();
+
+
+  closeVideoModal();
+
+  updateAllDisplays();
+
+  enterLobby();
+
+}
+
+
+/* =====================================================
+   REWARD VIDEO
+===================================================== */
+
+function openRewardVideo(){
+
+  currentVideoType =
+    "reward";
+
+  openVideoModal();
+
+}
+
+
+function completeRewardVideo(){
+
+  playerData.tokens +=
+    AIRDROP_VIDEO_REWARD;
+
+
+  savePlayerData();
+
+  closeVideoModal();
+
+  updateAllDisplays();
+
+
+  showMessage(
+    "10 Tokens were added to your account."
+  );
+
+}
+
+
+/* =====================================================
+   CHANNEL TASK
+===================================================== */
+
+function completeChannelTask(){
+
+  if(playerData.channelTask){
+
+    showMessage(
+      "Channel task is already completed."
+    );
+
+    return;
+
+  }
+
+
+  /*
+    DEMO:
+    This currently marks the task as complete.
+
+    Later we can connect this to Telegram
+    channel membership verification.
+  */
+
+  playerData.channelTask =
+    true;
+
+
+  playerData.tokens +=
+    50;
+
+
+  savePlayerData();
+
+  updateAllDisplays();
+
+
+  showMessage(
+    "Channel task completed. +50 Tokens."
+  );
+
+}
+
+
+/* =====================================================
+   INVITE FRIEND
+===================================================== */
+
+function inviteFriend(){
+
+  const inviteText =
+    "Join me in Spades and play card games!";
+
+
+  const inviteUrl =
+    window.location.href;
+
+
+  const shareUrl =
+    "https://t.me/share/url?url=" +
+    encodeURIComponent(inviteUrl) +
+    "&text=" +
+    encodeURIComponent(inviteText);
+
+
+  if(
+    tg &&
+    tg.openTelegramLink
+  ){
+
+    tg.openTelegramLink(
+      shareUrl
+    );
+
+  }else{
+
+    window.open(
+      shareUrl,
+      "_blank"
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   CONNECT WALLET
+===================================================== */
+
+function connectWallet(){
+
+  if(playerData.walletConnected){
+
+    showMessage(
+      "Your wallet is already connected."
+    );
+
+    return;
+
+  }
+
+
+  /*
+    DEMO WALLET CONNECTION.
+
+    Real TON / USDT wallet connection
+    should be implemented with a wallet
+    provider and server-side verification.
+  */
+
+  const wallet =
+    prompt(
+      "Enter your wallet address:"
+    );
+
+
+  if(!wallet){
+
+    return;
+
+  }
+
+
+  playerData.walletConnected =
+    true;
+
+  playerData.walletAddress =
+    wallet.trim();
+
+
+  savePlayerData();
+
+  updateAllDisplays();
+
+
+  showMessage(
+    "Wallet connected successfully."
+  );
+
+}
+
+
+/* =====================================================
+   WITHDRAW BUTTON
+===================================================== */
+
+function updateWithdrawButton(){
+
+  const button =
+    document.getElementById(
+      "withdrawButton"
+    );
+
+
+  if(!button){
+
+    return;
+
+  }
+
+
+  if(
+    playerData.tokens >=
+    MIN_WITHDRAW_TOKENS &&
+    playerData.walletConnected
+  ){
+
+    button.disabled =
+      false;
+
+    button.textContent =
+      "Withdraw " +
+      tokenToUSDT(
+        playerData.tokens
+      ).toLocaleString(
+        undefined,
+        {
+          minimumFractionDigits:2
+        }
+      ) +
+      " USDT";
+
+  }else{
+
+    button.disabled =
+      true;
+
+    if(
+      playerData.tokens <
+      MIN_WITHDRAW_TOKENS
+    ){
+
+      button.textContent =
+        "Need 10,000 Tokens";
+
+    }else{
+
+      button.textContent =
+        "Connect Wallet First";
+
+    }
+
+  }
+
+}
+
+
+/* =====================================================
+   START WITHDRAWAL
+===================================================== */
+
+function startWithdrawal(){
+
+  if(
+    playerData.tokens <
+    MIN_WITHDRAW_TOKENS
+  ){
+
+    showMessage(
+      "You need at least 10,000 Tokens to withdraw."
+    );
+
+    return;
+
+  }
+
+
+  if(
+    !playerData.walletConnected
+  ){
+
+    showMessage(
+      "Please connect your wallet first."
+    );
+
+    return;
+
+  }
+
+
+  currentVideoType =
+    "withdraw";
+
+
+  openVideoModal();
+
+}
+
+
+/* =====================================================
+   COMPLETE WITHDRAWAL VIDEO
+===================================================== */
+
+function completeWithdrawalVideo(){
+
+  const amount =
+    tokenToUSDT(
+      playerData.tokens
+    );
+
+
+  closeVideoModal();
+
+
+  /*
+    DEMO WITHDRAWAL.
+
+    For the real version:
+    1. Send request to backend.
+    2. Verify token balance.
+    3. Verify wallet.
+    4. Verify video completion.
+    5. Create withdrawal transaction.
+  */
+
+
+  const confirmed =
+    confirm(
+      "Confirm withdrawal of " +
+      amount +
+      " USDT?"
+    );
+
+
+  if(!confirmed){
+
+    return;
+
+  }
+
+
+  /*
+    Demo:
+    Reset token balance after withdrawal.
+  */
+
+  playerData.tokens =
+    0;
+
+
+  savePlayerData();
+
+  updateAllDisplays();
+
+
+  showMessage(
+    "Withdrawal request submitted successfully."
+  );
+
+}
+
+
+/* =====================================================
+   CLOSE VIDEO
+===================================================== */
+
+function closeVideoModal(){
+
+  const modal =
+    document.getElementById(
+      "videoModal"
+    );
+
+
+  modal.classList.remove(
+    "show"
+  );
+
+
+  if(youtubePlayer){
+
+    try{
+
+      youtubePlayer.stopVideo();
+
+      youtubePlayer.destroy();
+
+    }catch(error){
+
+      console.log(error);
+
+    }
+
+    youtubePlayer =
+      null;
+
+  }
+
+}
+
+
+/* =====================================================
+   ENTER LOBBY
+===================================================== */
+
+function enterLobby(){
+
+  const tableName =
+    currentTable === "private"
+      ? "Private Game"
+      : "Public Game";
+
+
+  document.getElementById(
+    "lobbyTitle"
+  ).textContent =
+    tableName;
+
+
+  document.getElementById(
+    "lobbySubtitle"
+  ).textContent =
+    GAME_NAMES[currentGame] +
+    " • Waiting for players...";
+
+
+  showScreen(
+    "lobbyScreen"
+  );
+
+}
+
+
+/* =====================================================
+   TELEGRAM USER
+===================
