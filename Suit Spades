@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  >
+
+  <title>Suit Spades</title>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      min-height: 100%;
+    }
+
+    body {
+
+      min-height: 100vh;
+
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+      color: white;
+
+      background:
+        radial-gradient(
+          circle at 50% 0%,
+          #315c46 0%,
+          #173225 42%,
+          #060c08 100%
+        );
+
+    }
+
+
+    /* APP */
+
+    .app {
+
+      width: 100%;
+
+      max-width: 520px;
+
+      min-height: 100vh;
+
+      margin: auto;
+
+      padding:
+        30px 18px;
+
+      display: flex;
+
+      flex-direction: column;
+
+    }
+
+
+    /* HEADER */
+
+    .header {
+
+      text-align: center;
+
+      margin-bottom: 28px;
+
+    }
+
+
+    .logo {
+
+      font-size: 58px;
+
+      line-height: 1;
+
+      margin-bottom: 12px;
+
+    }
+
+
+    .title {
+
+      margin: 0;
+
+      font-size: 30px;
+
+      font-weight: 800;
+
+      letter-spacing: 4px;
+
+    }
+
+
+    .subtitle {
+
+      margin-top: 10px;
+
+      color: #aebdb5;
+
+      font-size: 13px;
+
+    }
+
+
+    /* TABLE OPTIONS */
+
+    .options {
+
+      display: flex;
+
+      flex-direction: column;
+
+      gap: 15px;
+
+    }
+
+
+    .table-card {
+
+      width: 100%;
+
+      min-height: 125px;
+
+      padding: 20px;
+
+      display: flex;
+
+      align-items: center;
+
+      border-radius: 19px;
+
+      border:
+        1px solid
+        rgba(255,255,255,0.10);
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(255,255,255,0.10),
+          rgba(255,255,255,0.035)
+        );
+
+      box-shadow:
+        0 12px 30px
+        rgba(0,0,0,0.28);
+
+      cursor: pointer;
+
+      transition:
+        transform 0.12s ease;
+
+    }
+
+
+    .table-card:active {
+
+      transform:
+        scale(0.98);
+
+    }
+
+
+    .table-card.public {
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(42,105,73,0.55),
+          rgba(255,255,255,0.04)
+        );
+
+    }
+
+
+    .icon {
+
+      width: 58px;
+
+      height: 58px;
+
+      flex-shrink: 0;
+
+      border-radius: 16px;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      font-size: 29px;
+
+      background:
+        rgba(255,255,255,0.08);
+
+    }
+
+
+    .info {
+
+      flex: 1;
+
+      margin-left: 16px;
+
+    }
+
+
+    .name {
+
+      margin: 0;
+
+      font-size: 18px;
+
+      font-weight: 800;
+
+    }
+
+
+    .description {
+
+      margin:
+        7px 0 0;
+
+      color: #a9b7b0;
+
+      font-size: 12px;
+
+      line-height: 1.5;
+
+    }
+
+
+    .arrow {
+
+      margin-left: 10px;
+
+      color: #9aa8a1;
+
+      font-size: 28px;
+
+    }
+
+
+    /* BACK BUTTON */
+
+    .back {
+
+      margin-top: 24px;
+
+      width: 100%;
+
+      padding: 13px;
+
+      border: none;
+
+      border-radius: 11px;
+
+      background:
+        rgba(255,255,255,0.07);
+
+      color: #c7d1cc;
+
+      font-size: 13px;
+
+      cursor: pointer;
+
+    }
+
+
+    /* PRIVATE JOIN SCREEN */
+
+    .join-screen {
+
+      position: fixed;
+
+      inset: 0;
+
+      z-index: 100;
+
+      display: none;
+
+      align-items: center;
+
+      justify-content: center;
+
+      padding: 20px;
+
+      background:
+        rgba(3,8,6,0.96);
+
+    }
+
+
+    .join-box {
+
+      width: 100%;
+
+      max-width: 370px;
+
+      padding: 28px 22px;
+
+      text-align: center;
+
+      border-radius: 21px;
+
+      background:
+        rgba(255,255,255,0.07);
+
+      border:
+        1px solid
+        rgba(255,255,255,0.11);
+
+    }
+
+
+    .join-icon {
+
+      font-size: 48px;
+
+      margin-bottom: 10px;
+
+    }
+
+
+    .join-title {
+
+      margin: 0;
+
+      font-size: 23px;
+
+    }
+
+
+    .join-text {
+
+      color: #aebdb5;
+
+      font-size: 12px;
+
+      margin:
+        10px 0 18px;
+
+    }
+
+
+    .code-input {
+
+      width: 100%;
+
+      padding: 15px;
+
+      border: none;
+
+      outline: none;
+
+      border-radius: 11px;
+
+      text-align: center;
+
+      background:
+        rgba(255,255,255,0.10);
+
+      color: white;
+
+      font-size: 19px;
+
+      font-weight: 800;
+
+      letter-spacing: 4px;
+
+      text-transform: uppercase;
+
+    }
+
+
+    .code-input::placeholder {
+
+      color: #75837c;
+
+      letter-spacing: 2px;
+
+    }
+
+
+    .join-button {
+
+      width: 100%;
+
+      margin-top: 13px;
+
+      padding: 14px;
+
+      border: none;
+
+      border-radius: 11px;
+
+      background: white;
+
+      color: #111;
+
+      font-size: 15px;
+
+      font-weight: 800;
+
+      cursor: pointer;
+
+    }
+
+
+    .cancel-button {
+
+      width: 100%;
+
+      margin-top: 9px;
+
+      padding: 12px;
+
+      border: none;
+
+      background: transparent;
+
+      color: #9eaaa4;
+
+      font-size: 13px;
+
+      cursor: pointer;
+
+    }
+
+
+    /* FOOTER */
+
+    .footer {
+
+      margin-top: auto;
+
+      padding-top: 30px;
+
+      text-align: center;
+
+      color: #65736d;
+
+      font-size: 9px;
+
+      letter-spacing: 1.5px;
+
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+
+  <div class="app">
+
+
+    <!-- HEADER -->
+
+    <header class="header">
+
+      <div class="logo">
+        ♠
+      </div>
+
+      <h1 class="title">
+        SUIT SPADES
+      </h1>
+
+      <div class="subtitle">
+        Choose your table
+      </div>
+
+    </header>
+
+
+    <!-- TABLE OPTIONS -->
+
+    <section class="options">
+
+
+      <!-- PUBLIC -->
+
+      <div
+        class="table-card public"
+        onclick="openPublic()"
+      >
+
+        <div class="icon">
+          🌐
+        </div>
+
+        <div class="info">
+
+          <h2 class="name">
+            Public Table
+          </h2>
+
+          <p class="description">
+            Play with other players.
+            Anyone can join.
+          </p>
+
+        </div>
+
+        <div class="arrow">
+          ›
+        </div>
+
+      </div>
+
+
+      <!-- CREATE PRIVATE -->
+
+      <div
+        class="table-card"
+        onclick="createPrivate()"
+      >
+
+        <div class="icon">
+          🔒
+        </div>
+
+        <div class="info">
+
+          <h2 class="name">
+            Private Table
+          </h2>
+
+          <p class="description">
+            Create a private table
+            and invite your friends.
+          </p>
+
+        </div>
+
+        <div class="arrow">
+          ›
+        </div>
+
+      </div>
+
+
+      <!-- JOIN PRIVATE -->
+
+      <div
+        class="table-card"
+        onclick="showJoin()"
+      >
+
+        <div class="icon">
+          👥
+        </div>
+
+        <div class="info">
+
+          <h2 class="name">
+            Join Private Table
+          </h2>
+
+          <p class="description">
+            Enter a room code
+            to join your friends.
+          </p>
+
+        </div>
+
+        <div class="arrow">
+          ›
+        </div>
+
+      </div>
+
+
+    </section>
+
+
+    <!-- BACK -->
+
+    <button
+      class="back"
+      onclick="goBack()"
+    >
+      ← Back
+    </button>
+
+
+    <footer class="footer">
+
+      SUIT SPADES • 6 PLAYER GAME
+
+    </footer>
+
+  </div>
+
+
+  <!-- JOIN SCREEN -->
+
+  <div
+    class="join-screen"
+    id="joinScreen"
+  >
+
+    <div class="join-box">
+
+      <div class="join-icon">
+        👥
+      </div>
+
+      <h2 class="join-title">
+        Join Private Table
+      </h2>
+
+      <p class="join-text">
+        Enter the room code
+        shared by your friend.
+      </p>
+
+
+      <input
+        id="roomCode"
+        class="code-input"
+        type="text"
+        maxlength="6"
+        placeholder="ROOM CODE"
+        autocomplete="off"
+      >
+
+
+      <button
+        class="join-button"
+        onclick="joinPrivate()"
+      >
+        JOIN TABLE
+      </button>
+
+
+      <button
+        class="cancel-button"
+        onclick="hideJoin()"
+      >
+        Cancel
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <script>
+
+
+    /* TELEGRAM */
+
+    const tg =
+      window.Telegram.WebApp;
+
+    tg.ready();
+
+    tg.expand();
+
+
+    /* PUBLIC TABLE */
+
+    function openPublic() {
+
+      tg.showAlert(
+        "Public table selected."
+      );
+
+      /*
+        NEXT STEP:
+        Open public lobby.
+      */
+
+    }
+
+
+    /* CREATE PRIVATE */
+
+    function createPrivate() {
+
+      tg.showAlert(
+        "Create private table selected."
+      );
+
+      /*
+        NEXT STEP:
+        Create room in Supabase.
+      */
+
+    }
+
+
+    /* SHOW JOIN */
+
+    function showJoin() {
+
+      document
+        .getElementById(
+          "joinScreen"
+        )
+        .style.display = "flex";
+
+    }
+
+
+    /* HIDE JOIN */
+
+    function hideJoin() {
+
+      document
+        .getElementById(
+          "joinScreen"
+        )
+        .style.display = "none";
+
+    }
+
+
+    /* JOIN PRIVATE */
+
+    function joinPrivate() {
+
+      const input =
+        document.getElementById(
+          "roomCode"
+        );
+
+      const code =
+        input.value
+          .trim()
+          .toUpperCase();
+
+
+      if (!code) {
+
+        tg.showAlert(
+          "Please enter a room code."
+        );
+
+        return;
+
+      }
+
+
+      if (code.length !== 6) {
+
+        tg.showAlert(
+          "Room code must be 6 characters."
+        );
+
+        return;
+
+      }
+
+
+      tg.showAlert(
+        "Joining room " +
+        code
+      );
+
+      /*
+        NEXT STEP:
+        Find the room in Supabase
+        and join the lobby.
+      */
+
+    }
+
+
+    /* BACK */
+
+    function goBack() {
+
+      window.location.href =
+        "/CourtPiecesPades/";
+
+    }
+
+  </script>
+
+
+</body>
+
+</html>
