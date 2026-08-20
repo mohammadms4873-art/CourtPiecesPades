@@ -1,1 +1,119 @@
 # CourtPiecesPades
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Spades</title>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background: #0b0f14;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 420px;
+      padding: 30px 20px;
+    }
+
+    .logo {
+      font-size: 70px;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: 42px;
+      margin: 0 0 10px;
+    }
+
+    .subtitle {
+      color: #aeb6c2;
+      font-size: 17px;
+      margin-bottom: 35px;
+    }
+
+    .player {
+      color: #8f9aaa;
+      margin-bottom: 25px;
+      font-size: 14px;
+    }
+
+    button {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 12px;
+      background: #2196f3;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <div class="logo">♠️</div>
+
+    <h1>SPADES</h1>
+
+    <div class="subtitle">
+      6 Player Team Card Game
+    </div>
+
+    <div class="player" id="playerInfo">
+      Connecting to Telegram...
+    </div>
+
+    <button onclick="createGame()">
+      CREATE GAME
+    </button>
+
+  </div>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+
+    tg.ready();
+    tg.expand();
+
+    const user = tg.initDataUnsafe?.user;
+
+    if (user) {
+      document.getElementById("playerInfo").innerText =
+        "Welcome, " + (user.first_name || "Player");
+    } else {
+      document.getElementById("playerInfo").innerText =
+        "Welcome, Player";
+    }
+
+    function createGame() {
+      alert("Game lobby coming next!");
+    }
+  </script>
+
+</body>
+</html>
