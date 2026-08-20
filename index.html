@@ -544,17 +544,17 @@
         /*
           NEXT STEP:
 
-          We will replace this alert
-          with the real 6-player lobby.
-        */
-      }
+          function selectGame(game) {
 
+  if (game === "six") {
+    window.location.href = "spades6.html";
+    return;
+  }
 
-      if (game === "four") {
-
-        tg.showAlert(
-          "Classic Spades selected!"
-        );
+  if (game === "four") {
+    tg.showAlert("Classic Spades selected!");
+    return;
+  
 
         /*
           NEXT STEP:
