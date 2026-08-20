@@ -1,0 +1,3622 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+>
+
+<title>SPADES</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://www.youtube.com/iframe_api"></script>
+
+<style>
+
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,
+body{
+  margin:0;
+  padding:0;
+  width:100%;
+  min-height:100%;
+}
+
+body{
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  color:#fff;
+
+  background:
+    radial-gradient(
+      circle at 50% -10%,
+      #315c46 0%,
+      #172e23 30%,
+      #09140f 70%,
+      #040806 100%
+    );
+
+  overflow-x:hidden;
+}
+
+button{
+  font-family:inherit;
+}
+
+.app{
+
+  width:100%;
+  max-width:520px;
+  min-height:100vh;
+
+  margin:auto;
+
+  padding:
+    14px 16px
+    105px;
+
+  position:relative;
+}
+
+
+/* ==============================
+   SCREENS
+============================== */
+
+.screen{
+  display:none;
+}
+
+.screen.active{
+  display:block;
+}
+
+
+/* ==============================
+   TOP BAR
+============================== */
+
+.top-status{
+
+  position:sticky;
+
+  top:8px;
+
+  z-index:50;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:space-between;
+
+  gap:10px;
+
+  padding:11px 14px;
+
+  margin-bottom:20px;
+
+  border-radius:16px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(34,84,60,.92),
+      rgba(11,28,20,.94)
+    );
+
+  border:
+    1px solid
+    rgba(255,255,255,.12);
+
+  box-shadow:
+    0 10px 30px
+    rgba(0,0,0,.35);
+
+  backdrop-filter:blur(12px);
+}
+
+.balance-left{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:9px;
+
+  min-width:0;
+}
+
+.token-icon{
+
+  width:35px;
+  height:35px;
+
+  border-radius:11px;
+
+  display:flex;
+
+  align-items:center;
+  justify-content:center;
+
+  background:
+    rgba(241,216,121,.14);
+
+  font-size:18px;
+}
+
+.balance-label{
+
+  color:#9eadA5;
+
+  font-size:10px;
+
+  margin-bottom:2px;
+}
+
+.balance-value{
+
+  color:#f1d879;
+
+  font-size:17px;
+
+  font-weight:900;
+}
+
+.balance-right{
+
+  text-align:right;
+}
+
+.usdt-label{
+
+  color:#8d9c94;
+
+  font-size:9px;
+}
+
+.usdt-value{
+
+  color:#fff;
+
+  font-size:12px;
+
+  font-weight:800;
+}
+
+
+/* ==============================
+   HEADER
+============================== */
+
+.header{
+
+  text-align:center;
+
+  margin:8px 0 25px;
+}
+
+.spade{
+
+  font-size:54px;
+
+  line-height:1;
+
+  text-shadow:
+    0 5px 20px
+    rgba(0,0,0,.55);
+}
+
+.title{
+
+  margin:8px 0 0;
+
+  font-size:27px;
+
+  font-weight:900;
+
+  letter-spacing:2px;
+}
+
+.subtitle{
+
+  margin-top:7px;
+
+  color:#9eada5;
+
+  font-size:12px;
+
+  line-height:1.5;
+}
+
+
+/* ==============================
+   CARDS
+============================== */
+
+.card{
+
+  padding:19px;
+
+  margin-bottom:13px;
+
+  border-radius:20px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.10),
+      rgba(255,255,255,.035)
+    );
+
+  border:
+    1px solid
+    rgba(255,255,255,.10);
+
+  box-shadow:
+    0 12px 28px
+    rgba(0,0,0,.25);
+}
+
+.card:active{
+  transform:scale(.99);
+}
+
+.card-green{
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(45,106,76,.55),
+      rgba(255,255,255,.035)
+    );
+}
+
+
+/* ==============================
+   GAME CARD
+============================== */
+
+.game-card{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:15px;
+
+  cursor:pointer;
+}
+
+.icon-box{
+
+  width:58px;
+  height:58px;
+
+  flex:0 0 58px;
+
+  display:flex;
+
+  align-items:center;
+  justify-content:center;
+
+  border-radius:15px;
+
+  background:
+    rgba(255,255,255,.08);
+
+  font-size:30px;
+}
+
+.card-info{
+  flex:1;
+}
+
+.card-title{
+
+  margin:0;
+
+  font-size:18px;
+
+  font-weight:900;
+}
+
+.card-description{
+
+  margin:6px 0 0;
+
+  color:#9eada5;
+
+  font-size:11px;
+
+  line-height:1.5;
+}
+
+.card-meta{
+
+  display:inline-block;
+
+  margin-top:8px;
+
+  padding:5px 8px;
+
+  border-radius:7px;
+
+  background:
+    rgba(255,255,255,.07);
+
+  color:#cbd5d0;
+
+  font-size:9px;
+
+  font-weight:800;
+}
+
+.arrow{
+
+  color:#7d8d84;
+
+  font-size:28px;
+}
+
+
+/* ==============================
+   PAGE BUTTON
+============================== */
+
+.primary-button{
+
+  width:100%;
+
+  padding:14px;
+
+  border:0;
+
+  border-radius:13px;
+
+  background:#347653;
+
+  color:#fff;
+
+  font-size:14px;
+
+  font-weight:900;
+
+  cursor:pointer;
+}
+
+.primary-button:active{
+  transform:scale(.98);
+}
+
+.secondary-button{
+
+  width:100%;
+
+  padding:13px;
+
+  border-radius:13px;
+
+  border:
+    1px solid
+    rgba(255,255,255,.10);
+
+  background:
+    rgba(255,255,255,.06);
+
+  color:#c7d1cc;
+
+  font-size:13px;
+
+  cursor:pointer;
+}
+
+.danger-button{
+
+  width:100%;
+
+  padding:13px;
+
+  border:0;
+
+  border-radius:13px;
+
+  background:#8b3838;
+
+  color:white;
+
+  font-weight:800;
+}
+
+
+/* ==============================
+   BACK
+============================== */
+
+.back-button{
+
+  width:100%;
+
+  margin-top:7px;
+
+  padding:13px;
+
+  border-radius:13px;
+
+  border:
+    1px solid
+    rgba(255,255,255,.10);
+
+  background:
+    rgba(255,255,255,.05);
+
+  color:#aebbb5;
+
+  font-size:13px;
+}
+
+
+/* ==============================
+   TABLE
+============================== */
+
+.table-card{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:15px;
+
+  margin-bottom:13px;
+
+  cursor:pointer;
+}
+
+
+/* ==============================
+   LOBBY
+============================== */
+
+.lobby{
+
+  text-align:center;
+
+  padding:25px 18px;
+
+  border-radius:22px;
+
+  background:
+    rgba(255,255,255,.06);
+
+  border:
+    1px solid
+    rgba(255,255,255,.10);
+}
+
+.lobby-icon{
+
+  font-size:48px;
+
+  margin-bottom:10px;
+}
+
+.players{
+
+  display:grid;
+
+  grid-template-columns:
+    repeat(2,1fr);
+
+  gap:9px;
+
+  margin-top:20px;
+}
+
+.player{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:8px;
+
+  min-height:60px;
+
+  padding:10px;
+
+  border-radius:13px;
+
+  background:
+    rgba(255,255,255,.05);
+
+  text-align:left;
+}
+
+.player-avatar{
+
+  width:35px;
+  height:35px;
+
+  flex:0 0 35px;
+
+  display:flex;
+
+  align-items:center;
+  justify-content:center;
+
+  border-radius:50%;
+
+  background:#24543c;
+}
+
+.player-name{
+
+  font-size:11px;
+
+  font-weight:800;
+}
+
+.player-status{
+
+  margin-top:3px;
+
+  color:#73827b;
+
+  font-size:8px;
+}
+
+
+/* ==============================
+   STAT BOX
+============================== */
+
+.stat-grid{
+
+  display:grid;
+
+  grid-template-columns:
+    repeat(2,1fr);
+
+  gap:10px;
+}
+
+.stat{
+
+  padding:15px;
+
+  border-radius:15px;
+
+  background:
+    rgba(255,255,255,.055);
+
+  border:
+    1px solid
+    rgba(255,255,255,.07);
+
+  text-align:center;
+}
+
+.stat-value{
+
+  color:#f1d879;
+
+  font-size:19px;
+
+  font-weight:900;
+}
+
+.stat-label{
+
+  margin-top:5px;
+
+  color:#87958e;
+
+  font-size:9px;
+}
+
+
+/* ==============================
+   BOTTOM NAV
+============================== */
+
+.bottom-nav{
+
+  position:fixed;
+
+  z-index:80;
+
+  left:50%;
+
+  bottom:
+    calc(10px + env(safe-area-inset-bottom));
+
+  transform:translateX(-50%);
+
+  width:
+    min(490px, calc(100% - 20px));
+
+  display:grid;
+
+  grid-template-columns:
+    repeat(5,1fr);
+
+  padding:8px;
+
+  border-radius:20px;
+
+  background:
+    rgba(10,23,17,.96);
+
+  border:
+    1px solid
+    rgba(255,255,255,.12);
+
+  box-shadow:
+    0 15px 40px
+    rgba(0,0,0,.55);
+
+  backdrop-filter:blur(15px);
+}
+
+.nav-item{
+
+  border:0;
+
+  background:none;
+
+  color:#708078;
+
+  padding:7px 2px;
+
+  border-radius:13px;
+
+  cursor:pointer;
+}
+
+.nav-item.active{
+
+  color:#f1d879;
+
+  background:
+    rgba(255,255,255,.07);
+}
+
+.nav-icon{
+
+  display:block;
+
+  font-size:18px;
+
+  line-height:1;
+}
+
+.nav-label{
+
+  display:block;
+
+  margin-top:4px;
+
+  font-size:8px;
+
+  font-weight:800;
+}
+
+
+/* ==============================
+   MODAL
+============================== */
+
+.modal{
+
+  position:fixed;
+
+  inset:0;
+
+  z-index:200;
+
+  display:none;
+
+  align-items:center;
+
+  justify-content:center;
+
+  padding:16px;
+
+  background:
+    rgba(0,0,0,.80);
+
+  backdrop-filter:blur(8px);
+}
+
+.modal.show{
+  display:flex;
+}
+
+.modal-box{
+
+  width:100%;
+
+  max-width:440px;
+
+  max-height:90vh;
+
+  overflow:auto;
+
+  padding:21px;
+
+  border-radius:22px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #193329,
+      #09140f
+    );
+
+  border:
+    1px solid
+    rgba(255,255,255,.12);
+
+  box-shadow:
+    0 20px 60px
+    rgba(0,0,0,.65);
+}
+
+.modal-title{
+
+  margin:0;
+
+  text-align:center;
+
+  font-size:21px;
+}
+
+.modal-text{
+
+  margin:8px 0 17px;
+
+  color:#a4b1ab;
+
+  font-size:11px;
+
+  line-height:1.6;
+
+  text-align:center;
+}
+
+
+/* ==============================
+   VIDEO
+============================== */
+
+.video-wrapper{
+
+  width:100%;
+
+  aspect-ratio:16/9;
+
+  overflow:hidden;
+
+  border-radius:13px;
+
+  background:#000;
+}
+
+#youtubePlayer{
+
+  width:100%;
+  height:100%;
+}
+
+.video-status{
+
+  min-height:20px;
+
+  margin-top:10px;
+
+  color:#87958e;
+
+  font-size:10px;
+
+  text-align:center;
+}
+
+.video-button{
+
+  width:100%;
+
+  margin-top:12px;
+
+  padding:13px;
+
+  border:0;
+
+  border-radius:12px;
+
+  background:#347653;
+
+  color:white;
+
+  font-weight:900;
+
+  opacity:.4;
+
+  pointer-events:none;
+}
+
+.video-button.ready{
+
+  opacity:1;
+
+  pointer-events:auto;
+}
+
+
+/* ==============================
+   INPUT
+============================== */
+
+.input{
+
+  width:100%;
+
+  padding:14px;
+
+  border-radius:12px;
+
+  border:
+    1px solid
+    rgba(255,255,255,.12);
+
+  background:
+    rgba(0,0,0,.25);
+
+  color:white;
+
+  outline:none;
+
+  text-align:center;
+
+  font-size:15px;
+}
+
+
+/* ==============================
+   LIST ROW
+============================== */
+
+.list-row{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:12px;
+
+  padding:15px 0;
+
+  border-bottom:
+    1px solid
+    rgba(255,255,255,.07);
+}
+
+.list-row:last-child{
+  border-bottom:0;
+}
+
+.list-icon{
+
+  width:42px;
+  height:42px;
+
+  flex:0 0 42px;
+
+  border-radius:12px;
+
+  display:flex;
+
+  align-items:center;
+  justify-content:center;
+
+  background:
+    rgba(255,255,255,.07);
+
+  font-size:20px;
+}
+
+.list-content{
+  flex:1;
+}
+
+.list-title{
+
+  font-size:13px;
+
+  font-weight:900;
+}
+
+.list-description{
+
+  margin-top:4px;
+
+  color:#829089;
+
+  font-size:9px;
+
+  line-height:1.4;
+}
+
+
+/* ==============================
+   FOOTER
+============================== */
+
+.footer{
+
+  margin-top:25px;
+
+  text-align:center;
+
+  color:#56645d;
+
+  font-size:8px;
+
+  letter-spacing:1.5px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="app">
+
+
+<!-- ==================================================
+     TOP STATUS BAR
+================================================== -->
+
+<div class="top-status">
+
+  <div class="balance-left">
+
+    <div class="token-icon">
+      🪙
+    </div>
+
+    <div>
+
+      <div class="balance-label">
+        TOKEN BALANCE
+      </div>
+
+      <div
+        id="globalTokens"
+        class="balance-value"
+      >
+        100
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="balance-right">
+
+    <div class="usdt-label">
+      VALUE
+    </div>
+
+    <div
+      id="globalUSDT"
+      class="usdt-value"
+    >
+      $0.10
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- ==================================================
+     HOME
+================================================== -->
+
+<section
+  id="homeScreen"
+  class="screen active"
+>
+
+  <header class="header">
+
+    <div class="spade">
+      ♠
+    </div>
+
+    <h1 class="title">
+      SPADES
+    </h1>
+
+    <div class="subtitle">
+      Choose your game and start playing
+    </div>
+
+  </header>
+
+
+  <div
+    class="card card-green"
+    onclick="openScreen('gamesScreen')"
+    style="cursor:pointer"
+  >
+
+    <div class="game-card">
+
+      <div class="icon-box">
+        🎮
+      </div>
+
+      <div class="card-info">
+
+        <h2 class="card-title">
+          Play Games
+        </h2>
+
+        <p class="card-description">
+          Join a public table or create a private game with friends.
+        </p>
+
+      </div>
+
+      <div class="arrow">
+        ›
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <div class="stat-grid">
+
+      <div class="stat">
+
+        <div
+          id="homeTokens"
+          class="stat-value"
+        >
+          100
+        </div>
+
+        <div class="stat-label">
+          TOKENS
+        </div>
+
+      </div>
+
+      <div class="stat">
+
+        <div
+          id="homeUSDT"
+          class="stat-value"
+        >
+          $0.10
+        </div>
+
+        <div class="stat-label">
+          CURRENT VALUE
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="footer">
+    PLAY • COMPETE • EARN
+  </div>
+
+</section>
+
+
+<!-- ==================================================
+     GAMES
+================================================== -->
+
+<section
+  id="gamesScreen"
+  class="screen"
+>
+
+  <header class="header">
+
+    <div class="spade">
+      ♠
+    </div>
+
+    <h1 class="title">
+      GAMES
+    </h1>
+
+    <div class="subtitle">
+      Select a game
+    </div>
+
+  </header>
+
+
+  <div
+    class="card card-green game-card"
+    onclick="selectGame('suit')"
+  >
+
+    <div class="icon-box">
+      ♠
+    </div>
+
+    <div class="card-info">
+
+      <h2 class="card-title">
+        Suit Spades
+      </h2>
+
+      <p class="card-description">
+        Six-player team card game.
+      </p>
+
+      <span class="card-meta">
+        6 PLAYERS
+      </span>
+
+    </div>
+
+    <div class="arrow">
+      ›
+    </div>
+
+  </div>
+
+
+  <div
+    class="card game-card"
+    onclick="selectGame('classic')"
+  >
+
+    <div class="icon-box">
+      ♠
+    </div>
+
+    <div class="card-info">
+
+      <h2 class="card-title">
+        Classic Spades
+      </h2>
+
+      <p class="card-description">
+        Classic four-player Spades.
+      </p>
+
+      <span class="card-meta">
+        4 PLAYERS
+      </span>
+
+    </div>
+
+    <div class="arrow">
+      ›
+    </div>
+
+  </div>
+
+
+  <div
+    class="card game-card"
+    onclick="selectGame('two')"
+  >
+
+    <div class="icon-box">
+      🃏
+    </div>
+
+    <div class="card-info">
+
+      <h2 class="card-title">
+        Two Player
+      </h2>
+
+      <p class="card-description">
+        Fast card game for two players.
+      </p>
+
+      <span class="card-meta">
+        2 PLAYERS
+      </span>
+
+    </div>
+
+    <div class="arrow">
+      ›
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ==================================================
+     TABLE SCREEN
+================================================== -->
+
+<section
+  id="tableScreen"
+  class="screen"
+>
+
+  <header class="header">
+
+    <div class="spade">
+      ♠
+    </div>
+
+    <h1
+      id="tableGameTitle"
+      class="title"
+    >
+      SUIT SPADES
+    </h1>
+
+    <div class="subtitle">
+      Choose your table
+    </div>
+
+  </header>
+
+
+  <div
+    class="card card-green table-card"
+    onclick="chooseTable('public')"
+  >
+
+    <div class="icon-box">
+      🌐
+    </div>
+
+    <div class="card-info">
+
+      <h2 class="card-title">
+        Public Game
+      </h2>
+
+      <p class="card-description">
+        Play with available players.
+      </p>
+
+      <span class="card-meta">
+        ENTRY: 50 TOKENS
+      </span>
+
+    </div>
+
+    <div class="arrow">
+      ›
+    </div>
+
+  </div>
+
+
+  <div
+    class="card table-card"
+    onclick="chooseTable('private')"
+  >
+
+    <div class="icon-box">
+      🔒
+    </div>
+
+    <div class="card-info">
+
+      <h2 class="card-title">
+        Private Game
+      </h2>
+
+      <p class="card-description">
+        Play with your friends.
+      </p>
+
+      <span class="card-meta">
+        ENTRY: 50 TOKENS
+      </span>
+
+    </div>
+
+    <div class="arrow">
+      ›
+    </div>
+
+  </div>
+
+
+  <button
+    class="back-button"
+    onclick="openScreen('gamesScreen')"
+  >
+    ← Back to Games
+  </button>
+
+</section>
+
+
+<!-- ==================================================
+     LOBBY
+================================================== -->
+
+<section
+  id="lobbyScreen"
+  class="screen"
+>
+
+  <header class="header">
+
+    <div class="spade">
+      🎮
+    </div>
+
+    <h1
+      id="lobbyTitle"
+      class="title"
+    >
+      PUBLIC GAME
+    </h1>
+
+    <div
+      id="lobbySubtitle"
+      class="subtitle"
+    >
+      Waiting for players
+    </div>
+
+  </header>
+
+
+  <div class="lobby">
+
+    <div class="lobby-icon">
+      ⏳
+    </div>
+
+    <h2>
+      Game Lobby
+    </h2>
+
+    <p class="subtitle">
+      Waiting for players to join the table.
+    </p>
+
+
+    <div class="players">
+
+      <div class="player">
+        <div class="player-avatar">👤</div>
+        <div>
+          <div class="player-name">You</div>
+          <div class="player-status">PLAYER 1</div>
+        </div>
+      </div>
+
+      <div class="player">
+        <div class="player-avatar">⏳</div>
+        <div>
+          <div class="player-name">Waiting</div>
+          <div class="player-status">PLAYER 2</div>
+        </div>
+      </div>
+
+      <div class="player">
+        <div class="player-avatar">⏳</div>
+        <div>
+          <div class="player-name">Waiting</div>
+          <div class="player-status">PLAYER 3</div>
+        </div>
+      </div>
+
+      <div class="player">
+        <div class="player-avatar">⏳</div>
+        <div>
+          <div class="player-name">Waiting</div>
+          <div class="player-status">PLAYER 4</div>
+        </div>
+      </div>
+
+      <div class="player">
+        <div class="player-avatar">⏳</div>
+        <div>
+          <div class="player-name">Waiting</div>
+          <div class="player-status">PLAYER 5</div>
+        </div>
+      </div>
+
+      <div class="player">
+        <div class="player-avatar">⏳</div>
+        <div>
+          <div class="player-name">Waiting</div>
+          <div class="player-status">PLAYER 6</div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <button
+    class="back-button"
+    onclick="openScreen('tableScreen')"
+  >
+    ← Back to Tables
+  </button>
+
+</section>
+
+
+<!-- ==================================================
+     AIRDROP
+================================================== -->
+
+<section
+  id="airdropScreen"
+  class="screen"
+>
+
+  <header class="header">
+
+    <div class="spade">
+      🎁
+    </div>
+
+    <h1 class="title">
+      AIRDROP
+    </h1>
+
+    <div class="subtitle">
+      Complete tasks and earn Tokens
+    </div>
+
+  </header>
+
+
+  <div class="card card-green">
+
+    <div class="card-title">
+      Airdrop Rewards
+    </div>
+
+    <p class="card-description">
+      Complete available tasks to increase your token balance.
+    </p>
+
+  </div>
+
+
+  <div class="card">
+
+    <div class="list-row">
+
+      <div class="list-icon">
+        📺
+      </div>
+
+      <div class="list-content">
+
+        <div class="list-title">
+          Watch a Video
+        </div>
+
+        <div class="list-description">
+          Watch the complete video to receive the reward.
+        </div>
+
+      </div>
+
+      <button
+        class="primary-button"
+        style="width:auto;padding:9px 12px;font-size:10px"
+        onclick="openAirdropVideo()"
+      >
+        WATCH
+      </button>
+
+    </div>
+
+
+    <div class="list-row">
+
+      <div class="list-icon">
+        📢
+      </div>
+
+      <div class="list-content">
+
+        <div class="list-title">
+          Join Channels
+        </div>
+
+        <div class="list-description">
+          Join the official channels and complete the task.
+        </div>
+
+      </div>
+
+      <button
+        class="primary-button"
+        style="width:auto;padding:9px 12px;font-size:10px"
+        onclick="joinChannels()"
+      >
+        JOIN
+      </button>
+
+    </div>
+
+
+    <div class="list-row">
+
+      <div class="list-icon">
+        👥
+      </div>
+
+      <div class="list-content">
+
+        <div class="list-title">
+          Invite Friends
+        </div>
+
+        <div class="list-description">
+          Invite friends and earn referral rewards.
+        </div>
+
+      </div>
+
+      <button
+        class="primary-button"
+        style="width:auto;padding:9px 12px;font-size:10px"
+        onclick="openScreen('inviteScreen')"
+      >
+        INVITE
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ==================================================
+     CHANNELS
+================================================== -->
+
+<section
+  id="channelsScreen"
+  class="screen"
+>
+
+  <header class="header">
+
+    <div class="spade">
+      📢
+    </div>
+
+    <h1 class="title">
+      CHANNELS
+    </h1>
+
+    <div class="subtitle">
+      Join our official channels
+    </div>
+
+  </header>
+
+
+  <div class="card">
+
+    <div class="list-row">
+
+      <div class="list-icon">
+        ▶️
+      </div>
+
+      <div class="list-content">
+
+        <div class="list-title">
+          YouTube
+        </div>
+
+        <div class="list-description">
+          Follow the official YouTube channel.
+        </div>
+
+      </div>
+
+      <button
+        class="primary-button"
+        style="width:auto;padding:9px 12px;font-size:10px"
+        onclick="openExternal('https://youtube.com/')"
+      >
+        OPEN
+      </button>
+
+    </div>
+
+
+    <div class="list-row">
+
+      <div class="list-icon">
+        ✈️
+      </div>
+
+      <div class="list-content">
+
+        <div class="list-title">
+          Telegram
+        </div>
+
+        <div class="list-description">
+          Join the official Telegram channel.
+        </div>
+
+      </div>
+
+      <button
+        class="primary-button"
+        style="width:auto;padding:9px 12px;font-size:10px"
+        onclick="openExternal('https://t.me/')"
+      >
+        OPEN
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <h3 style="margin-top:0">
+      Channel Rewards
+    </h3>
+
+    <p class="card-description">
+      Channel rewards can be activated after the required tasks are completed.
+    </p>
+
+    <button
+      class="primary-button"
+      onclick="claimChannelReward()"
+    >
+      CHECK & CLAIM
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- ==================================================
+     INVITE
+================================================== -->
+
+<section
+  id="inviteScreen"
+  class="screen"
+>
+
+  <header class="header">
+
+    <div class="spade">
+      👥
+    </div>
+
+    <h1 class="title">
+      INVITE FRIENDS
+    </h1>
+
+    <div class="subtitle">
+      Invite friends and grow your rewards
+    </div>
+
+  </header>
+
+
+  <div class="card card-green">
+
+    <h2 class="card-title">
+      Your Referral Code
+    </h2>
+
+    <p class="card-description">
+      Share your referral link with your friends.
+    </p>
+
+    <div
+      id="referralCode"
+      style="
+        margin:15px 0;
+        padding:14px;
+        border-radius:12px;
+        background:rgba(0,0,0,.22);
+        text-align:center;
+        color:#f1d879;
+        font-weight:900;
+      "
+    >
+      SPADES-PLAYER
+    </div>
+
+    <button
+      class="primary-button"
+      onclick="shareInvite()"
+    >
+      INVITE FRIENDS
+    </button>
+
+  </div>
+
+
+  <div class="card">
+
+    <div class="stat-grid">
+
+      <div class="stat">
+
+        <div
+          id="inviteCount"
+          class="stat-value"
+        >
+          0
+        </div>
+
+        <div class="stat-label">
+          FRIENDS INVITED
+        </div>
+
+      </div>
+
+      <div class="stat">
+
+        <div
+          id="inviteReward"
+          class="stat-value"
+        >
+          0
+        </div>
+
+        <div class="stat-label">
+          REFERRAL TOKENS
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ==================================================
+     WALLET
+================================================== -->
+
+<section
+  id="walletScreen"
+  class="screen"
+>
+
+  <header class="header">
+
+    <div class="spade">
+      💳
+    </div>
+
+    <h1 class="title">
+      WALLET
+    </h1>
+
+    <div class="subtitle">
+      Connect your wallet and manage withdrawals
+    </div>
+
+  </header>
+
+
+  <div class="card card-green">
+
+    <div class="stat-grid">
+
+      <div class="stat">
+
+        <div
+          id="walletTokens"
+          class="stat-value"
+        >
+          100
+        </div>
+
+        <div class="stat-label">
+          TOKENS
+        </div>
+
+      </div>
+
+      <div class="stat">
+
+        <div
+          id="walletUSDT"
+          class="stat-value"
+        >
+          $0.10
+        </div>
+
+        <div class="stat-label">
+          VALUE
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <div
+      id="walletStatus"
+      class="card-description"
+      style="margin-bottom:15px"
+    >
+      Wallet not connected.
+    </div>
+
+    <button
+      id="walletButton"
+      class="primary-button"
+      onclick="connectWallet()"
+    >
+      CONNECT WALLET
+    </button>
+
+  </div>
+
+
+  <div class="card">
+
+    <h3 style="margin-top:0">
+      Withdraw
+    </h3>
+
+    <p class="card-description">
+
+      Minimum withdrawal:
+      <strong style="color:#f1d879">
+        10 USDT
+      </strong>
+
+      <br><br>
+
+      10,000 Tokens = 10 USDT
+
+      <br><br>
+
+      You must watch one complete withdrawal video before submitting a withdrawal.
+
+    </p>
+
+
+    <button
+      class="primary-button"
+      onclick="startWithdrawal()"
+    >
+      WITHDRAW
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- ==================================================
+     BOTTOM NAVIGATION
+================================================== -->
+
+<nav class="bottom-nav">
+
+  <button
+    id="navHome"
+    class="nav-item active"
+    onclick="openScreen('homeScreen')"
+  >
+
+    <span class="nav-icon">
+      🏠
+    </span>
+
+    <span class="nav-label">
+      HOME
+    </span>
+
+  </button>
+
+
+  <button
+    id="navGames"
+    class="nav-item"
+    onclick="openScreen('gamesScreen')"
+  >
+
+    <span class="nav-icon">
+      🎮
+    </span>
+
+    <span class="nav-label">
+      GAMES
+    </span>
+
+  </button>
+
+
+  <button
+    id="navAirdrop"
+    class="nav-item"
+    onclick="openScreen('airdropScreen')"
+  >
+
+    <span class="nav-icon">
+      🎁
+    </span>
+
+    <span class="nav-label">
+      AIRDROP
+    </span>
+
+  </button>
+
+
+  <button
+    id="navInvite"
+    class="nav-item"
+    onclick="openScreen('inviteScreen')"
+  >
+
+    <span class="nav-icon">
+      👥
+    </span>
+
+    <span class="nav-label">
+      INVITE
+    </span>
+
+  </button>
+
+
+  <button
+    id="navWallet"
+    class="nav-item"
+    onclick="openScreen('walletScreen')"
+  >
+
+    <span class="nav-icon">
+      💳
+    </span>
+
+    <span class="nav-label">
+      WALLET
+    </span>
+
+  </button>
+
+</nav>
+
+</div>
+
+
+<!-- ==================================================
+     PRIVATE ROOM MODAL
+================================================== -->
+
+<div
+  id="privateModal"
+  class="modal"
+>
+
+  <div class="modal-box">
+
+    <h2 class="modal-title">
+      Private Game
+    </h2>
+
+    <p class="modal-text">
+      Enter your friend's room code.
+    </p>
+
+    <input
+      id="roomCode"
+      class="input"
+      maxlength="10"
+      placeholder="ROOM CODE"
+    >
+
+    <div style="height:12px"></div>
+
+    <button
+      class="primary-button"
+      onclick="joinPrivateRoom()"
+    >
+      JOIN ROOM
+    </button>
+
+    <div style="height:8px"></div>
+
+    <button
+      class="secondary-button"
+      onclick="closeModal('privateModal')"
+    >
+      CANCEL
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- ==================================================
+     VIDEO MODAL
+================================================== -->
+
+<div
+  id="videoModal"
+  class="modal"
+>
+
+  <div class="modal-box">
+
+    <h2
+      id="videoTitle"
+      class="modal-title"
+    >
+      Watch Video
+    </h2>
+
+    <p
+      id="videoDescription"
+      class="modal-text"
+    >
+      Watch the complete video.
+    </p>
+
+    <div class="video-wrapper">
+
+      <div id="youtubePlayer"></div>
+
+    </div>
+
+    <div
+      id="videoStatus"
+      class="video-status"
+    >
+      Please watch the complete video.
+    </div>
+
+    <button
+      id="videoButton"
+      class="video-button"
+      onclick="finishVideo()"
+    >
+      CONTINUE
+    </button>
+
+  </div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   TELEGRAM
+===================================================== */
+
+const tg =
+  window.Telegram &&
+  window.Telegram.WebApp
+    ? window.Telegram.WebApp
+    : null;
+
+if(tg){
+
+  tg.ready();
+
+  tg.expand();
+
+}
+
+
+/* =====================================================
+   CONFIGURATION
+===================================================== */
+
+const ENTRY_COST = 50;
+
+/*
+  10,000 Tokens = 10 USDT
+*/
+
+const TOKENS_PER_USDT = 1000;
+
+const MIN_WITHDRAW_USDT = 10;
+
+const MIN_WITHDRAW_TOKENS = 10000;
+
+
+/*
+  Replace these IDs with real YouTube IDs.
+*/
+
+const VIDEO_LISTS = {
+
+  suit:[
+    "VIDEO_ID_SUIT_1",
+    "VIDEO_ID_SUIT_2",
+    "VIDEO_ID_SUIT_3",
+    "VIDEO_ID_SUIT_4",
+    "VIDEO_ID_SUIT_5"
+  ],
+
+  classic:[
+    "VIDEO_ID_CLASSIC_1",
+    "VIDEO_ID_CLASSIC_2",
+    "VIDEO_ID_CLASSIC_3",
+    "VIDEO_ID_CLASSIC_4",
+    "VIDEO_ID_CLASSIC_5"
+  ],
+
+  two:[
+    "VIDEO_ID_TWO_1",
+    "VIDEO_ID_TWO_2",
+    "VIDEO_ID_TWO_3",
+    "VIDEO_ID_TWO_4",
+    "VIDEO_ID_TWO_5"
+  ],
+
+  withdrawal:[
+    "VIDEO_ID_WITHDRAWAL_1"
+  ],
+
+  airdrop:[
+    "VIDEO_ID_AIRDROP_1"
+  ]
+
+};
+
+
+/* =====================================================
+   GAME NAMES
+===================================================== */
+
+const GAME_NAMES = {
+
+  suit:"SUIT SPADES",
+
+  classic:"CLASSIC SPADES",
+
+  two:"TWO PLAYER"
+
+};
+
+
+/* =====================================================
+   PLAYER DATA
+===================================================== */
+
+let playerData = {
+
+  /*
+    Every new player starts with 100 Tokens.
+  */
+
+  tokens:100,
+
+  progress:{
+    suit:0,
+    classic:0,
+    two:0
+  },
+
+  inviteCount:0,
+
+  inviteReward:0,
+
+  channelRewardClaimed:false,
+
+  wallet:null,
+
+  withdrawalVideoWatched:false
+
+};
+
+
+/* =====================================================
+   LOAD
+===================================================== */
+
+function loadPlayerData(){
+
+  const saved =
+    localStorage.getItem(
+      "SPADES_PLAYER_DATA"
+    );
+
+  if(saved){
+
+    try{
+
+      const parsed =
+        JSON.parse(saved);
+
+      playerData = {
+
+        ...playerData,
+
+        ...parsed,
+
+        progress:{
+          ...playerData.progress,
+          ...(parsed.progress || {})
+        }
+
+      };
+
+    }catch(error){
+
+      console.log(
+        "Player data could not be loaded.",
+        error
+      );
+
+    }
+
+  }
+
+  updateUI();
+
+}
+
+
+/* =====================================================
+   SAVE
+===================================================== */
+
+function savePlayerData(){
+
+  localStorage.setItem(
+    "SPADES_PLAYER_DATA",
+    JSON.stringify(playerData)
+  );
+
+}
+
+
+/* =====================================================
+   USDT VALUE
+===================================================== */
+
+function tokenToUSDT(tokens){
+
+  return tokens / TOKENS_PER_USDT;
+
+}
+
+
+function formatUSDT(tokens){
+
+  return "$" +
+    tokenToUSDT(tokens)
+      .toFixed(2);
+
+}
+
+
+/* =====================================================
+   UPDATE UI
+===================================================== */
+
+function updateUI(){
+
+  const tokens =
+    Number(playerData.tokens) || 0;
+
+  const usdt =
+    formatUSDT(tokens);
+
+
+  const tokenElements = [
+
+    "globalTokens",
+    "homeTokens",
+    "walletTokens"
+
+  ];
+
+  tokenElements.forEach(function(id){
+
+    const el =
+      document.getElementById(id);
+
+    if(el){
+
+      el.textContent =
+        tokens.toLocaleString();
+
+    }
+
+  });
+
+
+  const usdtElements = [
+
+    "globalUSDT",
+    "homeUSDT",
+    "walletUSDT"
+
+  ];
+
+  usdtElements.forEach(function(id){
+
+    const el =
+      document.getElementById(id);
+
+    if(el){
+
+      el.textContent =
+        usdt;
+
+    }
+
+  });
+
+
+  const inviteCount =
+    document.getElementById(
+      "inviteCount"
+    );
+
+  if(inviteCount){
+
+    inviteCount.textContent =
+      playerData.inviteCount || 0;
+
+  }
+
+
+  const inviteReward =
+    document.getElementById(
+      "inviteReward"
+    );
+
+  if(inviteReward){
+
+    inviteReward.textContent =
+      playerData.inviteReward || 0;
+
+  }
+
+
+  const walletStatus =
+    document.getElementById(
+      "walletStatus"
+    );
+
+  if(walletStatus){
+
+    if(playerData.wallet){
+
+      walletStatus.textContent =
+        "Connected: " +
+        playerData.wallet;
+
+    }else{
+
+      walletStatus.textContent =
+        "Wallet not connected.";
+
+    }
+
+  }
+
+
+  const walletButton =
+    document.getElementById(
+      "walletButton"
+    );
+
+  if(walletButton){
+
+    walletButton.textContent =
+      playerData.wallet
+        ? "WALLET CONNECTED"
+        : "CONNECT WALLET";
+
+  }
+
+}
+
+
+/* =====================================================
+   SCREEN SYSTEM
+===================================================== */
+
+function openScreen(screenId){
+
+  document
+    .querySelectorAll(".screen")
+    .forEach(function(screen){
+
+      screen.classList.remove(
+        "active"
+      );
+
+    });
+
+
+  const target =
+    document.getElementById(
+      screenId
+    );
+
+
+  if(!target){
+
+    console.log(
+      "Screen not found:",
+      screenId
+    );
+
+    return;
+
+  }
+
+
+  target.classList.add(
+    "active"
+  );
+
+
+  window.scrollTo({
+    top:0,
+    behavior:"instant"
+  });
+
+
+  updateNav(screenId);
+
+  updateUI();
+
+}
+
+
+/* =====================================================
+   NAV
+===================================================== */
+
+function updateNav(screenId){
+
+  document
+    .querySelectorAll(".nav-item")
+    .forEach(function(item){
+
+      item.classList.remove(
+        "active"
+      );
+
+    });
+
+
+  if(
+    screenId === "homeScreen"
+  ){
+
+    document
+      .getElementById("navHome")
+      .classList.add("active");
+
+  }
+
+  else if(
+    screenId === "gamesScreen" ||
+    screenId === "tableScreen" ||
+    screenId === "lobbyScreen"
+  ){
+
+    document
+      .getElementById("navGames")
+      .classList.add("active");
+
+  }
+
+  else if(
+    screenId === "airdropScreen"
+  ){
+
+    document
+      .getElementById("navAirdrop")
+      .classList.add("active");
+
+  }
+
+  else if(
+    screenId === "inviteScreen"
+  ){
+
+    document
+      .getElementById("navInvite")
+      .classList.add("active");
+
+  }
+
+  else if(
+    screenId === "walletScreen"
+  ){
+
+    document
+      .getElementById("navWallet")
+      .classList.add("active");
+
+  }
+
+}
+
+
+/* =====================================================
+   MESSAGE
+===================================================== */
+
+function showMessage(message){
+
+  if(
+    tg &&
+    typeof tg.showAlert === "function"
+  ){
+
+    tg.showAlert(message);
+
+  }else{
+
+    alert(message);
+
+  }
+
+}
+
+
+/* =====================================================
+   GAME SELECTION
+===================================================== */
+
+let currentGame = null;
+
+let currentTable = null;
+
+let currentVideoType = null;
+
+let currentVideoIndex = 0;
+
+let videoCompleted = false;
+
+let youtubePlayer = null;
+
+
+function selectGame(game){
+
+  if(!GAME_NAMES[game]){
+
+    showMessage(
+      "This game is not available."
+    );
+
+    return;
+
+  }
+
+
+  currentGame =
+    game;
+
+
+  document
+    .getElementById(
+      "tableGameTitle"
+    )
+    .textContent =
+      GAME_NAMES[game];
+
+
+  openScreen(
+    "tableScreen"
+  );
+
+}
+
+
+/* =====================================================
+   TABLE
+===================================================== */
+
+function chooseTable(type){
+
+  currentTable =
+    type;
+
+
+  if(type === "private"){
+
+    document
+      .getElementById(
+        "privateModal"
+      )
+      .classList.add("show");
+
+    return;
+
+  }
+
+
+  startGameEntry();
+
+}
+
+
+/* =====================================================
+   PRIVATE ROOM
+===================================================== */
+
+function joinPrivateRoom(){
+
+  const input =
+    document.getElementById(
+      "roomCode"
+    );
+
+  const code =
+    input.value.trim();
+
+
+  if(!code){
+
+    showMessage(
+      "Please enter a room code."
+    );
+
+    return;
+
+  }
+
+
+  closeModal(
+    "privateModal"
+  );
+
+
+  startGameEntry();
+
+}
+
+
+/* =====================================================
+   START GAME ENTRY
+===================================================== */
+
+function startGameEntry(){
+
+  if(!currentGame){
+
+    showMessage(
+      "Please select a game first."
+    );
+
+    return;
+
+  }
+
+
+  if(
+    playerData.tokens <
+    ENTRY_COST
+  ){
+
+    showMessage(
+      "You need at least 50 Tokens to enter this game."
+    );
+
+    return;
+
+  }
+
+
+  let progress =
+    Number(
+      playerData.progress[currentGame]
+    ) || 0;
+
+
+  const videos =
+    VIDEO_LISTS[currentGame];
+
+
+  if(
+    !videos ||
+    videos.length === 0
+  ){
+
+    enterLobby();
+
+    return;
+
+  }
+
+
+  if(
+    progress >= videos.length
+  ){
+
+    progress = 0;
+
+    playerData.progress[currentGame] = 0;
+
+    savePlayerData();
+
+  }
+
+
+  currentVideoType =
+    currentGame;
+
+  currentVideoIndex =
+    progress;
+
+
+  openVideo();
+
+}
+
+
+/* =====================================================
+   YOUTUBE READY
+===================================================== */
+
+function onYouTubeIframeAPIReady(){
+
+  console.log(
+    "YouTube API ready"
+  );
+
+}
+
+
+/* =====================================================
+   OPEN VIDEO
+===================================================== */
+
+function openVideo(){
+
+  const videos =
+    VIDEO_LISTS[currentVideoType];
+
+
+  if(
+    !videos ||
+    !videos[currentVideoIndex]
+  ){
+
+    showMessage(
+      "Video is not available."
+    );
+
+    return;
+
+  }
+
+
+  const videoId =
+    videos[currentVideoIndex];
+
+
+  if(
+    videoId.indexOf("VIDEO_ID") === 0
+  ){
+
+    showMessage(
+      "Please add your real YouTube video ID in VIDEO_LISTS."
+    );
+
+    return;
+
+  }
+
+
+  videoCompleted =
+    false;
+
+
+  document
+    .getElementById(
+      "videoModal"
+    )
+    .classList.add("show");
+
+
+  document
+    .getElementById(
+      "videoTitle"
+    )
+    .textContent =
+      currentVideoType === "withdrawal"
+        ? "Withdrawal Verification"
+        : "Watch Video";
+
+
+  document
+    .getElementById(
+      "videoDescription"
+    )
+    .textContent =
+      currentVideoType === "withdrawal"
+        ? "Watch the complete video before continuing with your withdrawal."
+        : "Watch the complete video before continuing.";
+
+
+  document
+    .getElementById(
+      "videoStatus"
+    )
+    .textContent =
+      "Please watch the complete video.";
+
+
+  document
+    .getElementById(
+      "videoButton"
+    )
+    .classList.remove(
+      "ready"
+    );
+
+
+  if(youtubePlayer){
+
+    try{
+
+      youtubePlayer.destroy();
+
+    }catch(e){}
+
+    youtubePlayer =
+      null;
+
+  }
+
+
+  if(
+    typeof YT === "undefined" ||
+    !YT.Player
+  ){
+
+    setTimeout(
+      openVideo,
+      500
+    );
+
+    return;
+
+  }
+
+
+  youtubePlayer =
+    new YT.Player(
+      "youtubePlayer",
+      {
+
+        videoId:videoId,
+
+        playerVars:{
+
+          autoplay:1,
+
+          controls:1,
+
+          rel:0,
+
+          modestbranding:1,
+
+          playsinline:1
+
+        },
+
+        events:{
+
+          onStateChange:
+            onVideoStateChange
+
+        }
+
+      }
+    );
+
+}
+
+
+/* =====================================================
+   VIDEO STATE
+===================================================== */
+
+function onVideoStateChange(event){
+
+  if(
+    typeof YT !== "undefined" &&
+    event.data ===
+    YT.PlayerState.ENDED
+  ){
+
+    videoCompleted =
+      true;
+
+
+    document
+      .getElementById(
+        "videoStatus"
+      )
+      .textContent =
+      "Video completed. You can continue.";
+
+
+    document
+      .getElementById(
+        "videoButton"
+      )
+      .classList.add(
+        "ready"
+      );
+
+  }
+
+}
+
+
+/* =====================================================
+   FINISH VIDEO
+===================================================== */
+
+function finishVideo(){
+
+  if(!videoCompleted){
+
+    showMessage(
+      "Please watch the complete video first."
+    );
+
+    return;
+
+  }
+
+
+  closeModal(
+    "videoModal"
+  );
+
+
+  /* =============================
+     WITHDRAWAL VIDEO
+  ============================= */
+
+  if(
+    currentVideoType ===
+    "withdrawal"
+  ){
+
+    playerData.withdrawalVideoWatched =
+      true;
+
+    savePlayerData();
+
+    updateUI();
+
+    processWithdrawal();
+
+    return;
+
+  }
+
+
+  /* =============================
+     AIRDROP VIDEO
+  ============================= */
+
+  if(
+    currentVideoType ===
+    "airdrop"
+  ){
+
+    playerData.tokens += 25;
+
+    savePlayerData();
+
+    updateUI();
+
+    showMessage(
+      "Video completed. You received 25 Tokens."
+    );
+
+    return;
+
+  }
+
+
+  /* =============================
+     GAME VIDEO
+  ============================= */
+
+  if(
+    currentGame
+  ){
+
+    playerData.progress[currentGame] =
+      currentVideoIndex + 1;
+
+
+    /*
+      Video reward:
+      +25 Tokens
+    */
+
+    playerData.tokens += 25;
+
+
+    /*
+      Game entry:
+      -50 Tokens
+    */
+
+    playerData.tokens -=
+      ENTRY_COST;
+
+
+    savePlayerData();
+
+    updateUI();
+
+    enterLobby();
+
+  }
+
+}
+
+
+/* =====================================================
+   ENTER LOBBY
+===================================================== */
+
+function enterLobby(){
+
+  document
+    .getElementById(
+      "lobbyTitle"
+    )
+    .textContent =
+      currentTable === "private"
+        ? "PRIVATE GAME"
+        : "PUBLIC GAME";
+
+
+  document
+    .getElementById(
+      "lobbySubtitle"
+    )
+    .textContent =
+      GAME_NAMES[currentGame] +
+      " • Waiting for players";
+
+
+  openScreen(
+    "lobbyScreen"
+  );
+
+}
+
+
+/* =====================================================
+   AIRDROP VIDEO
+===================================================== */
+
+function openAirdropVideo(){
+
+  const videos =
+    VIDEO_LISTS.airdrop;
+
+
+  if(
+    !videos ||
+    !videos[0]
+  ){
+
+    showMessage(
+      "Airdrop video is not available."
+    );
+
+    return;
+
+  }
+
+
+  currentVideoType =
+    "airdrop";
+
+  currentVideoIndex =
+    0;
+
+
+  openVideo();
+
+}
+
+
+/* =====================================================
+   CHANNELS
+===================================================== */
+
+function joinChannels(){
+
+  openScreen(
+    "channelsScreen"
+  );
+
+}
+
+
+function claimChannelReward(){
+
+  if(
+    playerData.channelRewardClaimed
+  ){
+
+    showMessage(
+      "You have already claimed this reward."
+    );
+
+    return;
+
+  }
+
+
+  playerData.tokens += 25;
+
+  playerData.channelRewardClaimed =
+    true;
+
+  savePlayerData();
+
+  updateUI();
+
+  showMessage(
+    "Channel task completed. You received 25 Tokens."
+  );
+
+}
+
+
+/* =====================================================
+   EXTERNAL
+===================================================== */
+
+function openExternal(url){
+
+  if(
+    tg &&
+    typeof tg.openLink === "function"
+  ){
+
+    tg.openLink(url);
+
+  }else{
+
+    window.open(
+      url,
+      "_blank"
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   INVITE
+===================================================== */
+
+function getReferralCode(){
+
+  if(
+    tg &&
+    tg.initDataUnsafe &&
+    tg.initDataUnsafe.user &&
+    tg.initDataUnsafe.user.id
+  ){
+
+    return "SPADES-" +
+      tg.initDataUnsafe.user.id;
+
+  }
+
+
+  let code =
+    localStorage.getItem(
+      "SPADES_REFERRAL_CODE"
+    );
+
+
+  if(!code){
+
+    code =
+      "SPADES-" +
+      Math.random()
+        .toString(36)
+        .substring(2,8)
+        .toUpperCase();
+
+
+    localStorage.setItem(
+      "SPADES_REFERRAL_CODE",
+      code
+    );
+
+  }
+
+
+  return code;
+
+}
+
+
+function shareInvite(){
+
+  const code =
+    getReferralCode();
+
+
+  const botUsername =
+    "YOUR_BOT_USERNAME";
+
+
+  const link =
+    "https://t.me/" +
+    botUsername +
+    "?start=" +
+    encodeURIComponent(code);
+
+
+  const text =
+    "Join me in SPADES and play to earn Tokens!";
+
+
+  const shareUrl =
+    "https://t.me/share/url?url=" +
+    encodeURIComponent(link) +
+    "&text=" +
+    encodeURIComponent(text);
+
+
+  openExternal(
+    shareUrl
+  );
+
+}
+
+
+/* =====================================================
+   WALLET
+===================================================== */
+
+function connectWallet(){
+
+  /*
+    Front-end demo connection.
+
+    Real TON / crypto wallet connection
+    must be connected to a backend/wallet SDK.
+  */
+
+  const fakeWallet =
+    "Wallet_" +
+    Math.random()
+      .toString(36)
+      .substring(2,10)
+      .toUpperCase();
+
+
+  playerData.wallet =
+    fakeWallet;
+
+
+  savePlayerData();
+
+  updateUI();
+
+  showMessage(
+    "Wallet connected successfully."
+  );
+
+}
+
+
+/* =====================================================
+   WITHDRAWAL
+===================================================== */
+
+function startWithdrawal(){
+
+  const tokens =
+    Number(playerData.tokens) || 0;
+
+
+  if(!playerData.wallet){
+
+    showMessage(
+      "Please connect your wallet before requesting a withdrawal."
+    );
+
+    openScreen(
+      "walletScreen"
+    );
+
+    return;
+
+  }
+
+
+  if(
+    tokens <
+    MIN_WITHDRAW_TOKENS
+  ){
+
+    showMessage(
+      "Minimum withdrawal is 10 USDT (10,000 Tokens)."
+    );
+
+    return;
+
+  }
+
+
+  /*
+    A complete video is required
+    before every withdrawal.
+  */
+
+  currentVideoType =
+    "withdrawal";
+
+  currentVideoIndex =
+    0;
+
+
+  openVideo();
+
+}
+
+
+/* =====================================================
+   PROCESS WITHDRAWAL
+===================================================== */
+
+function processWithdrawal(){
+
+  const tokens =
+    Number(playerData.tokens) || 0;
+
+
+  if(
+    tokens <
+    MIN_WITHDRAW_TOKENS
+  ){
+
+    showMessage(
+      "You no longer have enough Tokens for a 10 USDT withdrawal."
+    );
+
+    return;
+
+  }
+
+
+  const amount =
+    Math.floor(
+      tokens /
+      TOKENS_PER_USDT
+    );
+
+
+  const withdrawableUSDT =
+    Math.floor(
+      amount / 10
+    ) * 10;
+
+
+  if(
+    withdrawableUSDT <
+    MIN_WITHDRAW_USDT
+  ){
+
+    showMessage(
+      "Minimum withdrawal is 10 USDT."
+    );
+
+    return;
+
+  }
+
+
+  const requiredTokens =
+    withdrawableUSDT *
+    TOKENS_PER_USDT;
+
+
+  /*
+    Deduct only the amount
+    requested for withdrawal.
+  */
+
+  playerData.tokens -=
+    requiredTokens;
+
+
+  playerData.withdrawalVideoWatched =
+    false;
+
+
+  savePlayerData();
+
+  updateUI();
+
+
+  showMessage(
+    "Withdrawal request submitted: " +
+    withdrawableUSDT +
+    " USDT."
+  );
+
+}
+
+
+/* =====================================================
+   CLOSE MODAL
+===================================================== */
+
+function closeModal(id){
+
+  const modal =
+    document.getElementById(id);
+
+
+  if(modal){
+
+    modal.classList.remove(
+      "show"
+    );
+
+  }
+
+
+  if(
+    id === "videoModal" &&
+    youtubePlayer
+  ){
+
+    try{
+
+      youtubePlayer.stopVideo();
+
+      youtubePlayer.destroy();
+
+    }catch(e){}
+
+    youtubePlayer =
+      null;
+
+  }
+
+}
+
+
+/* =====================================================
+   ESCAPE
+===================================================== */
+
+document.addEventListener(
+  "keydown",
+  function(event){
+
+    if(
+      event.key === "Escape"
+    ){
+
+      closeModal(
+        "privateModal"
+      );
+
+      closeModal(
+        "videoModal"
+      );
+
+    }
+
+  }
+);
+
+
+/* =====================================================
+   REFERRAL CODE DISPLAY
+===================================================== */
+
+function updateReferralCode(){
+
+  const element =
+    document.getElementById(
+      "referralCode"
+    );
+
+
+  if(element){
+
+    element.textContent =
+      getReferralCode();
+
+  }
+
+}
+
+
+/* =====================================================
+   INITIALIZE
+===================================================== */
+
+loadPlayerData();
+
+updateReferralCode();
+
+updateUI();
+
+openScreen(
+  "homeScreen"
+);
+
+</script>
+
+</body>
+
+</html>
