@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>SPADES GAME</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+/* =========================================================
+   RESET & BASE
+========================================================= */
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html, body{
+  margin:0;
+  padding:0;
+  width:100%;
+  min-height:100%;
+  background:#050806;
+}
+
+body{
+  min-height:100vh;
+  font-family: Arial, Helvetica, sans-serif;
+  color:#fff;
+  background: radial-gradient(circle at 50% -10%, #315b48 0%, #173126 28%, #0b1712 65%, #050806 100%);
+  overflow-x:hidden;
+}
+
+button{
+  font-family:inherit;
+  border:0;
+  cursor:pointer;
+}
+
+button:active{
+  transform:scale(.97);
+}
+
+.app{
+  width:100%;
+  max-width:520px;
+  min-height:100vh;
+  margin:auto;
+  padding:0 14px 30px;
+}
+
+/* =========================================================
+   TOP BAR
+========================================================= */
+.top-bar{
+  position:relative;
+  width:calc(100% + 28px);
+  margin-left:-14px;
+  min-height:58px;
+  padding:10px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  background:linear-gradient(180deg, rgba(20,48,37,.98), rgba(8,19,14,.98));
+  border-bottom:1px solid rgba(255,255,255,.09);
+  box-shadow:0 8px 25px rgba(0,0,0,.30);
+}
+
+.top-left{ min-width:0; }
+.top-small{ color:#91a39a; font-size:8px; font-weight:800; letter-spacing:.8px; }
+.top-token{ margin-top:2px; color:#f1d879; font-size:18px; font-weight:900; }
+.top-center{ flex:1; text-align:center; min-width:0; }
+.top-game{ color:#fff; font-size:12px; font-weight:900; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.top-mode{ margin-top:3px; color:#74857c; font-size:8px; }
+.top-right{ text-align:right; }
+
+.connection{ display:flex; align-items:center; justify-content:flex-end; gap:5px; color:#7e9087; font-size:8px; font-weight:700; }
+.connection-dot{ width:7px; height:7px; border-radius:50%; background:#d1a927; box-shadow:0 0 8px rgba(209,169,39,.55); }
+.connection.online .connection-dot{ background:#54bd77; }
+.connection.offline .connection-dot{ background:#d65a5a; }
+
+/* =========================================================
+   HEADER
+========================================================= */
+.header{ text-align:center; padding:19px 0 14px; }
+.spade{ font-size:40px; line-height:1; }
+.title{ margin:6px 0 0; font-size:23px; font-weight:900; letter-spacing:1.5px; }
+.subtitle{ margin-top:5px; color:#8f9f97; font-size:9px; }
+
+/* =========================================================
+   GAME TABLE
+========================================================= */
+.game-table{
+  position:relative;
+  width:100%;
+  height:430px;
+  overflow:hidden;
+  border-radius:28px;
+  background:radial-gradient(ellipse at center, rgba(39,103,70,.75), rgba(9,45,29,.92) 55%, rgba(5,24,16,.98) 100%);
+  border:1px solid rgba(241,216,121,.13);
+  box-shadow:inset 0 0 50px rgba(0,0,0,.35), 0 18px 50px rgba(0,0,0,.38);
+}
+
+.game-table:before{
+  content:"";
+  position:absolute;
+  inset:22px;
+  border:1px solid rgba(241,216,121,.11);
+  border-radius:23px;
+  pointer-events:none;
+}
+
+.table-center{
+  position:absolute;
+  left:50%; top:50%;
+  transform:translate(-50%,-50%);
+  width:140px; height:140px;
+  border-radius:50%;
+  display:flex;
+  align-items:center; justify-content:center; flex-direction:column;
+  background:radial-gradient(circle, rgba(255,255,255,.075), rgba(0,0,0,.18));
+  border:1px solid rgba(255,255,255,.08);
+}
+
+.center-suit{ color:#f1d879; font-size:36px; line-height:1; }
+.center-text{ margin-top:4px; color:#8fa098; font-size:8px; font-weight:800; letter-spacing:1px; }
+.center-status{ margin-top:4px; color:#fff; font-size:10px; font-weight:900; text-align:center; }
+
+/* =========================================================
+   PLAYERS
+========================================================= */
+.player-seat{
+  position:absolute;
+  width:105px; min-height:60px;
+  padding:6px;
+  border-radius:14px;
+  background:linear-gradient(145deg, rgba(255,255,255,.09), rgba(255,255,255,.035));
+  border:1px solid rgba(255,255,255,.075);
+  box-shadow:0 8px 18px rgba(0,0,0,.20);
+  text-align:center;
+  transition:.2s ease;
+}
+
+.player-seat.active-turn{
+  border-color:rgba(241,216,121,.65);
+  box-shadow:0 0 18px rgba(241,216,121,.3);
+  transform: scale(1.05);
+}
+
+.player-seat.seat-1.active-turn,
+.player-seat.seat-4.active-turn {
+  transform: translateX(-50%) scale(1.05);
+}
+
+.player-seat.you{
+  background:linear-gradient(145deg, rgba(47,113,79,.75), rgba(255,255,255,.045));
+}
+
+.player-avatar{
+  width:26px; height:26px;
+  margin:auto;
+  display:flex; align-items:center; justify-content:center;
+  border-radius:50%;
+  background:#24543c;
+  font-size:12px;
+}
+
+.player-name{ margin-top:3px; font-size:9px; font-weight:900; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.player-state{ margin-top:2px; color:#74857d; font-size:7px; }
+
+/* Positions */
+.seat-1{ left:50%; bottom:10px; transform:translateX(-50%); }
+.seat-2{ left:10px; bottom:80px; }
+.seat-3{ left:10px; top:80px; }
+.seat-4{ left:50%; top:10px; transform:translateX(-50%); }
+.seat-5{ right:10px; top:80px; }
+.seat-6{ right:10px; bottom:80px; }
+
+/* =========================================================
+   CARD AREA
+========================================================= */
+.play-area{
+  position:absolute;
+  left:50%; top:50%;
+  width:115px; height:115px;
+  transform:translate(-50%,-50%);
+  pointer-events:none;
+}
+
+.played-card{
+  position:absolute;
+  left:50%; top:50%;
+  width:48px; height:66px;
+  transform:translate(-50%,-50%);
+  border-radius:7px;
+  background:linear-gradient(145deg, #fff, #e8e8e8);
+  color:#111;
+  box-shadow:0 5px 15px rgba(0,0,0,.45);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  font-weight:900; font-size:15px;
+}
+
+.played-card.red{ color:#c83c3c; }
+.played-card.black{ color:#111; }
+.card-empty{ color:#50685c; font-size:8px; font-weight:800; text-align:center; }
+
+/* =========================================================
+   GAME INFO
+========================================================= */
+.info-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin-top:10px; }
+.info-box{ padding:10px 7px; border-radius:12px; background:rgba(255,255,255,.055); border:1px solid rgba(255,255,255,.055); text-align:center; }
+.info-label{ color:#708078; font-size:7px; font-weight:800; letter-spacing:.5px; }
+.info-value{ margin-top:4px; color:#f1d879; font-size:12px; font-weight:900; }
+
+/* =========================================================
+   HAND & CARDS
+========================================================= */
+.hand-panel{ margin-top:11px; padding:13px; border-radius:18px; background:linear-gradient(145deg, rgba(255,255,255,.085), rgba(255,255,255,.035)); border:1px solid rgba(255,255,255,.075); }
+.hand-title{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.hand-title strong{ font-size:11px; }
+.hand-count{ color:#788981; font-size:8px; }
+
+.cards{ display:flex; gap:6px; overflow-x:auto; padding:3px 2px 6px; scrollbar-width:none; }
+.cards::-webkit-scrollbar{ display:none; }
+
+.card{
+  position:relative;
+  width:48px; height:68px;
+  flex:0 0 48px;
+  border-radius:7px;
+  background:linear-gradient(145deg, #fff, #e4e4e4);
+  color:#111;
+  box-shadow:0 5px 12px rgba(0,0,0,.35);
+  display:flex; align-items:center; justify-content:center; flex-direction:column;
+  font-size:16px; font-weight:900;
+  transition:transform .12s ease;
+}
+
+.card small{ font-size:9px; line-height:1; }
+.card.red{ color:#c73535; }
+.card.selected{ transform:translateY(-9px); box-shadow:0 10px 18px rgba(241,216,121,.20); outline:2px solid #f1d879; }
+
+/* =========================================================
+   CONTROLS & PANELS
+========================================================= */
+.controls{ margin-top:11px; display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.game-button{ width:100%; padding:13px; border-radius:13px; background:#347653; color:#fff; font-size:10px; font-weight:900; }
+.game-button.secondary{ background:rgba(255,255,255,.065); color:#cad4cf; }
+.game-button.gold{ background:#8d7624; }
+.game-button:disabled{ opacity:.35; cursor:not-allowed; }
+
+.bid-panel{ display:none; margin-top:11px; padding:16px; border-radius:17px; background:linear-gradient(145deg, rgba(55,116,84,.48), rgba(255,255,255,.04)); border:1px solid rgba(241,216,121,.12); }
+.bid-panel.show{ display:block; }
+.bid-title{ text-align:center; font-size:14px; font-weight:900; }
+.bid-subtitle{ margin-top:5px; text-align:center; color:#8fa098; font-size:8px; }
+.bid-numbers{ display:grid; grid-template-columns:repeat(8,1fr); gap:4px; margin-top:13px; }
+.bid-number{ padding:8px 0; border-radius:7px; background:rgba(255,255,255,.07); color:#fff; font-size:10px; font-weight:900; }
+.bid-number.selected{ background:#8d7624; color:#fff; }
+
+.waiting{ margin-top:11px; padding:13px; border-radius:14px; background:rgba(255,255,255,.045); color:#8d9d95; text-align:center; font-size:9px; }
+.back-button{ width:100%; margin-top:11px; padding:13px; border-radius:13px; background:rgba(255,255,255,.055); color:#c7d1cc; font-size:10px; font-weight:800; }
+
+/* MODAL */
+.modal{ position:fixed; inset:0; z-index:100; display:none; align-items:center; justify-content:center; padding:15px; background:rgba(0,0,0,.82); backdrop-filter:blur(8px); }
+.modal.show{ display:flex; }
+.modal-box{ width:100%; max-width:420px; padding:20px; border-radius:20px; background:linear-gradient(145deg, #193329, #0b1712); border:1px solid rgba(255,255,255,.10); box-shadow:0 20px 60px rgba(0,0,0,.65); }
+.modal-title{ margin:0; text-align:center; font-size:19px; font-weight:900; }
+.modal-text{ margin:8px 0 14px; text-align:center; color:#9eada6; font-size:9px; line-height:1.6; }
+.room-code{ margin-top:13px; padding:13px; border-radius:11px; background:rgba(0,0,0,.25); text-align:center; color:#f1d879; font-size:18px; font-weight:900; letter-spacing:2px; }
+
+@media(max-width:370px){
+  .game-table{ height:400px; }
+  .player-seat{ width:90px; }
+  .seat-2, .seat-3{ left:5px; }
+  .seat-5, .seat-6{ right:5px; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="top-left">
+      <div class="top-small">TOKENS</div>
+      <div id="gameTokens" class="top-token">100</div>
+    </div>
+    <div class="top-center">
+      <div id="topGameName" class="top-game">SPADES</div>
+      <div id="topMode" class="top-mode">Waiting for game</div>
+    </div>
+    <div class="top-right">
+      <div id="connectionStatus" class="connection">
+        <span class="connection-dot"></span>
+        <span id="connectionText">LOCAL</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="spade">♠</div>
+    <h1 id="gameHeading" class="title">SPADES</h1>
+    <div id="gameSubtitle" class="subtitle">Waiting for players</div>
+  </header>
+
+  <!-- TABLE -->
+  <div id="gameTable" class="game-table">
+    <div class="table-center">
+      <div class="center-suit">♠</div>
+      <div class="center-text">TRUMP</div>
+      <div id="centerStatus" class="center-status">SPADES</div>
+    </div>
+
+    <div id="playArea" class="play-area">
+      <div id="emptyCardText" class="card-empty">Waiting for<br>first card</div>
+    </div>
+
+    <!-- SEATS -->
+    <div id="seat1" class="player-seat seat-1 you">
+      <div class="player-avatar">👤</div>
+      <div id="player1Name" class="player-name">You</div>
+      <div id="player1State" class="player-state">Bid: -</div>
+    </div>
+    <div id="seat2" class="player-seat seat-2">
+      <div class="player-avatar">🤖</div>
+      <div id="player2Name" class="player-name">Bot 1</div>
+      <div id="player2State" class="player-state">Bid: -</div>
+    </div>
+    <div id="seat3" class="player-seat seat-3">
+      <div class="player-avatar">🤖</div>
+      <div id="player3Name" class="player-name">Bot 2</div>
+      <div id="player3State" class="player-state">Bid: -</div>
+    </div>
+    <div id="seat4" class="player-seat seat-4">
+      <div class="player-avatar">🤖</div>
+      <div id="player4Name" class="player-name">Bot 3</div>
+      <div id="player4State" class="player-state">Bid: -</div>
+    </div>
+    <div id="seat5" class="player-seat seat-5">
+      <div class="player-avatar">🤖</div>
+      <div id="player5Name" class="player-name">Bot 4</div>
+      <div id="player5State" class="player-state">Bid: -</div>
+    </div>
+    <div id="seat6" class="player-seat seat-6">
+      <div class="player-avatar">🤖</div>
+      <div id="player6Name" class="player-name">Bot 5</div>
+      <div id="player6State" class="player-state">Bid: -</div>
+    </div>
+  </div>
+
+  <!-- INFO -->
+  <div class="info-grid">
+    <div class="info-box">
+      <div class="info-label">ROUND</div>
+      <div id="roundValue" class="info-value">1 / 6</div>
+    </div>
+    <div class="info-box">
+      <div class="info-label">TRICKS WON</div>
+      <div id="tricksValue" class="info-value">0</div>
+    </div>
+    <div class="info-box">
+      <div class="info-label">ENTRY</div>
+      <div id="entryValue" class="info-value">50</div>
+    </div>
+  </div>
+
+  <!-- BID PANEL -->
+  <div id="bidPanel" class="bid-panel">
+    <div class="bid-title">ANNOUNCE YOUR TRICKS</div>
+    <div class="bid-subtitle">Choose a number from 0 to 7</div>
+    <div class="bid-numbers">
+      <button class="bid-number" type="button" data-bid="0">0</button>
+      <button class="bid-number" type="button" data-bid="1">1</button>
+      <button class="bid-number" type="button" data-bid="2">2</button>
+      <button class="bid-number" type="button" data-bid="3">3</button>
+      <button class="bid-number" type="button" data-bid="4">4</button>
+      <button class="bid-number" type="button" data-bid="5">5</button>
+      <button class="bid-number" type="button" data-bid="6">6</button>
+      <button class="bid-number" type="button" data-bid="7">7</button>
+    </div>
+    <div class="controls">
+      <button id="confirmBid" class="game-button gold" type="button" disabled>Confirm Bid</button>
+      <button class="game-button secondary" type="button" onclick="hideBidPanel()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- HAND PANEL -->
+  <div class="hand-panel">
+    <div class="hand-title">
+      <strong>YOUR HAND</strong>
+      <span id="handCount" class="hand-count">0 cards</span>
+    </div>
+    <div id="cards" class="cards"></div>
+    <div class="controls">
+      <button id="playCardButton" class="game-button" type="button" onclick="playSelectedCard()" disabled>Play Card</button>
+      <button id="announceBtn" class="game-button secondary" type="button" onclick="showBidPanel()">Announce Bid</button>
+    </div>
+  </div>
+
+  <div id="waitingBox" class="waiting">Ready to play! Select your bid first.</div>
+
+  <button class="back-button" type="button" onclick="returnToMain()">← Back to SPADES</button>
+
+</div>
+
+<!-- ROOM MODAL -->
+<div id="roomModal" class="modal">
+  <div class="modal-box">
+    <h2 class="modal-title">PRIVATE ROOM</h2>
+    <p class="modal-text">Your private room is ready.</p>
+    <div id="roomCodeDisplay" class="room-code">------</div>
+    <button class="game-button" type="button" style="margin-top:14px" onclick="copyRoomCode()">Copy Room Code</button>
+    <button class="game-button secondary" type="button" style="margin-top:8px" onclick="closeRoomModal()">Close</button>
+  </div>
+</div>
+
+<script>
+/* =========================================================
+   TELEGRAM SETUP
+========================================================= */
+const tg = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
+try {
+  if (tg) { tg.ready(); tg.expand(); }
+} catch (e) { console.log(e); }
+
+/* =========================================================
+   GAME DATA & STATE
+========================================================= */
+const GAME_NAMES = { suit: "Spade Trump", classic: "Classic Spades", two: "Two Player" };
+const PLAYER_COUNTS = { suit: 6, classic: 4, two: 2 };
+
+let currentGame = "suit";
+let currentTable = "public";
+let currentRoom = "";
+
+let playerHand = [];
+let selectedCard = null;
+let selectedBid = null;
+let userTricksWon = 0;
+let round = 1;
+let currentTurn = 1; // 1 = Player, 2..6 = Bots
+let isBiddingPhase = true;
+
+const SUITS = ['♠', '♥', '♦', '♣'];
+const VALUES = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+
+/* PLAYER DATA & STORAGE */
+const DEFAULT_DATA = { tokens: 100, progress: { suit: 0, classic: 0, two: 0 } };
+let playerData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+
+function loadPlayerData(){
+  try {
+    const saved = localStorage.getItem("spadesPlayerData");
+    if(saved){
+      const data = JSON.parse(saved);
+      if(data && typeof data === "object"){
+        playerData = { ...playerData, ...data };
+      }
+    }
+  } catch(e) { console.log(e); }
+}
+
+function savePlayerData(){
+  try {
+    localStorage.setItem("spadesPlayerData", JSON.stringify(playerData));
+  } catch(e) { console.log(e); }
+}
+
+/* =========================================================
+   GAME ENGINE & CARDS
+========================================================= */
+function generateDeck(){
+  let deck = [];
+  for(let suit of SUITS){
+    for(let val of VALUES){
+      deck.push({ code: val + suit, val: val, suit: suit });
+    }
+  }
+  // Shuffle
+  for(let i = deck.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+  return deck;
+}
+
+function dealCards(){
+  const deck = generateDeck();
+  playerHand = deck.slice(0, 7); // Give 7 cards to player
+  renderHand();
+}
+
+function renderHand(){
+  const container = document.getElementById("cards");
+  container.innerHTML = "";
+  
+  playerHand.forEach(card => {
+    const isRed = card.suit === '♥' || card.suit === '♦';
+    const btn = document.createElement("button");
+    btn.className = `card ${isRed ? 'red' : 'black'}`;
+    btn.type = "button";
+    btn.dataset.card = card.code;
+    btn.innerHTML = `${card.val}<small>${card.suit}</small>`;
+    
+    btn.addEventListener("click", () => {
+      if(currentTurn !== 1 || isBiddingPhase) return;
+      document.querySelectorAll(".card").forEach(c => c.classList.remove("selected"));
+      btn.classList.add("selected");
+      selectedCard = card;
+      document.getElementById("playCardButton").disabled = false;
+    });
+
+    container.appendChild(btn);
+  });
+
+  document.getElementById("handCount").textContent = `${playerHand.length} cards`;
+}
+
+/* =========================================================
+   TURN & GAME FLOW
+========================================================= */
+function playSelectedCard(){
+  if(!selectedCard || currentTurn !== 1) return;
+
+  // Play card from hand
+  showPlayedCard(selectedCard.code, 1);
+  playerHand = playerHand.filter(c => c.code !== selectedCard.code);
+  selectedCard = null;
+  renderHand();
+
+  document.getElementById("playCardButton").disabled = true;
+  
+  // Advance Turn to Bot
+  advanceTurn();
+}
+
+function advanceTurn(){
+  const totalPlayers = PLAYER_COUNTS[currentGame] || 6;
+  currentTurn = (currentTurn % totalPlayers) + 1;
+  updateTurnUI();
+
+  if(currentTurn !== 1){
+    // Simulate Bot Turn
+    setTimeout(() => {
+      simulateBotPlay();
+    }, 1000);
+  }
+}
+
+function simulateBotPlay(){
+  const randomCard = VALUES[Math.floor(Math.random()*VALUES.length)] + SUITS[Math.floor(Math.random()*SUITS.length)];
+  showPlayedCard(randomCard, currentTurn);
+
+  // Check if round finishes (back to player)
+  if((currentTurn % (PLAYER_COUNTS[currentGame] || 6)) + 1 === 1){
+    setTimeout(() => {
+      userTricksWon++;
+      document.getElementById("tricksValue").textContent = userTricksWon;
+      if(playerHand.length === 0){
+        finishRound();
+      } else {
+        currentTurn = 1;
+        updateTurnUI();
+      }
+    }, 1000);
+  } else {
+    advanceTurn();
+  }
+}
+
+function showPlayedCard(cardCode, playerNum){
+  const area = document.getElementById("playArea");
+  area.innerHTML = "";
+
+  const isRed = cardCode.includes("♥") || cardCode.includes("♦");
+  const played = document.createElement("div");
+  played.className = `played-card ${isRed ? 'red' : 'black'}`;
+  
+  const suit = cardCode.slice(-1);
+  const val = cardCode.slice(0, -1);
+  played.innerHTML = `${val}<div style='font-size:14px'>${suit}</div>`;
+
+  area.appendChild(played);
+}
+
+function updateTurnUI(){
+  document.querySelectorAll(".player-seat").forEach(seat => seat.classList.remove("active-turn"));
+  const currentSeat = document.getElementById(`seat${currentTurn}`);
+  if(currentSeat) currentSeat.classList.add("active-turn");
+
+  const status = document.getElementById("centerStatus");
+  status.textContent = currentTurn === 1 ? "YOUR TURN" : `BOT ${currentTurn - 1} TURN`;
+}
+
+function finishRound(){
+  let resultMsg = "";
+  if(userTricksWon >= selectedBid){
+    const reward = 50 + (userTricksWon * 10);
+    playerData.tokens += reward;
+    resultMsg = `Round Completed! You met your bid and won ${reward} tokens!`;
+  } else {
+    playerData.tokens = Math.max(0, playerData.tokens - 50);
+    resultMsg = `Round Failed! You missed your bid. Lost 50 tokens.`;
+  }
+  
+  savePlayerData();
+  updateTokens();
+  showMessage(resultMsg);
+
+  // Reset for Next Round
+  round++;
+  if(round > 6) round = 1;
+  
+  document.getElementById("roundValue").textContent = `${round} / 6`;
+  startNewHand();
+}
+
+function startNewHand(){
+  userTricksWon = 0;
+  selectedBid = null;
+  isBiddingPhase = true;
+  document.getElementById("tricksValue").textContent = "0";
+  document.getElementById("player1State").textContent = "Bid: -";
+  document.getElementById("announceBtn").disabled = false;
+  document.getElementById("playCardButton").disabled = true;
+  document.getElementById("playArea").innerHTML = '<div class="card-empty">Waiting for<br>bids</div>';
+  
+  // Bot bids
+  for(let i = 2; i <= 6; i++){
+    const botSeat = document.getElementById(`player${i}State`);
+    if(botSeat) botSeat.textContent = `Bid: ${Math.floor(Math.random()*4)}`;
+  }
+
+  dealCards();
+  showBidPanel();
+}
+
+/* =========================================================
+   BIDS & UI UPDATES
+========================================================= */
+function setupBids(){
+  document.querySelectorAll(".bid-number").forEach(button => {
+    button.addEventListener("click", () => {
+      document.querySelectorAll(".bid-number").forEach(b => b.classList.remove("selected"));
+      button.classList.add("selected");
+      selectedBid = Number(button.dataset.bid);
+      document.getElementById("confirmBid").disabled = false;
+    });
+  });
+
+  document.getElementById("confirmBid").addEventListener("click", confirmBid);
+}
+
+function showBidPanel(){ document.getElementById("bidPanel").classList.add("show"); }
+function hideBidPanel(){ document.getElementById("bidPanel").classList.remove("show"); }
+
+function confirmBid(){
+  if(selectedBid === null) return;
+  hideBidPanel();
+  
+  isBiddingPhase = false;
+  document.getElementById("player1State").textContent = `Bid: ${selectedBid}`;
+  document.getElementById("announceBtn").disabled = true;
+  document.getElementById("waitingBox").textContent = "Game in progress! Select a card to play.";
+  
+  currentTurn = 1;
+  updateTurnUI();
+}
+
+function updateGameUI(){
+  const gameName = GAME_NAMES[currentGame] || "Spades";
+  document.title = gameName + " - SPADES";
+  document.getElementById("topGameName").textContent = gameName;
+  document.getElementById("gameHeading").textContent = gameName;
+
+  updatePlayerSeats();
+  updateTokens();
+}
+
+function updateTokens(){
+  document.getElementById("gameTokens").textContent = Number(playerData.tokens || 0).toLocaleString();
+}
+
+function updatePlayerSeats(){
+  const count = PLAYER_COUNTS[currentGame] || 6;
+  for(let i = 1; i <= 6; i++){
+    const seat = document.getElementById("seat" + i);
+    if(seat) seat.style.display = i <= count ? "block" : "none";
+  }
+}
+
+function readGameParameters(){
+  const params = new URLSearchParams(window.location.search);
+  if(params.get("game") && GAME_NAMES[params.get("game")]) currentGame = params.get("game");
+  if(params.get("table") === "private") currentTable = "private";
+  if(params.get("room")) currentRoom = params.get("room");
+}
+
+function showMessage(msg){
+  if(tg && typeof tg.showAlert === "function") tg.showAlert(String(msg));
+  else alert(String(msg));
+}
+
+function returnToMain(){
+  window.location.href = "index.html";
+}
+
+/* =========================================================
+   INITIALIZATION
+========================================================= */
+function initialize(){
+  loadPlayerData();
+  readGameParameters();
+  updateGameUI();
+  setupBids();
+  startNewHand();
+}
+
+window.addEventListener("load", initialize);
+</script>
+
+</body>
+</html>
