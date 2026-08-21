@@ -1,0 +1,3198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"
+>
+
+<title>SPADES GAME</title>
+
+<style>
+
+/* =========================================================
+   RESET
+========================================================= */
+
+*{
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+}
+
+html,
+body{
+    margin:0;
+    padding:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#050505;
+    color:#fff;
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+}
+
+button{
+    font:inherit;
+    cursor:pointer;
+    border:0;
+}
+
+body{
+    touch-action:manipulation;
+}
+
+/* =========================================================
+   APP
+========================================================= */
+
+#gameApp{
+    position:relative;
+    width:100%;
+    height:100dvh;
+    min-height:560px;
+    overflow:hidden;
+
+    background:
+        radial-gradient(
+            circle at 50% 42%,
+            rgba(184,137,43,.12),
+            transparent 32%
+        ),
+        radial-gradient(
+            circle at 50% 100%,
+            rgba(113,75,17,.14),
+            transparent 45%
+        ),
+        #050505;
+}
+
+/* =========================================================
+   TOP BAR
+========================================================= */
+
+.top-bar{
+    position:absolute;
+    top:0;
+    left:0;
+    right:0;
+
+    z-index:100;
+
+    height:68px;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    padding:
+        calc(8px + env(safe-area-inset-top))
+        12px
+        8px;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(5,5,5,.98),
+            rgba(5,5,5,.86)
+        );
+
+    border-bottom:
+        1px solid
+        rgba(212,163,66,.16);
+
+    backdrop-filter:blur(12px);
+}
+
+.top-left{
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+.back-btn{
+    width:38px;
+    height:38px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:11px;
+
+    background:#111;
+
+    color:#d7ad52;
+
+    font-size:22px;
+
+    border:
+        1px solid
+        rgba(215,173,82,.18);
+}
+
+.game-name{
+    min-width:0;
+}
+
+.game-name-title{
+    font-size:12px;
+    font-weight:900;
+    letter-spacing:1px;
+}
+
+.game-name-sub{
+    margin-top:2px;
+    color:#777;
+    font-size:7px;
+    font-weight:900;
+    letter-spacing:1px;
+}
+
+.top-score{
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+.team-score{
+    min-width:45px;
+    padding:6px 7px;
+
+    text-align:center;
+
+    border-radius:9px;
+
+    background:#101010;
+
+    border:
+        1px solid
+        rgba(255,255,255,.07);
+}
+
+.team-score.blue{
+    border-color:
+        rgba(74,122,255,.35);
+}
+
+.team-score.red{
+    border-color:
+        rgba(255,70,70,.35);
+}
+
+.team-label{
+    color:#777;
+    font-size:6px;
+    font-weight:900;
+}
+
+.team-number{
+    margin-top:2px;
+    color:#f0c764;
+    font-size:14px;
+    font-weight:1000;
+}
+
+/* =========================================================
+   GAME TABLE AREA
+========================================================= */
+
+.table-area{
+    position:absolute;
+
+    top:68px;
+    left:0;
+    right:0;
+
+    bottom:155px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    overflow:hidden;
+}
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.table{
+    position:relative;
+
+    width:min(94vw,620px);
+    height:min(69vw,430px);
+
+    min-height:290px;
+
+    border-radius:
+        48%;
+
+    background:
+        radial-gradient(
+            ellipse at center,
+            #182018 0%,
+            #101611 48%,
+            #090c09 100%
+        );
+
+    border:
+        8px solid
+        #171717;
+
+    box-shadow:
+
+        0 0 0 2px
+        rgba(215,173,82,.16),
+
+        0 0 0 5px
+        rgba(0,0,0,.85),
+
+        inset 0 0 45px
+        rgba(0,0,0,.75),
+
+        0 25px 70px
+        rgba(0,0,0,.65);
+}
+
+/* gold table rim */
+
+.table::before{
+    content:"";
+
+    position:absolute;
+
+    inset:9px;
+
+    border-radius:48%;
+
+    pointer-events:none;
+
+    border:
+        1px solid
+        rgba(218,172,77,.35);
+
+    box-shadow:
+        inset 0 0 20px
+        rgba(0,0,0,.65);
+}
+
+/* =========================================================
+   CENTER TABLE INFO
+========================================================= */
+
+.table-center{
+    position:absolute;
+
+    left:50%;
+    top:50%;
+
+    transform:translate(-50%,-50%);
+
+    width:155px;
+
+    text-align:center;
+
+    pointer-events:none;
+}
+
+.trump-badge{
+    display:inline-flex;
+
+    align-items:center;
+    justify-content:center;
+
+    width:42px;
+    height:42px;
+
+    border-radius:50%;
+
+    background:
+        radial-gradient(
+            circle,
+            #292929,
+            #0a0a0a
+        );
+
+    border:
+        1px solid
+        rgba(226,180,77,.55);
+
+    box-shadow:
+        0 0 20px
+        rgba(221,169,62,.12);
+
+    color:#f1c85f;
+
+    font-size:24px;
+}
+
+.trump-text{
+    margin-top:5px;
+
+    color:#a9a9a9;
+
+    font-size:7px;
+    font-weight:900;
+    letter-spacing:1.5px;
+}
+
+.round-text{
+    margin-top:8px;
+
+    color:#686868;
+
+    font-size:7px;
+    font-weight:900;
+}
+
+/* =========================================================
+   PLAYERS
+========================================================= */
+
+.player{
+    position:absolute;
+
+    z-index:20;
+
+    width:78px;
+
+    text-align:center;
+
+    transition:.2s;
+}
+
+.player-top{
+    top:-17px;
+    left:50%;
+    transform:translateX(-50%);
+}
+
+.player-left{
+    left:-19px;
+    top:50%;
+    transform:translateY(-50%);
+}
+
+.player-right{
+    right:-19px;
+    top:50%;
+    transform:translateY(-50%);
+}
+
+.player-bottom-left{
+    left:18%;
+    bottom:-22px;
+    transform:translateX(-50%);
+}
+
+.player-bottom-right{
+    right:18%;
+    bottom:-22px;
+    transform:translateX(50%);
+}
+
+.player-you{
+    left:50%;
+    bottom:-30px;
+    transform:translateX(-50%);
+}
+
+.avatar{
+    width:42px;
+    height:42px;
+
+    margin:0 auto;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:50%;
+
+    background:
+        linear-gradient(
+            145deg,
+            #242424,
+            #0b0b0b
+        );
+
+    border:
+        2px solid
+        #363636;
+
+    box-shadow:
+        0 5px 12px
+        rgba(0,0,0,.45);
+
+    font-size:18px;
+}
+
+.player.active .avatar{
+    border-color:#e1b34d;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(225,179,77,.12),
+        0 0 18px
+        rgba(225,179,77,.32);
+}
+
+.player.you .avatar{
+    border-color:#e1b34d;
+}
+
+.player-name{
+    margin-top:3px;
+
+    color:#cfcfcf;
+
+    font-size:7px;
+    font-weight:900;
+
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.player.you .player-name{
+    color:#f1c764;
+}
+
+.player-status{
+    margin-top:2px;
+
+    color:#666;
+
+    font-size:6px;
+    font-weight:900;
+}
+
+.player.active .player-status{
+    color:#e1b34d;
+}
+
+/* =========================================================
+   PLAYER BID
+========================================================= */
+
+.player-bid{
+    display:inline-block;
+
+    margin-top:3px;
+
+    min-width:20px;
+    padding:3px 5px;
+
+    border-radius:6px;
+
+    background:#0b0b0b;
+
+    border:
+        1px solid
+        rgba(255,255,255,.08);
+
+    color:#e5b952;
+
+    font-size:7px;
+    font-weight:900;
+}
+
+/* =========================================================
+   PLAYED CARDS CENTER
+========================================================= */
+
+.play-area{
+    position:absolute;
+
+    left:50%;
+    top:50%;
+
+    width:155px;
+    height:130px;
+
+    transform:translate(-50%,-50%);
+
+    pointer-events:none;
+}
+
+.played-card{
+    position:absolute;
+
+    width:45px;
+    height:64px;
+
+    padding:4px;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+
+    border-radius:6px;
+
+    background:#fafafa;
+
+    color:#111;
+
+    box-shadow:
+        0 5px 12px
+        rgba(0,0,0,.55);
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-weight:900;
+
+    transform-origin:center;
+}
+
+.played-card .mini-rank{
+    font-size:14px;
+    line-height:1;
+}
+
+.played-card .mini-suit{
+    align-self:center;
+
+    font-size:18px;
+}
+
+.played-card.red-card{
+    color:#b51f2d;
+}
+
+.played-card.gold-card{
+    box-shadow:
+        0 0 0 1px
+        rgba(222,177,74,.4),
+        0 5px 12px
+        rgba(0,0,0,.55);
+}
+
+.played-1{
+    left:55px;
+    top:33px;
+    transform:rotate(-7deg);
+}
+
+.played-2{
+    left:70px;
+    top:27px;
+    transform:rotate(8deg);
+}
+
+.played-3{
+    left:53px;
+    top:39px;
+    transform:rotate(-2deg);
+}
+
+.played-4{
+    left:77px;
+    top:42px;
+    transform:rotate(13deg);
+}
+
+.played-5{
+    left:39px;
+    top:41px;
+    transform:rotate(-15deg);
+}
+
+.played-6{
+    left:65px;
+    top:35px;
+    transform:rotate(4deg);
+}
+
+/* =========================================================
+   TABLE MESSAGE
+========================================================= */
+
+.table-message{
+    position:absolute;
+
+    left:50%;
+    bottom:18px;
+
+    transform:translateX(-50%);
+
+    min-width:130px;
+
+    padding:7px 10px;
+
+    border-radius:9px;
+
+    background:
+        rgba(0,0,0,.62);
+
+    border:
+        1px solid
+        rgba(218,172,77,.14);
+
+    color:#898989;
+
+    text-align:center;
+
+    font-size:7px;
+    font-weight:900;
+}
+
+/* =========================================================
+   BOTTOM PLAYER PANEL
+========================================================= */
+
+.player-panel{
+    position:absolute;
+
+    left:0;
+    right:0;
+    bottom:0;
+
+    z-index:80;
+
+    height:155px;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(5,5,5,.18),
+            rgba(5,5,5,.98) 22%
+        );
+
+    border-top:
+        1px solid
+        rgba(215,173,82,.12);
+
+    padding:
+        7px
+        8px
+        calc(8px + env(safe-area-inset-bottom));
+}
+
+/* =========================================================
+   PLAYER INFO BAR
+========================================================= */
+
+.you-info{
+    height:25px;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    max-width:620px;
+    margin:0 auto 3px;
+}
+
+.you-name{
+    color:#e2b955;
+
+    font-size:8px;
+    font-weight:1000;
+
+    letter-spacing:.5px;
+}
+
+.you-cards{
+    color:#777;
+
+    font-size:7px;
+    font-weight:900;
+}
+
+.timer-box{
+    display:flex;
+    align-items:center;
+    gap:5px;
+}
+
+.timer{
+    min-width:29px;
+    padding:4px 6px;
+
+    border-radius:6px;
+
+    background:#111;
+
+    border:
+        1px solid
+        rgba(218,172,77,.2);
+
+    color:#e5b94f;
+
+    text-align:center;
+
+    font-size:10px;
+    font-weight:1000;
+}
+
+/* =========================================================
+   HAND
+========================================================= */
+
+.hand{
+    position:relative;
+
+    width:100%;
+    height:91px;
+
+    max-width:620px;
+
+    margin:0 auto;
+
+    display:flex;
+    justify-content:center;
+    align-items:flex-end;
+
+    padding:0 2px;
+}
+
+/* =========================================================
+   CARD
+========================================================= */
+
+.card{
+    position:relative;
+
+    width:49px;
+    height:73px;
+
+    flex:0 0 49px;
+
+    margin-left:-8px;
+
+    border-radius:7px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #ffffff,
+            #ededed
+        );
+
+    border:
+        1px solid
+        #d2d2d2;
+
+    color:#111;
+
+    box-shadow:
+        0 5px 12px
+        rgba(0,0,0,.6);
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    transition:
+        transform .16s,
+        margin .16s,
+        box-shadow .16s;
+
+    user-select:none;
+
+    overflow:hidden;
+}
+
+.card:first-child{
+    margin-left:0;
+}
+
+.card.red{
+    color:#b51d2b;
+}
+
+.card.selected{
+    transform:
+        translateY(-20px)
+        scale(1.04);
+
+    z-index:50;
+
+    box-shadow:
+        0 0 0 2px
+        #e3b64e,
+        0 10px 20px
+        rgba(0,0,0,.7);
+}
+
+.card-rank{
+    position:absolute;
+
+    top:4px;
+    left:5px;
+
+    font-size:15px;
+    line-height:1;
+
+    font-weight:900;
+}
+
+.card-suit{
+    position:absolute;
+
+    top:20px;
+    left:5px;
+
+    font-size:12px;
+}
+
+.card-center-suit{
+    position:absolute;
+
+    left:50%;
+    top:50%;
+
+    transform:
+        translate(-50%,-50%);
+
+    font-size:28px;
+}
+
+.card-corner-bottom{
+    position:absolute;
+
+    right:5px;
+    bottom:4px;
+
+    transform:rotate(180deg);
+
+    font-size:15px;
+
+    line-height:1;
+}
+
+/* joker */
+
+.card.joker{
+    background:
+        linear-gradient(
+            145deg,
+            #f8f8f8,
+            #d8d8d8
+        );
+}
+
+.card.joker .joker-symbol{
+    position:absolute;
+
+    inset:0;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:22px;
+
+    color:#111;
+}
+
+.card.joker.red-joker .joker-symbol{
+    color:#b51d2b;
+}
+
+/* =========================================================
+   ACTION AREA
+========================================================= */
+
+.action-row{
+    position:absolute;
+
+    left:8px;
+    right:8px;
+    bottom:7px;
+
+    height:30px;
+
+    display:flex;
+    justify-content:center;
+    gap:7px;
+}
+
+.action-btn{
+    min-width:85px;
+    height:30px;
+
+    padding:0 12px;
+
+    border-radius:8px;
+
+    background:#161616;
+
+    border:
+        1px solid
+        rgba(255,255,255,.08);
+
+    color:#999;
+
+    font-size:7px;
+    font-weight:900;
+}
+
+.action-btn.gold{
+    background:
+        linear-gradient(
+            135deg,
+            #c99b38,
+            #8a611b
+        );
+
+    color:#050505;
+
+    border-color:#dcb457;
+}
+
+.action-btn:disabled{
+    opacity:.35;
+}
+
+/* =========================================================
+   BID PANEL
+========================================================= */
+
+.bid-overlay{
+    position:absolute;
+
+    inset:0;
+
+    z-index:500;
+
+    display:none;
+    align-items:center;
+    justify-content:center;
+
+    padding:20px;
+
+    background:
+        rgba(0,0,0,.78);
+
+    backdrop-filter:blur(8px);
+}
+
+.bid-overlay.show{
+    display:flex;
+}
+
+.bid-box{
+    width:min(92vw,360px);
+
+    padding:20px;
+
+    border-radius:20px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #181818,
+            #0b0b0b
+        );
+
+    border:
+        1px solid
+        rgba(224,178,72,.3);
+
+    box-shadow:
+        0 30px 80px
+        rgba(0,0,0,.75);
+
+    text-align:center;
+}
+
+.bid-title{
+    margin:0;
+
+    color:#f0c763;
+
+    font-size:20px;
+    font-weight:1000;
+}
+
+.bid-subtitle{
+    margin:7px 0 15px;
+
+    color:#777;
+
+    font-size:9px;
+}
+
+.bid-buttons{
+    display:grid;
+
+    grid-template-columns:
+        repeat(6,1fr);
+
+    gap:6px;
+}
+
+.bid-button{
+    height:40px;
+
+    border-radius:9px;
+
+    background:#171717;
+
+    color:#ccc;
+
+    border:
+        1px solid
+        rgba(255,255,255,.06);
+
+    font-size:12px;
+    font-weight:900;
+}
+
+.bid-button.active{
+    background:
+        linear-gradient(
+            135deg,
+            #c99b38,
+            #8c631c
+        );
+
+    color:#050505;
+
+    border-color:#e2b550;
+}
+
+/* =========================================================
+   RESULT / MESSAGE
+========================================================= */
+
+.result-overlay{
+    position:absolute;
+
+    inset:0;
+
+    z-index:600;
+
+    display:none;
+    align-items:center;
+    justify-content:center;
+
+    padding:20px;
+
+    background:
+        rgba(0,0,0,.72);
+
+    backdrop-filter:blur(8px);
+}
+
+.result-overlay.show{
+    display:flex;
+}
+
+.result-box{
+    width:min(90vw,350px);
+
+    padding:25px;
+
+    border-radius:21px;
+
+    background:#111;
+
+    border:
+        1px solid
+        rgba(221,175,73,.3);
+
+    text-align:center;
+}
+
+.result-icon{
+    font-size:38px;
+}
+
+.result-title{
+    margin:8px 0;
+
+    color:#efc45b;
+
+    font-size:23px;
+    font-weight:1000;
+}
+
+.result-text{
+    color:#888;
+
+    font-size:9px;
+    line-height:1.6;
+}
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+#toast{
+    position:absolute;
+
+    left:50%;
+    bottom:168px;
+
+    z-index:1000;
+
+    max-width:85vw;
+
+    padding:9px 13px;
+
+    transform:
+        translate(-50%,20px);
+
+    opacity:0;
+
+    pointer-events:none;
+
+    border-radius:9px;
+
+    background:#191919;
+
+    border:
+        1px solid
+        rgba(224,177,72,.18);
+
+    color:#fff;
+
+    font-size:8px;
+    font-weight:900;
+
+    transition:.22s;
+}
+
+#toast.show{
+    opacity:1;
+
+    transform:
+        translate(-50%,0);
+}
+
+/* =========================================================
+   VERY SMALL DEVICES
+========================================================= */
+
+@media(max-width:380px){
+
+    .table-area{
+        bottom:150px;
+    }
+
+    .player-panel{
+        height:150px;
+    }
+
+    .table{
+        width:96vw;
+        height:62vw;
+        min-height:270px;
+    }
+
+    .card{
+        width:42px;
+        flex-basis:42px;
+        height:67px;
+        margin-left:-9px;
+    }
+
+    .card-rank{
+        font-size:13px;
+    }
+
+    .card-center-suit{
+        font-size:24px;
+    }
+
+    .hand{
+        height:86px;
+    }
+
+    .player{
+        width:70px;
+    }
+
+    .avatar{
+        width:38px;
+        height:38px;
+    }
+
+}
+
+/* =========================================================
+   LANDSCAPE
+========================================================= */
+
+@media(
+    orientation:landscape
+) and (
+    max-height:500px
+){
+
+    #gameApp{
+        min-height:420px;
+    }
+
+    .top-bar{
+        height:54px;
+    }
+
+    .table-area{
+        top:54px;
+        bottom:105px;
+    }
+
+    .player-panel{
+        height:105px;
+    }
+
+    .hand{
+        height:65px;
+    }
+
+    .card{
+        height:58px;
+        width:43px;
+        flex-basis:43px;
+    }
+
+    .action-row{
+        display:none;
+    }
+
+    #toast{
+        bottom:110px;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="gameApp">
+
+<!-- =======================================================
+     TOP BAR
+======================================================== -->
+
+<header class="top-bar">
+
+    <div class="top-left">
+
+        <button
+            class="back-btn"
+            type="button"
+            onclick="goBack()"
+        >
+            ‹
+        </button>
+
+        <div class="game-name">
+
+            <div
+                id="gameTitle"
+                class="game-name-title"
+            >
+                SPADE TRUMP
+            </div>
+
+            <div
+                id="gameSubtitle"
+                class="game-name-sub"
+            >
+                6 PLAYERS • 3 VS 3
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="top-score">
+
+        <div class="team-score blue">
+
+            <div class="team-label">
+                BLUE
+            </div>
+
+            <div
+                id="blueScore"
+                class="team-number"
+            >
+                0
+            </div>
+
+        </div>
+
+        <div class="team-score red">
+
+            <div class="team-label">
+                RED
+            </div>
+
+            <div
+                id="redScore"
+                class="team-number"
+            >
+                0
+            </div>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<!-- =======================================================
+     TABLE
+======================================================== -->
+
+<main class="table-area">
+
+    <div class="table">
+
+        <!-- PLAYER 1 -->
+
+        <div
+            id="player1"
+            class="player player-top active"
+        >
+
+            <div class="avatar">
+                👤
+            </div>
+
+            <div class="player-name">
+                Player 1
+            </div>
+
+            <div class="player-status">
+                YOUR TEAM
+            </div>
+
+            <div class="player-bid">
+                BID 2
+            </div>
+
+        </div>
+
+
+        <!-- PLAYER 2 -->
+
+        <div
+            id="player2"
+            class="player player-right"
+        >
+
+            <div class="avatar">
+                👤
+            </div>
+
+            <div class="player-name">
+                Player 2
+            </div>
+
+            <div class="player-status">
+                OPPONENT
+            </div>
+
+            <div class="player-bid">
+                BID 3
+            </div>
+
+        </div>
+
+
+        <!-- PLAYER 3 -->
+
+        <div
+            id="player3"
+            class="player player-bottom-right"
+        >
+
+            <div class="avatar">
+                👤
+            </div>
+
+            <div class="player-name">
+                Player 3
+            </div>
+
+            <div class="player-status">
+                YOUR TEAM
+            </div>
+
+            <div class="player-bid">
+                BID 1
+            </div>
+
+        </div>
+
+
+        <!-- PLAYER 4 -->
+
+        <div
+            id="player4"
+            class="player player-bottom-left"
+        >
+
+            <div class="avatar">
+                👤
+            </div>
+
+            <div class="player-name">
+                Player 4
+            </div>
+
+            <div class="player-status">
+                OPPONENT
+            </div>
+
+            <div class="player-bid">
+                BID 2
+            </div>
+
+        </div>
+
+
+        <!-- PLAYER 5 -->
+
+        <div
+            id="player5"
+            class="player player-left"
+        >
+
+            <div class="avatar">
+                👤
+            </div>
+
+            <div class="player-name">
+                Player 5
+            </div>
+
+            <div class="player-status">
+                YOUR TEAM
+            </div>
+
+            <div class="player-bid">
+                BID 2
+            </div>
+
+        </div>
+
+
+        <!-- PLAYER 6 -->
+
+        <div
+            id="player6"
+            class="player player-top"
+            style="
+                top:42px;
+                left:16%;
+                transform:translateX(-50%);
+            "
+        >
+
+            <div class="avatar">
+                👤
+            </div>
+
+            <div class="player-name">
+                Player 6
+            </div>
+
+            <div class="player-status">
+                OPPONENT
+            </div>
+
+            <div class="player-bid">
+                BID 2
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             TABLE CENTER
+        ================================================= -->
+
+        <div class="table-center">
+
+            <div class="trump-badge">
+                ♠
+            </div>
+
+            <div class="trump-text">
+                PERMANENT TRUMP
+            </div>
+
+            <div
+                id="roundText"
+                class="round-text"
+            >
+                ROUND 1 • TRICK 1
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             PLAYED CARDS
+        ================================================= -->
+
+        <div
+            id="playArea"
+            class="play-area"
+        >
+
+            <!-- Cards are inserted by JavaScript -->
+
+        </div>
+
+
+        <div
+            id="tableMessage"
+            class="table-message"
+        >
+            Your turn
+        </div>
+
+    </div>
+
+</main>
+
+
+<!-- =======================================================
+     PLAYER PANEL
+======================================================== -->
+
+<section class="player-panel">
+
+    <div class="you-info">
+
+        <div class="you-name">
+            YOU • BLUE TEAM
+        </div>
+
+        <div class="timer-box">
+
+            <span class="you-cards">
+                CARDS
+            </span>
+
+            <span
+                id="cardCount"
+                class="you-cards"
+            >
+                9
+            </span>
+
+            <span
+                id="timer"
+                class="timer"
+            >
+                10
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         HAND
+    ================================================= -->
+
+    <div
+        id="hand"
+        class="hand"
+    >
+
+        <!-- Cards generated by JavaScript -->
+
+    </div>
+
+
+    <!-- =================================================
+         ACTION BUTTONS
+    ================================================= -->
+
+    <div class="action-row">
+
+        <button
+            id="playButton"
+            class="action-btn gold"
+            type="button"
+            onclick="playSelectedCard()"
+            disabled
+        >
+            PLAY CARD
+        </button>
+
+        <button
+            class="action-btn"
+            type="button"
+            onclick="showRules()"
+        >
+            RULES
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- =======================================================
+     BID OVERLAY
+======================================================== -->
+
+<div
+    id="bidOverlay"
+    class="bid-overlay"
+>
+
+    <div class="bid-box">
+
+        <h2 class="bid-title">
+            YOUR BID
+        </h2>
+
+        <div class="bid-subtitle">
+            Choose the number of tricks you expect your team to take.
+        </div>
+
+        <div class="bid-buttons">
+
+            <button class="bid-button" onclick="chooseBid(0)">
+                0
+            </button>
+
+            <button class="bid-button" onclick="chooseBid(1)">
+                1
+            </button>
+
+            <button class="bid-button" onclick="chooseBid(2)">
+                2
+            </button>
+
+            <button class="bid-button" onclick="chooseBid(3)">
+                3
+            </button>
+
+            <button class="bid-button" onclick="chooseBid(4)">
+                4
+            </button>
+
+            <button class="bid-button" onclick="chooseBid(5)">
+                5
+            </button>
+
+            <button class="bid-button" onclick="chooseBid(6)">
+                6
+            </button>
+
+            <button class="bid-button" onclick="chooseBid(7)">
+                7
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =======================================================
+     RESULT
+======================================================== -->
+
+<div
+    id="resultOverlay"
+    class="result-overlay"
+>
+
+    <div class="result-box">
+
+        <div class="result-icon">
+            ♠
+        </div>
+
+        <h2
+            id="resultTitle"
+            class="result-title"
+        >
+            ROUND COMPLETE
+        </h2>
+
+        <div
+            id="resultText"
+            class="result-text"
+        >
+            Round information
+        </div>
+
+        <button
+            class="action-btn gold"
+            style="
+                width:100%;
+                margin-top:18px;
+                height:42px;
+            "
+            onclick="closeResult()"
+        >
+            CONTINUE
+        </button>
+
+    </div>
+
+</div>
+
+
+<!-- =======================================================
+     TOAST
+======================================================== -->
+
+<div id="toast"></div>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   URL / GAME MODE
+========================================================= */
+
+const params =
+    new URLSearchParams(
+        window.location.search
+    );
+
+const mode =
+    params.get("mode") || "6";
+
+const tableType =
+    params.get("table") || "public";
+
+const room =
+    params.get("room") || "PUBLIC";
+
+
+/* =========================================================
+   GAME CONFIG
+========================================================= */
+
+const GAME_CONFIG = {
+
+    "6":{
+        title:"SPADE TRUMP",
+        subtitle:"6 PLAYERS • 3 VS 3",
+        players:6
+    },
+
+    "4":{
+        title:"CLASSIC SPADES",
+        subtitle:"4 PLAYERS • 2 VS 2",
+        players:4
+    },
+
+    "2":{
+        title:"TWO PLAYER",
+        subtitle:"2 PLAYERS • HEAD TO HEAD",
+        players:2
+    }
+
+};
+
+const config =
+    GAME_CONFIG[mode] ||
+    GAME_CONFIG["6"];
+
+
+/* =========================================================
+   GAME STATE
+========================================================= */
+
+let state = {
+
+    round:1,
+
+    trick:1,
+
+    currentPlayer:1,
+
+    selectedCard:null,
+
+    timer:10,
+
+    timerInterval:null,
+
+    blueScore:0,
+
+    redScore:0,
+
+    blueTricks:0,
+
+    redTricks:0,
+
+    playerBids:{
+
+        1:null,
+        2:null,
+        3:null,
+        4:null,
+        5:null,
+        6:null
+
+    },
+
+    hand:[]
+
+};
+
+
+/* =========================================================
+   DECK
+========================================================= */
+
+const SUITS = [
+
+    {
+        symbol:"♠",
+        name:"spades",
+        red:false
+    },
+
+    {
+        symbol:"♥",
+        name:"hearts",
+        red:true
+    },
+
+    {
+        symbol:"♦",
+        name:"diamonds",
+        red:true
+    },
+
+    {
+        symbol:"♣",
+        name:"clubs",
+        red:false
+    }
+
+];
+
+const RANKS = [
+
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "J",
+    "Q",
+    "K",
+    "A"
+
+];
+
+
+/* =========================================================
+   INIT
+========================================================= */
+
+document.addEventListener(
+    "DOMContentLoaded",
+    function(){
+
+        applyGameConfig();
+
+        createDeck();
+
+        dealCards();
+
+        renderHand();
+
+        updateScores();
+
+        updateRound();
+
+        startTurnTimer();
+
+    }
+);
+
+
+/* =========================================================
+   CONFIG UI
+========================================================= */
+
+function applyGameConfig(){
+
+    document.getElementById(
+        "gameTitle"
+    ).textContent =
+        config.title;
+
+    document.getElementById(
+        "gameSubtitle"
+    ).textContent =
+        config.subtitle;
+
+    /*
+     * In 4-player and 2-player modes
+     * unused player positions are hidden.
+     */
+
+    if(mode === "4"){
+
+        hidePlayer(5);
+        hidePlayer(6);
+
+    }
+
+    if(mode === "2"){
+
+        hidePlayer(2);
+        hidePlayer(3);
+        hidePlayer(4);
+        hidePlayer(5);
+        hidePlayer(6);
+
+    }
+
+}
+
+
+/* =========================================================
+   HIDE PLAYER
+========================================================= */
+
+function hidePlayer(number){
+
+    const element =
+        document.getElementById(
+            "player" + number
+        );
+
+    if(element){
+
+        element.style.display =
+            "none";
+
+    }
+
+}
+
+
+/* =========================================================
+   CREATE DECK
+========================================================= */
+
+function createDeck(){
+
+    state.deck = [];
+
+    SUITS.forEach(
+        function(suit){
+
+            RANKS.forEach(
+                function(rank){
+
+                    state.deck.push({
+
+                        rank:rank,
+
+                        suit:suit.symbol,
+
+                        suitName:suit.name,
+
+                        red:suit.red,
+
+                        value:getCardValue(rank),
+
+                        id:
+                            rank +
+                            "-" +
+                            suit.name
+
+                    });
+
+                }
+            );
+
+        }
+    );
+
+
+    /*
+     * Special jokers for Spade Trump.
+     */
+
+    if(mode === "6"){
+
+        state.deck.push({
+
+            rank:"JOKER",
+            suit:"★",
+            suitName:"red-joker",
+            red:true,
+            value:100,
+            id:"red-joker"
+
+        });
+
+        state.deck.push({
+
+            rank:"JOKER",
+            suit:"★",
+            suitName:"black-joker",
+            red:false,
+            value:99,
+            id:"black-joker"
+
+        });
+
+    }
+
+}
+
+
+/* =========================================================
+   CARD VALUE
+========================================================= */
+
+function getCardValue(rank){
+
+    const values = {
+
+        "2":2,
+        "3":3,
+        "4":4,
+        "5":5,
+        "6":6,
+        "7":7,
+        "8":8,
+        "9":9,
+        "10":10,
+        "J":11,
+        "Q":12,
+        "K":13,
+        "A":14
+
+    };
+
+    return values[rank] || 0;
+
+}
+
+
+/* =========================================================
+   SHUFFLE
+========================================================= */
+
+function shuffle(array){
+
+    const result =
+        array.slice();
+
+    for(
+        let i=result.length-1;
+        i>0;
+        i--
+    ){
+
+        const j =
+            Math.floor(
+                Math.random() *
+                (i+1)
+            );
+
+        [
+            result[i],
+            result[j]
+        ] = [
+            result[j],
+            result[i]
+        ];
+
+    }
+
+    return result;
+
+}
+
+
+/* =========================================================
+   DEAL
+========================================================= */
+
+function dealCards(){
+
+    const shuffled =
+        shuffle(state.deck);
+
+    /*
+     * For the visual game:
+     * player receives 9 cards.
+     */
+
+    state.hand =
+        shuffled.slice(
+            0,
+            9
+        );
+
+}
+
+
+/* =========================================================
+   RENDER HAND
+========================================================= */
+
+function renderHand(){
+
+    const hand =
+        document.getElementById(
+            "hand"
+        );
+
+    if(!hand){
+        return;
+    }
+
+    hand.innerHTML = "";
+
+    state.hand.forEach(
+        function(card,index){
+
+            const element =
+                document.createElement(
+                    "button"
+                );
+
+            element.type =
+                "button";
+
+            element.className =
+                "card";
+
+            if(card.red){
+
+                element.classList.add(
+                    "red"
+                );
+
+            }
+
+            if(
+                card.rank ===
+                "JOKER"
+            ){
+
+                element.classList.add(
+                    "joker"
+                );
+
+                if(card.red){
+
+                    element.classList.add(
+                        "red-joker"
+                    );
+
+                }
+
+                element.innerHTML = `
+
+                    <div class="card-rank">
+                        J
+                    </div>
+
+                    <div class="joker-symbol">
+                        ★
+                    </div>
+
+                    <div class="card-corner-bottom">
+                        J
+                    </div>
+
+                `;
+
+            }else{
+
+                element.innerHTML = `
+
+                    <div class="card-rank">
+                        ${card.rank}
+                    </div>
+
+                    <div class="card-suit">
+                        ${card.suit}
+                    </div>
+
+                    <div class="card-center-suit">
+                        ${card.suit}
+                    </div>
+
+                    <div class="card-corner-bottom">
+                        ${card.rank}
+                    </div>
+
+                `;
+
+            }
+
+            element.dataset.index =
+                String(index);
+
+            element.addEventListener(
+                "click",
+                function(){
+
+                    selectCard(index);
+
+                }
+            );
+
+            hand.appendChild(
+                element
+            );
+
+        }
+    );
+
+    document.getElementById(
+        "cardCount"
+    ).textContent =
+        state.hand.length;
+
+}
+
+
+/* =========================================================
+   SELECT CARD
+========================================================= */
+
+function selectCard(index){
+
+    if(
+        state.currentPlayer !== 1
+    ){
+
+        showToast(
+            "Wait for your turn."
+        );
+
+        return;
+
+    }
+
+    const card =
+        state.hand[index];
+
+    if(!card){
+        return;
+    }
+
+    state.selectedCard =
+        index;
+
+    document
+        .querySelectorAll(".card")
+        .forEach(
+            function(element){
+
+                element.classList.remove(
+                    "selected"
+                );
+
+            }
+        );
+
+    const selected =
+        document.querySelector(
+            '.card[data-index="' +
+            index +
+            '"]'
+        );
+
+    if(selected){
+
+        selected.classList.add(
+            "selected"
+        );
+
+    }
+
+    const button =
+        document.getElementById(
+            "playButton"
+        );
+
+    if(button){
+
+        button.disabled =
+            false;
+
+    }
+
+}
+
+
+/* =========================================================
+   PLAY CARD
+========================================================= */
+
+function playSelectedCard(){
+
+    if(
+        state.selectedCard ===
+        null
+    ){
+
+        showToast(
+            "Select a card first."
+        );
+
+        return;
+
+    }
+
+    if(
+        state.currentPlayer !== 1
+    ){
+
+        showToast(
+            "It is not your turn."
+        );
+
+        return;
+
+    }
+
+    const card =
+        state.hand[
+            state.selectedCard
+        ];
+
+    if(!card){
+        return;
+    }
+
+
+    /*
+     * Basic lead validation:
+     *
+     * A Joker cannot lead.
+     *
+     * This is especially important
+     * for Spade Trump.
+     */
+
+    const playedCards =
+        document.querySelectorAll(
+            ".played-card"
+        );
+
+    if(
+        playedCards.length === 0 &&
+        card.rank === "JOKER"
+    ){
+
+        showToast(
+            "A Joker cannot start a trick."
+        );
+
+        return;
+
+    }
+
+
+    addPlayedCard(
+        card,
+        1
+    );
+
+
+    state.hand.splice(
+        state.selectedCard,
+        1
+    );
+
+    state.selectedCard =
+        null;
+
+
+    renderHand();
+
+
+    document.getElementById(
+        "playButton"
+    ).disabled =
+        true;
+
+
+    state.currentPlayer =
+        getNextPlayer(
+            state.currentPlayer
+        );
+
+
+    updateActivePlayer();
+
+
+    /*
+     * Demo opponent response.
+     *
+     * This keeps the interface alive
+     * until the real online engine
+     * is connected.
+     */
+
+    setTimeout(
+        simulateOpponent,
+        650
+    );
+
+}
+
+
+/* =========================================================
+   NEXT PLAYER
+========================================================= */
+
+function getNextPlayer(player){
+
+    let next =
+        player + 1;
+
+    const total =
+        Number(mode);
+
+    if(next > total){
+
+        next = 1;
+
+    }
+
+    return next;
+
+}
+
+
+/* =========================================================
+   SIMULATE OPPONENT
+========================================================= */
+
+function simulateOpponent(){
+
+    if(
+        state.currentPlayer === 1
+    ){
+        return;
+    }
+
+    const player =
+        state.currentPlayer;
+
+    const card =
+        randomOpponentCard();
+
+    if(card){
+
+        addPlayedCard(
+            card,
+            player
+        );
+
+    }
+
+
+    /*
+     * For visual prototype:
+     * return to player after one
+     * opponent action.
+     */
+
+    state.currentPlayer =
+        getNextPlayer(
+            player
+        );
+
+    if(
+        state.currentPlayer === 1
+    ){
+
+        startTurnTimer();
+
+    }
+
+    updateActivePlayer();
+
+}
+
+
+/* =========================================================
+   RANDOM OPPONENT CARD
+========================================================= */
+
+function randomOpponentCard(){
+
+    const cards = [
+
+        {
+            rank:"A",
+            suit:"♠",
+            red:false
+        },
+
+        {
+            rank:"K",
+            suit:"♥",
+            red:true
+        },
+
+        {
+            rank:"10",
+            suit:"♦",
+            red:true
+        },
+
+        {
+            rank:"Q",
+            suit:"♣",
+            red:false
+        }
+
+    ];
+
+    return cards[
+        Math.floor(
+            Math.random() *
+            cards.length
+        )
+    ];
+
+}
+
+
+/* =========================================================
+   ADD PLAYED CARD
+========================================================= */
+
+function addPlayedCard(
+    card,
+    player
+){
+
+    const area =
+        document.getElementById(
+            "playArea"
+        );
+
+    if(!area){
+        return;
+    }
+
+    const played =
+        document.createElement(
+            "div"
+        );
+
+    played.className =
+        "played-card";
+
+    if(card.red){
+
+        played.classList.add(
+            "red-card"
+        );
+
+    }
+
+    if(
+        card.suit === "♠"
+    ){
+
+        played.classList.add(
+            "gold-card"
+        );
+
+    }
+
+    played.innerHTML = `
+
+        <div class="mini-rank">
+            ${card.rank}
+        </div>
+
+        <div class="mini-suit">
+            ${card.suit}
+        </div>
+
+    `;
+
+    const count =
+        area.children.length;
+
+    played.classList.add(
+        "played-" +
+        ((count % 6) + 1)
+    );
+
+    area.appendChild(
+        played
+    );
+
+
+    if(
+        area.children.length >=
+        Number(mode)
+    ){
+
+        finishTrick();
+
+    }
+
+}
+
+
+/* =========================================================
+   FINISH TRICK
+========================================================= */
+
+function finishTrick(){
+
+    const area =
+        document.getElementById(
+            "playArea"
+        );
+
+    setTimeout(
+        function(){
+
+            if(area){
+
+                area.innerHTML = "";
+
+            }
+
+            state.trick++;
+
+            if(
+                state.trick > 9
+            ){
+
+                finishRound();
+
+                return;
+
+            }
+
+            updateRound();
+
+            state.currentPlayer =
+                1;
+
+            updateActivePlayer();
+
+            startTurnTimer();
+
+        },
+        900
+    );
+
+}
+
+
+/* =========================================================
+   ROUND
+========================================================= */
+
+function updateRound(){
+
+    document.getElementById(
+        "roundText"
+    ).textContent =
+        "ROUND " +
+        state.round +
+        " • TRICK " +
+        state.trick;
+
+}
+
+
+/* =========================================================
+   ACTIVE PLAYER
+========================================================= */
+
+function updateActivePlayer(){
+
+    document
+        .querySelectorAll(".player")
+        .forEach(
+            function(player){
+
+                player.classList.remove(
+                    "active"
+                );
+
+            }
+        );
+
+    const active =
+        document.getElementById(
+            "player" +
+            state.currentPlayer
+        );
+
+    if(active){
+
+        active.classList.add(
+            "active"
+        );
+
+    }
+
+    const message =
+        document.getElementById(
+            "tableMessage"
+        );
+
+    if(message){
+
+        if(
+            state.currentPlayer === 1
+        ){
+
+            message.textContent =
+                "Your turn";
+
+        }else{
+
+            message.textContent =
+                "Player " +
+                state.currentPlayer +
+                " is playing";
+
+        }
+
+    }
+
+}
+
+
+/* =========================================================
+   TIMER
+========================================================= */
+
+function startTurnTimer(){
+
+    clearInterval(
+        state.timerInterval
+    );
+
+    state.timer =
+        10;
+
+    updateTimer();
+
+    state.timerInterval =
+        setInterval(
+            function(){
+
+                state.timer--;
+
+                updateTimer();
+
+                if(
+                    state.timer <= 0
+                ){
+
+                    clearInterval(
+                        state.timerInterval
+                    );
+
+                    handleTimeout();
+
+                }
+
+            },
+            1000
+        );
+
+}
+
+
+/* =========================================================
+   TIMER UI
+========================================================= */
+
+function updateTimer(){
+
+    const timer =
+        document.getElementById(
+            "timer"
+        );
+
+    if(timer){
+
+        timer.textContent =
+            state.timer;
+
+    }
+
+}
+
+
+/* =========================================================
+   TIMEOUT
+========================================================= */
+
+function handleTimeout(){
+
+    if(
+        state.currentPlayer !== 1
+    ){
+        return;
+    }
+
+    /*
+     * Temporary safe card selection.
+     *
+     * In the final online engine this
+     * point is where the intelligent
+     * Bot takes control.
+     */
+
+    if(
+        state.hand.length
+    ){
+
+        state.selectedCard = 0;
+
+        playSelectedCard();
+
+        showToast(
+            "Time expired."
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   SCORES
+========================================================= */
+
+function updateScores(){
+
+    document.getElementById(
+        "blueScore"
+    ).textContent =
+        state.blueScore;
+
+    document.getElementById(
+        "redScore"
+    ).textContent =
+        state.redScore;
+
+}
+
+
+/* =========================================================
+   FINISH ROUND
+========================================================= */
+
+function finishRound(){
+
+    clearInterval(
+        state.timerInterval
+    );
+
+    state.blueScore +=
+        state.blueTricks * 10;
+
+    state.redScore +=
+        state.redTricks * 10;
+
+    updateScores();
+
+    document.getElementById(
+        "resultTitle"
+    ).textContent =
+        "ROUND " +
+        state.round +
+        " COMPLETE";
+
+    document.getElementById(
+        "resultText"
+    ).textContent =
+        "The 9 tricks of this round have been completed.";
+
+    document.getElementById(
+        "resultOverlay"
+    ).classList.add(
+        "show"
+    );
+
+}
+
+
+/* =========================================================
+   CLOSE RESULT
+========================================================= */
+
+function closeResult(){
+
+    document.getElementById(
+        "resultOverlay"
+    ).classList.remove(
+        "show"
+    );
+
+    state.round++;
+
+    state.trick = 1;
+
+    state.currentPlayer = 1;
+
+    state.blueTricks = 0;
+
+    state.redTricks = 0;
+
+    createDeck();
+
+    dealCards();
+
+    renderHand();
+
+    updateRound();
+
+    updateActivePlayer();
+
+    startTurnTimer();
+
+}
+
+
+/* =========================================================
+   BID
+========================================================= */
+
+function openBid(){
+
+    if(mode !== "6"){
+        return;
+    }
+
+    document.getElementById(
+        "bidOverlay"
+    ).classList.add(
+        "show"
+    );
+
+}
+
+function chooseBid(value){
+
+    state.playerBids[1] =
+        value;
+
+    document
+        .querySelectorAll(
+            ".bid-button"
+        )
+        .forEach(
+            function(button){
+
+                button.classList.remove(
+                    "active"
+                );
+
+            }
+        );
+
+    showToast(
+        "Bid " +
+        value +
+        " selected."
+    );
+
+    setTimeout(
+        function(){
+
+            document.getElementById(
+                "bidOverlay"
+            ).classList.remove(
+                "show"
+            );
+
+        },
+        250
+    );
+
+}
+
+
+/* =========================================================
+   RULES
+========================================================= */
+
+function showRules(){
+
+    const text =
+        "Spade Trump: 6 players, 3 vs 3. " +
+        "Spades are always trump. " +
+        "Each player receives 9 cards. " +
+        "A Joker cannot lead a trick. " +
+        "Turn time is 10 seconds.";
+
+    showToast(text);
+
+}
+
+
+/* =========================================================
+   BACK TO INDEX
+========================================================= */
+
+function goBack(){
+
+    /*
+     * Always return to index.html
+     * in the same directory.
+     *
+     * This avoids GitHub Pages
+     * root-path 404 errors.
+     */
+
+    const path =
+        window.location.pathname;
+
+    const slash =
+        path.lastIndexOf("/");
+
+    const base =
+        path.substring(
+            0,
+            slash + 1
+        );
+
+    window.location.assign(
+        base +
+        "index.html"
+    );
+
+}
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+let toastTimer = null;
+
+function showToast(message){
+
+    const toast =
+        document.getElementById(
+            "toast"
+        );
+
+    if(!toast){
+        return;
+    }
+
+    toast.textContent =
+        message;
+
+    toast.classList.add(
+        "show"
+    );
+
+    clearTimeout(
+        toastTimer
+    );
+
+    toastTimer =
+        setTimeout(
+            function(){
+
+                toast.classList.remove(
+                    "show"
+                );
+
+            },
+            2600
+        );
+
+}
+
+
+/* =========================================================
+   PREVENT ACCIDENTAL PAGE SCROLL
+========================================================= */
+
+document.addEventListener(
+    "touchmove",
+    function(event){
+
+        /*
+         * Keep the game fixed on mobile.
+         */
+
+        if(
+            !event.target.closest(
+                ".bid-box"
+            )
+        ){
+
+            event.preventDefault();
+
+        }
+
+    },
+    {
+        passive:false
+    }
+);
+
+
+/* =========================================================
+   KEYBOARD SUPPORT
+========================================================= */
+
+document.addEventListener(
+    "keydown",
+    function(event){
+
+        if(
+            event.key === "Escape"
+        ){
+
+            goBack();
+
+        }
+
+    }
+);
+
+</script>
+
+</body>
+</html>
