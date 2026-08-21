@@ -1,0 +1,3432 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"
+>
+
+<title>SPADES</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://www.youtube.com/iframe_api"></script>
+
+<style>
+
+/* =========================================================
+   RESET
+========================================================= */
+
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,
+body{
+  margin:0;
+  padding:0;
+  width:100%;
+  min-height:100%;
+  background:#070a10;
+  color:#fff;
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+}
+
+body{
+  overflow-x:hidden;
+}
+
+button,
+input{
+  font:inherit;
+}
+
+button{
+  cursor:pointer;
+}
+
+/* =========================================================
+   APP
+========================================================= */
+
+#app{
+  position:relative;
+  width:100%;
+  min-height:100vh;
+
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(30,92,57,.35),
+      transparent 45%
+    ),
+    #070a10;
+}
+
+/* =========================================================
+   STATUS BAR
+========================================================= */
+
+.status-bar{
+
+  position:fixed;
+
+  top:0;
+  left:0;
+  right:0;
+
+  z-index:1000;
+
+  height:58px;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:space-between;
+
+  padding:
+    8px
+    12px;
+
+  background:
+    rgba(5,8,13,.96);
+
+  border-bottom:
+    1px solid
+    rgba(255,255,255,.08);
+
+  backdrop-filter:blur(14px);
+
+}
+
+.status-left{
+  min-width:0;
+}
+
+.status-label{
+
+  color:#788496;
+
+  font-size:8px;
+
+  font-weight:900;
+
+  letter-spacing:1px;
+
+}
+
+.status-token{
+
+  margin-top:2px;
+
+  color:#ffd35b;
+
+  font-size:17px;
+
+  font-weight:900;
+
+}
+
+.status-right{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:8px;
+
+}
+
+.status-value-label{
+
+  color:#788496;
+
+  font-size:7px;
+
+  font-weight:900;
+
+  letter-spacing:.8px;
+
+}
+
+.status-value{
+
+  margin-top:2px;
+
+  color:#fff;
+
+  font-size:10px;
+
+  font-weight:900;
+
+}
+
+/* =========================================================
+   SCREENS
+========================================================= */
+
+.screen{
+
+  display:none;
+
+  width:100%;
+
+  min-height:100vh;
+
+  padding:
+    78px
+    14px
+    92px;
+
+}
+
+.screen.active{
+  display:block;
+}
+
+.screen-inner{
+
+  width:100%;
+
+  max-width:560px;
+
+  margin:0 auto;
+
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.header{
+
+  text-align:center;
+
+  padding:
+    18px
+    10px
+    20px;
+
+}
+
+.spade{
+
+  font-size:38px;
+
+  line-height:1;
+
+}
+
+.title{
+
+  margin:
+    8px
+    0
+    0;
+
+  font-size:29px;
+
+  font-weight:1000;
+
+  letter-spacing:4px;
+
+}
+
+.subtitle{
+
+  margin-top:6px;
+
+  color:#8994a7;
+
+  font-size:10px;
+
+  letter-spacing:1px;
+
+}
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.hero{
+
+  padding:
+    24px
+    20px;
+
+  border:
+    1px solid
+    rgba(255,255,255,.07);
+
+  border-radius:24px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(24,77,48,.72),
+      rgba(13,22,20,.88)
+    );
+
+  box-shadow:
+    0 25px 60px
+    rgba(0,0,0,.35);
+
+}
+
+.hero-kicker{
+
+  color:#8ed5a8;
+
+  font-size:9px;
+
+  font-weight:900;
+
+  letter-spacing:1.8px;
+
+}
+
+.hero-title{
+
+  margin:
+    8px
+    0
+    9px;
+
+  font-size:29px;
+
+  line-height:1.05;
+
+}
+
+.hero-text{
+
+  margin:0;
+
+  color:#aeb7c5;
+
+  font-size:12px;
+
+  line-height:1.7;
+
+}
+
+.hero-badge{
+
+  display:inline-block;
+
+  margin-top:15px;
+
+  padding:
+    8px
+    11px;
+
+  border-radius:10px;
+
+  background:
+    rgba(255,255,255,.07);
+
+  color:#d7e0dc;
+
+  font-size:8px;
+
+  font-weight:900;
+
+  letter-spacing:.8px;
+
+}
+
+/* =========================================================
+   PANEL
+========================================================= */
+
+.panel{
+
+  margin-top:14px;
+
+  padding:19px;
+
+  border-radius:19px;
+
+  background:#101722;
+
+  border:
+    1px solid
+    rgba(255,255,255,.07);
+
+}
+
+.panel-title{
+
+  margin:0;
+
+  font-size:17px;
+
+}
+
+.panel-text{
+
+  margin:
+    8px
+    0
+    15px;
+
+  color:#8994a7;
+
+  font-size:11px;
+
+  line-height:1.6;
+
+}
+
+/* =========================================================
+   BUTTON
+========================================================= */
+
+.action-button{
+
+  width:100%;
+
+  min-height:45px;
+
+  margin-top:9px;
+
+  padding:
+    11px
+    14px;
+
+  border:0;
+
+  border-radius:12px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #5364ff,
+      #3848d7
+    );
+
+  color:#fff;
+
+  font-size:10px;
+
+  font-weight:900;
+
+  letter-spacing:.4px;
+
+}
+
+.action-button.secondary{
+  background:#202a39;
+}
+
+.action-button.gold{
+
+  background:
+    linear-gradient(
+      135deg,
+      #bd8b24,
+      #8d6314
+    );
+
+}
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+.game-card,
+.table-card{
+
+  display:block;
+
+  width:100%;
+
+  margin-top:10px;
+
+  padding:0;
+
+  border:0;
+
+  border-radius:18px;
+
+  background:#111925;
+
+  color:#fff;
+
+  text-align:left;
+
+  overflow:hidden;
+
+  border:
+    1px solid
+    rgba(255,255,255,.06);
+
+}
+
+.game-card.featured,
+.table-card.featured{
+
+  border-color:
+    rgba(87,105,255,.40);
+
+  background:
+    linear-gradient(
+      145deg,
+      #141d31,
+      #101721
+    );
+
+}
+
+.card-row{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:12px;
+
+  padding:17px;
+
+}
+
+.icon{
+
+  width:43px;
+  height:43px;
+
+  flex:0 0 43px;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  border-radius:13px;
+
+  background:#202b3d;
+
+  font-size:22px;
+
+}
+
+.info{
+
+  min-width:0;
+
+  flex:1;
+
+}
+
+.name{
+
+  margin:0;
+
+  font-size:15px;
+
+  font-weight:900;
+
+}
+
+.description{
+
+  margin:
+    5px
+    0
+    7px;
+
+  color:#8792a5;
+
+  font-size:9px;
+
+  line-height:1.5;
+
+}
+
+.meta{
+
+  color:#69758a;
+
+  font-size:7px;
+
+  font-weight:900;
+
+  letter-spacing:.7px;
+
+}
+
+.arrow{
+
+  color:#647086;
+
+  font-size:27px;
+
+}
+
+/* =========================================================
+   BACK
+========================================================= */
+
+.back-button{
+
+  width:100%;
+
+  min-height:43px;
+
+  margin-top:14px;
+
+  border:0;
+
+  border-radius:12px;
+
+  background:#181f2b;
+
+  color:#c4cbd6;
+
+  font-size:10px;
+
+  font-weight:900;
+
+}
+
+/* =========================================================
+   GUIDE
+========================================================= */
+
+.guide-intro{
+
+  margin-top:10px;
+
+  padding:17px;
+
+  border-radius:17px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #14233a,
+      #101722
+    );
+
+  border:
+    1px solid
+    rgba(255,255,255,.07);
+
+}
+
+.guide-intro-title{
+
+  margin:0;
+
+  font-size:16px;
+
+  font-weight:900;
+
+}
+
+.guide-intro-text{
+
+  margin:
+    8px
+    0
+    0;
+
+  color:#9ba6b8;
+
+  font-size:10px;
+
+  line-height:1.7;
+
+}
+
+.guide-section{
+
+  margin-top:10px;
+
+  padding:16px;
+
+  border-radius:16px;
+
+  background:#111925;
+
+  border:
+    1px solid
+    rgba(255,255,255,.06);
+
+}
+
+.guide-number{
+
+  color:#ffd35b;
+
+  font-size:8px;
+
+  font-weight:900;
+
+  letter-spacing:1px;
+
+  margin-bottom:5px;
+
+}
+
+.guide-title{
+
+  margin:0;
+
+  font-size:14px;
+
+  font-weight:900;
+
+}
+
+.guide-text{
+
+  margin:
+    7px
+    0
+    0;
+
+  color:#8994a7;
+
+  font-size:10px;
+
+  line-height:1.75;
+
+}
+
+.guide-list{
+
+  margin:
+    8px
+    0
+    0;
+
+  padding-left:18px;
+
+  color:#9aa5b6;
+
+  font-size:10px;
+
+  line-height:1.8;
+
+}
+
+.guide-list li{
+  margin-bottom:3px;
+}
+
+.guide-highlight{
+
+  margin-top:10px;
+
+  padding:11px;
+
+  border-radius:11px;
+
+  background:
+    rgba(255,211,91,.07);
+
+  border:
+    1px solid
+    rgba(255,211,91,.14);
+
+  color:#e7d69a;
+
+  font-size:9px;
+
+  line-height:1.6;
+
+}
+
+.guide-rule{
+
+  margin-top:8px;
+
+  padding:10px;
+
+  border-radius:10px;
+
+  background:#0a0f17;
+
+  color:#b8c1ce;
+
+  font-size:9px;
+
+  line-height:1.65;
+
+}
+
+/* =========================================================
+   TASKS
+========================================================= */
+
+.task{
+
+  margin-top:10px;
+
+  padding:14px;
+
+  border-radius:15px;
+
+  background:#111925;
+
+  border:
+    1px solid
+    rgba(255,255,255,.06);
+
+}
+
+.task-row{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:11px;
+
+}
+
+.task-icon{
+
+  width:40px;
+  height:40px;
+
+  flex:0 0 40px;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  border-radius:11px;
+
+  background:#202a3a;
+
+  font-size:19px;
+
+}
+
+.task-info{
+  flex:1;
+}
+
+.task-name{
+
+  font-size:11px;
+
+  font-weight:900;
+
+}
+
+.task-description{
+
+  margin-top:3px;
+
+  color:#788496;
+
+  font-size:8px;
+
+}
+
+.task-status{
+
+  color:#ffd35b;
+
+  font-size:10px;
+
+  font-weight:900;
+
+}
+
+/* =========================================================
+   REFERRAL
+========================================================= */
+
+.referral-code{
+
+  width:100%;
+
+  padding:13px;
+
+  border-radius:10px;
+
+  background:#080d14;
+
+  color:#aeb8c9;
+
+  text-align:center;
+
+  font-size:10px;
+
+  font-weight:900;
+
+  letter-spacing:.6px;
+
+  word-break:break-all;
+
+}
+
+/* =========================================================
+   WALLET
+========================================================= */
+
+.balance-number{
+
+  text-align:center;
+
+  color:#ffd35b;
+
+  font-size:38px;
+
+  font-weight:1000;
+
+}
+
+.balance-caption{
+
+  text-align:center;
+
+  color:#748095;
+
+  font-size:8px;
+
+  font-weight:900;
+
+  letter-spacing:1px;
+
+}
+
+.usdt-card{
+
+  margin-top:14px;
+
+  padding:15px;
+
+  border-radius:14px;
+
+  background:#1a2230;
+
+  color:#798598;
+
+  text-align:center;
+
+  font-size:8px;
+
+  font-weight:900;
+
+  letter-spacing:.7px;
+
+}
+
+.usdt-card strong{
+
+  display:block;
+
+  margin-top:5px;
+
+  color:#fff;
+
+  font-size:21px;
+
+}
+
+.input{
+
+  width:100%;
+
+  height:45px;
+
+  padding:
+    0
+    13px;
+
+  border:1px solid
+    rgba(255,255,255,.08);
+
+  outline:none;
+
+  border-radius:11px;
+
+  background:#080d14;
+
+  color:#fff;
+
+  font-size:10px;
+
+}
+
+/* =========================================================
+   NAVIGATION
+========================================================= */
+
+.bottom-nav{
+
+  position:fixed;
+
+  left:0;
+  right:0;
+  bottom:0;
+
+  z-index:1000;
+
+  display:grid;
+
+  grid-template-columns:
+    repeat(5,1fr);
+
+  height:72px;
+
+  background:
+    rgba(6,9,14,.97);
+
+  border-top:
+    1px solid
+    rgba(255,255,255,.08);
+
+  backdrop-filter:blur(14px);
+
+}
+
+.nav-button{
+
+  border:0;
+
+  background:transparent;
+
+  color:#667286;
+
+  font-size:8px;
+
+  font-weight:900;
+
+}
+
+.nav-button.active{
+  color:#fff;
+}
+
+.nav-icon{
+
+  display:block;
+
+  margin-bottom:4px;
+
+  font-size:19px;
+
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.modal{
+
+  position:fixed;
+
+  inset:0;
+
+  z-index:2000;
+
+  display:none;
+
+  align-items:center;
+
+  justify-content:center;
+
+  padding:18px;
+
+  background:
+    rgba(0,0,0,.78);
+
+  backdrop-filter:blur(7px);
+
+}
+
+.modal.show{
+  display:flex;
+}
+
+.modal-box{
+
+  width:min(92vw,420px);
+
+  max-height:90vh;
+
+  overflow:auto;
+
+  padding:20px;
+
+  border-radius:21px;
+
+  background:#111925;
+
+  border:
+    1px solid
+    rgba(255,255,255,.09);
+
+}
+
+.modal-title{
+
+  margin:0;
+
+  text-align:center;
+
+  font-size:19px;
+
+}
+
+.modal-text{
+
+  color:#8994a7;
+
+  text-align:center;
+
+  font-size:10px;
+
+  line-height:1.5;
+
+}
+
+.video-wrapper{
+
+  position:relative;
+
+  width:100%;
+
+  aspect-ratio:16/9;
+
+  overflow:hidden;
+
+  border-radius:12px;
+
+  background:#000;
+
+}
+
+#youtubePlayer{
+
+  width:100%;
+  height:100%;
+}
+
+.video-status{
+
+  margin-top:10px;
+
+  text-align:center;
+
+  color:#8994a7;
+
+  font-size:9px;
+
+}
+
+.reward{
+
+  margin-top:8px;
+
+  text-align:center;
+
+  color:#ffd35b;
+
+  font-size:16px;
+
+  font-weight:900;
+
+}
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+#toast{
+
+  position:fixed;
+
+  left:50%;
+
+  bottom:88px;
+
+  z-index:3000;
+
+  max-width:85vw;
+
+  padding:
+    10px
+    14px;
+
+  transform:
+    translate(-50%,20px);
+
+  opacity:0;
+
+  pointer-events:none;
+
+  border-radius:11px;
+
+  background:#202a38;
+
+  color:#fff;
+
+  font-size:9px;
+
+  font-weight:900;
+
+  transition:.25s;
+
+}
+
+#toast.show{
+
+  opacity:1;
+
+  transform:
+    translate(-50%,0);
+
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media(max-width:380px){
+
+  .title{
+    font-size:25px;
+  }
+
+  .hero-title{
+    font-size:25px;
+  }
+
+  .screen{
+    padding-left:11px;
+    padding-right:11px;
+  }
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="app">
+
+
+<!-- =======================================================
+     STATUS BAR
+======================================================== -->
+
+<div class="status-bar">
+
+  <div class="status-left">
+
+    <div class="status-label">
+      AVAILABLE TOKENS
+    </div>
+
+    <div
+      id="globalTokens"
+      class="status-token"
+    >
+      100
+    </div>
+
+  </div>
+
+  <div class="status-right">
+
+    <div>
+
+      <div class="status-value-label">
+        TOKEN VALUE
+      </div>
+
+      <div class="status-value">
+        1,000 = $1
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =======================================================
+     HOME
+     ORIGINAL BASE PRESERVED
+======================================================== -->
+
+<section
+  id="homeScreen"
+  class="screen active"
+>
+
+  <div class="screen-inner">
+
+    <header class="header">
+
+      <div class="spade">
+        ♠
+      </div>
+
+      <h1 class="title">
+        SPADES
+      </h1>
+
+      <div class="subtitle">
+        Enter the table. Play smart. Win big.
+      </div>
+
+    </header>
+
+    <div class="hero">
+
+      <div class="hero-kicker">
+        WELCOME TO SPADES
+      </div>
+
+      <h2 class="hero-title">
+        Enter The Table
+      </h2>
+
+      <p class="hero-text">
+        Choose your game from the Games section,
+        complete the required steps and enter your table.
+      </p>
+
+      <div class="hero-badge">
+        ♠ PLAY • COMPETE • EARN
+      </div>
+
+    </div>
+
+    <div class="panel">
+
+      <h2 class="panel-title">
+        Welcome
+      </h2>
+
+      <p class="panel-text">
+        Your games, rewards, invitations and wallet
+        are available from the navigation bar below.
+      </p>
+
+      <button
+        class="action-button"
+        type="button"
+        onclick="navigate('gamesScreen')"
+      >
+        🎮 Open Games
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =======================================================
+     GAMES
+======================================================== -->
+
+<section
+  id="gamesScreen"
+  class="screen"
+>
+
+  <div class="screen-inner">
+
+    <header class="header">
+
+      <div class="spade">
+        🎮
+      </div>
+
+      <h1 class="title">
+        GAMES
+      </h1>
+
+      <div class="subtitle">
+        Select a game to continue
+      </div>
+
+    </header>
+
+
+    <button
+      class="game-card featured"
+      type="button"
+      onclick="selectGame('suit')"
+    >
+
+      <div class="card-row">
+
+        <div class="icon">
+          ♠
+        </div>
+
+        <div class="info">
+
+          <h2 class="name">
+            Spade Trump
+          </h2>
+
+          <p class="description">
+            Six-player team card game with
+            Spades as the permanent trump suit.
+          </p>
+
+          <span class="meta">
+            6 PLAYERS • 3 VS 3
+          </span>
+
+        </div>
+
+        <div class="arrow">
+          ›
+        </div>
+
+      </div>
+
+    </button>
+
+
+    <button
+      class="game-card"
+      type="button"
+      onclick="selectGame('classic')"
+    >
+
+      <div class="card-row">
+
+        <div class="icon">
+          ♣
+        </div>
+
+        <div class="info">
+
+          <h2 class="name">
+            Classic Spades
+          </h2>
+
+          <p class="description">
+            Traditional four-player Spades
+            card game.
+          </p>
+
+          <span class="meta">
+            4 PLAYERS • 2 VS 2
+          </span>
+
+        </div>
+
+        <div class="arrow">
+          ›
+        </div>
+
+      </div>
+
+    </button>
+
+
+    <button
+      class="game-card"
+      type="button"
+      onclick="selectGame('two')"
+    >
+
+      <div class="card-row">
+
+        <div class="icon">
+          🃏
+        </div>
+
+        <div class="info">
+
+          <h2 class="name">
+            Two Player
+          </h2>
+
+          <p class="description">
+            Fast two-player card game
+            head-to-head.
+          </p>
+
+          <span class="meta">
+            2 PLAYERS • HEAD TO HEAD
+          </span>
+
+        </div>
+
+        <div class="arrow">
+          ›
+        </div>
+
+      </div>
+
+    </button>
+
+
+    <button
+      class="back-button"
+      type="button"
+      onclick="navigate('homeScreen')"
+    >
+      ← Back Home
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- =======================================================
+     AIRDROP
+======================================================== -->
+
+<section
+  id="airdropScreen"
+  class="screen"
+>
+
+  <div class="screen-inner">
+
+    <header class="header">
+
+      <div class="spade">
+        🎁
+      </div>
+
+      <h1 class="title">
+        AIRDROP
+      </h1>
+
+      <div class="subtitle">
+        Complete tasks and earn tokens
+      </div>
+
+    </header>
+
+
+    <div class="panel">
+
+      <h2 class="panel-title">
+        Airdrop Tasks
+      </h2>
+
+      <p class="panel-text">
+        All official channels and reward tasks
+        are collected here.
+      </p>
+
+    </div>
+
+
+    <div class="task">
+
+      <div class="task-row">
+
+        <div class="task-icon">
+          📺
+        </div>
+
+        <div class="task-info">
+
+          <div class="task-name">
+            Watch Airdrop Video
+          </div>
+
+          <div class="task-description">
+            Watch the complete video.
+          </div>
+
+        </div>
+
+        <div
+          id="airdropVideoStatus"
+          class="task-status"
+        >
+          +25
+        </div>
+
+      </div>
+
+      <button
+        class="action-button"
+        type="button"
+        onclick="openAirdropVideo()"
+      >
+        Watch Airdrop Video
+      </button>
+
+    </div>
+
+
+    <div class="task">
+
+      <div class="task-row">
+
+        <div class="task-icon">
+          📢
+        </div>
+
+        <div class="task-info">
+
+          <div class="task-name">
+            Telegram Channel
+          </div>
+
+          <div class="task-description">
+            @CourtPiecesPades
+          </div>
+
+        </div>
+
+        <div
+          id="channel1Status"
+          class="task-status"
+        >
+          +25
+        </div>
+
+      </div>
+
+      <button
+        class="action-button"
+        type="button"
+        onclick="joinTelegramChannel()"
+      >
+        Join Telegram Channel
+      </button>
+
+    </div>
+
+
+    <div class="task">
+
+      <div class="task-row">
+
+        <div class="task-icon">
+          📸
+        </div>
+
+        <div class="task-info">
+
+          <div class="task-name">
+            Instagram
+          </div>
+
+          <div class="task-description">
+            @CourtPiecesPades
+          </div>
+
+        </div>
+
+        <div
+          id="channel2Status"
+          class="task-status"
+        >
+          +25
+        </div>
+
+      </div>
+
+      <button
+        class="action-button"
+        type="button"
+        onclick="joinInstagram()"
+      >
+        Follow Instagram
+      </button>
+
+    </div>
+
+
+    <div class="task">
+
+      <div class="task-row">
+
+        <div class="task-icon">
+          🤖
+        </div>
+
+        <div class="task-info">
+
+          <div class="task-name">
+            Official Bot
+          </div>
+
+          <div class="task-description">
+            @CourtPiecesPades_bot
+          </div>
+
+        </div>
+
+        <div class="task-status">
+          OPEN
+        </div>
+
+      </div>
+
+      <button
+        class="action-button secondary"
+        type="button"
+        onclick="openBot()"
+      >
+        Open Official Bot
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =======================================================
+     INVITE
+======================================================== -->
+
+<section
+  id="inviteScreen"
+  class="screen"
+>
+
+  <div class="screen-inner">
+
+    <header class="header">
+
+      <div class="spade">
+        👥
+      </div>
+
+      <h1 class="title">
+        INVITE FRIENDS
+      </h1>
+
+      <div class="subtitle">
+        Invite friends and earn tokens
+      </div>
+
+    </header>
+
+
+    <div class="panel">
+
+      <h2 class="panel-title">
+        Your Referral Link
+      </h2>
+
+      <p class="panel-text">
+        Share your personal referral link.
+        When a new player joins through your link,
+        you can receive referral rewards.
+      </p>
+
+      <div
+        id="referralCode"
+        class="referral-code"
+      >
+        SPADES-PLAYER
+      </div>
+
+      <button
+        class="action-button"
+        type="button"
+        onclick="copyReferral()"
+      >
+        Copy Referral Link
+      </button>
+
+      <button
+        class="action-button secondary"
+        type="button"
+        onclick="shareReferral()"
+      >
+        Invite Friends
+      </button>
+
+    </div>
+
+
+    <div class="panel">
+
+      <h2 class="panel-title">
+        Referral Reward
+      </h2>
+
+      <p class="panel-text">
+        Successful referrals can earn
+        <strong>50 Tokens</strong>.
+      </p>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =======================================================
+     WALLET
+======================================================== -->
+
+<section
+  id="walletScreen"
+  class="screen"
+>
+
+  <div class="screen-inner">
+
+    <header class="header">
+
+      <div class="spade">
+        👛
+      </div>
+
+      <h1 class="title">
+        WALLET
+      </h1>
+
+      <div class="subtitle">
+        Manage your tokens and withdrawals
+      </div>
+
+    </header>
+
+
+    <div class="panel">
+
+      <div
+        id="walletTokens"
+        class="balance-number"
+      >
+        100
+      </div>
+
+      <div class="balance-caption">
+        AVAILABLE TOKENS
+      </div>
+
+      <div class="usdt-card">
+
+        CURRENT VALUE
+
+        <strong id="walletUSDT">
+          $0.10
+        </strong>
+
+      </div>
+
+    </div>
+
+
+    <div class="panel">
+
+      <h2 class="panel-title">
+        Connect Wallet
+      </h2>
+
+      <p class="panel-text">
+        Enter your wallet address for future
+        USDT withdrawals.
+      </p>
+
+      <input
+        id="walletAddress"
+        class="input"
+        placeholder="Enter wallet address"
+        autocomplete="off"
+      >
+
+      <button
+        id="connectWalletButton"
+        class="action-button"
+        type="button"
+        onclick="connectWallet()"
+      >
+        Connect Wallet
+      </button>
+
+    </div>
+
+
+    <div class="panel">
+
+      <h2 class="panel-title">
+        Withdraw USDT
+      </h2>
+
+      <p class="panel-text">
+        Minimum withdrawal is
+        <strong>10 USDT</strong>
+        or
+        <strong>10,000 Tokens</strong>.
+        A complete verification video is
+        required before withdrawal.
+      </p>
+
+      <button
+        class="action-button gold"
+        type="button"
+        onclick="startWithdrawal()"
+      >
+        Withdraw
+      </button>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =======================================================
+     6 PLAYER TABLE
+======================================================== -->
+
+<section
+  id="tableScreen"
+  class="screen"
+>
+
+  <div class="screen-inner">
+
+    <header class="header">
+
+      <div class="spade">
+        ♠
+      </div>
+
+      <h1 class="title">
+        SPADE TRUMP
+      </h1>
+
+      <div class="subtitle">
+        Choose your 6-player table
+      </div>
+
+    </header>
+
+
+    <button
+      class="table-card featured"
+      type="button"
+      onclick="openGameMode('6','public')"
+    >
+
+      <div class="card-row">
+
+        <div class="icon">
+          🌐
+        </div>
+
+        <div class="info">
+
+          <h2 class="name">
+            Public Game
+          </h2>
+
+          <p class="description">
+            Join a public table with other players.
+          </p>
+
+          <span class="meta">
+            6 PLAYERS • 3 VS 3 • 50 TOKENS
+          </span>
+
+        </div>
+
+        <div class="arrow">
+          ›
+        </div>
+
+      </div>
+
+    </button>
+
+
+    <button
+      class="table-card"
+      type="button"
+      onclick="openGameMode('6','private')"
+    >
+
+      <div class="card-row">
+
+        <div class="icon">
+          🔒
+        </div>
+
+        <div class="info">
+
+          <h2 class="name">
+            Private Game
+          </h2>
+
+          <p class="description">
+            Play with friends using a private room.
+          </p>
+
+          <span class="meta">
+            6 PLAYERS • 50 TOKENS
+          </span>
+
+        </div>
+
+        <div class="arrow">
+          ›
+        </div>
+
+      </div>
+
+    </button>
+
+
+    <button
+      class="table-card"
+      type="button"
+      onclick="openGuide('6')"
+    >
+
+      <div class="card-row">
+
+        <div class="icon">
+          📖
+        </div>
+
+        <div class="info">
+
+          <h2 class="name">
+            Complete Guide
+          </h2>
+
+          <p class="description">
+            Learn the complete rules of Spade Trump.
+          </p>
+
+          <span class="meta">
+            RULES • BIDS • CARDS • SCORING
+          </span>
+
+        </div>
+
+        <div class="arrow">
+          ›
+        </div>
+
+      </div>
+
+    </button>
+
+
+    <button
+      class="back-button"
+      type="button"
+      onclick="navigate('gamesScreen')"
+    >
+      ← Back to Games
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- =======================================================
+     4 PLAYER TABLE
+======================================================== -->
+
+<section
+  id="classicTableScreen"
+  class="screen"
+>
+
+  <div class="screen-inner">
+
+    <header class="header">
+
+      <div class="spade">
+        ♣
+      </div>
+
+      <h1 class="title">
+        CLASSIC SPADES
+      </h1>
+
+      <div class="subtitle">
+        Choose your 4-player table
+      </div>
+
+    </header>
+
+
+    <button
+      class="table-card featured"
+      type="button"
+      onclick="openGameMode('4','public')"
+    >
+
+      <div class="card-row">
+
+        <div class="icon">
+          🌐
+        </div>
+
+        <div class="info">
+
+          <h2 class="name">
+            Public Game
+          </h2>
+
+          <p class="description">
+            Join a classic four-player table.
+          </p>
+
+          <span class="meta">
+            4 PLAYERS • 2 VS 2 • 50 TOKENS
+          </span>
+
+        </div>
+
+        <div class="arrow">
+          ›
+        </div>
+
+      </div>
+
+    </button>
+
+
+    <button
+      class="table-card"
+      type="button"
+      onclick="openGameMode('4','private')"
+    >
+
+      <div class="card-row">
+
+        <div class="icon">
+          🔒
+        </div>
+
+        <div class="info">
+
+          <h2 class="name">
+            Private Game
+          </h2>
+
+          <p class="description">
+            Play with friends in a private room.
+          </p>
+
+          <span class="meta">
+            4 PLAYERS • 50 TOKENS
+          </span>
+
+        </div>
+
+        <div class="arrow">
+          ›
+        </div>
+
+      </div>
+
+    </button>
+
+
+    <button
+      class="table-card"
+      type="button"
+      onclick="openGuide('4')"
+    >
+
+      <div class="card-row">
+
+        <div class="icon">
+          📖
+        </div>
+
+        <div class="info">
+
+          <h2 class="name">
+            Complete Guide
+          </h2>
+
+          <p class="description">
+            Learn the complete Classic Spades rules.
+          </p>
+
+          <span class="meta">
+            RULES • BIDS • TRICKS • SCORING
+          </span>
+
+        </div>
+
+        <div class="arrow">
+          ›
+        </div>
+
+      </div>
+
+    </button>
+
+
+    <button
+      class="back-button"
+      type="button"
+      onclick="navigate('gamesScreen')"
+    >
+      ← Back to Games
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- =======================================================
+     2 PLAYER TABLE
+======================================================== -->
+
+<section
+  id="twoTableScreen"
+  class="screen"
+>
+
+  <div class="screen-inner">
+
+    <header class="header">
+
+      <div class="spade">
+        🃏
+      </div>
+
+      <h1 class="title">
+        TWO PLAYER
+      </h1>
+
+      <div class="subtitle">
+        Choose your 2-player table
+      </div>
+
+    </header>
+
+
+    <button
+      class="table-card featured"
+      type="button"
+      onclick="openGameMode('2','public')"
+    >
+
+      <div class="card-row">
+
+        <div class="icon">
+          🌐
+        </div>
+
+        <div class="info">
+
+          <h2 class="name">
+            Public Game
+          </h2>
+
+          <p class="description">
+            Play head-to-head with another player.
+          </p>
+
+          <span class="meta">
+            2 PLAYERS • 50 TOKENS
+          </span>
+
+        </div>
+
+        <div class="arrow">
+          ›
+        </div>
+
+      </div>
+
+    </button>
+
+
+    <button
+      class="table-card"
+      type="button"
+      onclick="openGameMode('2','private')"
+    >
+
+      <div class="card-row">
+
+        <div class="icon">
+          🔒
+        </div>
+
+        <div class="info">
+
+          <h2 class="name">
+            Private Game
+          </h2>
+
+          <p class="description">
+            Play head-to-head using a private room.
+          </p>
+
+          <span class="meta">
+            2 PLAYERS • 50 TOKENS
+          </span>
+
+        </div>
+
+        <div class="arrow">
+          ›
+        </div>
+
+      </div>
+
+    </button>
+
+
+    <button
+      class="table-card"
+      type="button"
+      onclick="openGuide('2')"
+    >
+
+      <div class="card-row">
+
+        <div class="icon">
+          📖
+        </div>
+
+        <div class="info">
+
+          <h2 class="name">
+            Complete Guide
+          </h2>
+
+          <p class="description">
+            Learn how the two-player game works.
+          </p>
+
+          <span class="meta">
+            RULES • PLAY • SCORING • TIPS
+          </span>
+
+        </div>
+
+        <div class="arrow">
+          ›
+        </div>
+
+      </div>
+
+    </button>
+
+
+    <button
+      class="back-button"
+      type="button"
+      onclick="navigate('gamesScreen')"
+    >
+      ← Back to Games
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- =======================================================
+     6 PLAYER GUIDE
+======================================================== -->
+
+<section
+  id="guide6Screen"
+  class="screen"
+>
+
+  <div class="screen-inner">
+
+    <header class="header">
+
+      <div class="spade">
+        ♠
+      </div>
+
+      <h1 class="title">
+        6 PLAYER GUIDE
+      </h1>
+
+      <div class="subtitle">
+        COMPLETE SPADE TRUMP RULES
+      </div>
+
+    </header>
+
+
+    <div class="guide-intro">
+
+      <h2 class="guide-intro-title">
+        ♠ Spade Trump — 6 Players
+      </h2>
+
+      <p class="guide-intro-text">
+        A team card game for six players.
+        Players are divided into two teams of
+        three. Spades are always the permanent
+        trump suit.
+      </p>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 01
+      </div>
+
+      <h3 class="guide-title">
+        Players & Teams
+      </h3>
+
+      <ul class="guide-list">
+
+        <li>
+          There are exactly 6 players.
+        </li>
+
+        <li>
+          Player 1, Player 3 and Player 5
+          form Team Blue.
+        </li>
+
+        <li>
+          Player 2, Player 4 and Player 6
+          form Team Red.
+        </li>
+
+        <li>
+          The two teams compete against each other.
+        </li>
+
+      </ul>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 02
+      </div>
+
+      <h3 class="guide-title">
+        Cards
+      </h3>
+
+      <p class="guide-text">
+        The game uses a standard 52-card deck
+        together with two special Jokers.
+        Each player receives 9 cards.
+      </p>
+
+      <div class="guide-highlight">
+        Every player must play all 9 cards during
+        the complete game sequence.
+      </div>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 03
+      </div>
+
+      <h3 class="guide-title">
+        Permanent Trump
+      </h3>
+
+      <p class="guide-text">
+        Spades are always the trump suit.
+        A valid Spade can normally defeat cards
+        from another suit according to the rules
+        of the current trick.
+      </p>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 04
+      </div>
+
+      <h3 class="guide-title">
+        Team Declaration
+      </h3>
+
+      <p class="guide-text">
+        Before play begins, players announce
+        how many tricks they expect their side
+        to win.
+      </p>
+
+      <ul class="guide-list">
+
+        <li>
+          The declarations of the three teammates
+          are combined for the team total.
+        </li>
+
+        <li>
+          Team minimum declaration: 2.
+        </li>
+
+        <li>
+          Maximum declaration: 7.
+        </li>
+
+        <li>
+          Players may change their declaration
+          during the allowed declaration window.
+        </li>
+
+      </ul>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 05
+      </div>
+
+      <h3 class="guide-title">
+        Example Declaration
+      </h3>
+
+      <p class="guide-text">
+        If Blue Team players declare 1, 2 and 1,
+        their combined team declaration is 4.
+      </p>
+
+      <div class="guide-rule">
+        Blue Team = 1 + 2 + 1 = 4 tricks
+      </div>
+
+      <p class="guide-text">
+        The final team score is determined by
+        comparing the declared amount with the
+        actual number of tricks won.
+      </p>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 06
+      </div>
+
+      <h3 class="guide-title">
+        Card Strength
+      </h3>
+
+      <p class="guide-text">
+        The special card order in Spade Trump
+        places the two Jokers into the game's
+        special hierarchy.
+      </p>
+
+      <div class="guide-rule">
+        1. Red Joker<br>
+        2. Ace of Spades<br>
+        3. Black Joker<br>
+        4. King of Spades
+      </div>
+
+      <p class="guide-text">
+        Other cards follow the normal strength
+        order for their suit.
+      </p>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 07
+      </div>
+
+      <h3 class="guide-title">
+        Joker Rules
+      </h3>
+
+      <ul class="guide-list">
+
+        <li>
+          Jokers may be used during a trick when
+          the game rules permit them.
+        </li>
+
+        <li>
+          A Joker cannot normally be used to lead
+          a trick.
+        </li>
+
+        <li>
+          Red Joker is stronger than Ace of Spades.
+        </li>
+
+        <li>
+          Black Joker is below Ace of Spades in
+          the special hierarchy.
+        </li>
+
+        <li>
+          If a player is forced to lead with a Joker
+          as the final card, the special loss rule
+          applies.
+        </li>
+
+      </ul>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 08
+      </div>
+
+      <h3 class="guide-title">
+        Following Suit
+      </h3>
+
+      <p class="guide-text">
+        When a player leads a suit, players should
+        follow that suit when they have a valid
+        card of the required suit.
+      </p>
+
+      <p class="guide-text">
+        When a player cannot follow the required
+        suit, other legal cards may be played
+        according to the game's trump and Joker
+        rules.
+      </p>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 09
+      </div>
+
+      <h3 class="guide-title">
+        Hearts / Special Play
+      </h3>
+
+      <p class="guide-text">
+        When the special Hearts situation occurs,
+        the Joker rules remain active. A player
+        may use a permitted Joker to take the trick
+        under the applicable rule.
+      </p>
+
+      <div class="guide-highlight">
+        A Joker can take a legal trick in situations
+        where a Spade cannot win under the special
+        Hearts rule.
+      </div>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 10
+      </div>
+
+      <h3 class="guide-title">
+        Six Starting Players
+      </h3>
+
+      <p class="guide-text">
+        The starting player changes after each
+        9-card sequence.
+      </p>
+
+      <div class="guide-rule">
+        Sequence 1 → Player 1<br>
+        Sequence 2 → Player 2<br>
+        Sequence 3 → Player 3<br>
+        Sequence 4 → Player 4<br>
+        Sequence 5 → Player 5<br>
+        Sequence 6 → Player 6
+      </div>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 11
+      </div>
+
+      <h3 class="guide-title">
+        Nine Cards
+      </h3>
+
+      <p class="guide-text">
+        Each player receives nine cards.
+        The complete sequence is played until
+        all nine cards have been used.
+      </p>
+
+      <div class="guide-highlight">
+        After the nine cards are completed,
+        the result is recorded and the next
+        distribution begins.
+      </div>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 12
+      </div>
+
+      <h3 class="guide-title">
+        Player Timer
+      </h3>
+
+      <p class="guide-text">
+        Each move has a limited time.
+        The standard game timer is 10 seconds
+        for a player's move.
+      </p>
+
+      <div class="guide-highlight">
+        If the player times out, the player can
+        be removed from the active table and
+        replaced by a Bot.
+      </div>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 13
+      </div>
+
+      <h3 class="guide-title">
+        Scoring
+      </h3>
+
+      <p class="guide-text">
+        Team scoring is based on the relationship
+        between the team's declaration and the
+        number of tricks actually won.
+      </p>
+
+      <div class="guide-rule">
+        Example:<br>
+        Declaration = 4<br>
+        Tricks Won = 4<br>
+        Result = +40
+      </div>
+
+      <p class="guide-text">
+        If the team fails to achieve its declaration,
+        the corresponding negative score is applied.
+      </p>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 14
+      </div>
+
+      <h3 class="guide-title">
+        Seven Declaration
+      </h3>
+
+      <p class="guide-text">
+        A declaration of seven is a high-risk
+        declaration.
+      </p>
+
+      <div class="guide-highlight">
+        Successful 7 declaration = +140 points.<br>
+        Failed 7 declaration = -140 points.
+      </div>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 15
+      </div>
+
+      <h3 class="guide-title">
+        End of Game
+      </h3>
+
+      <p class="guide-text">
+        After all six complete sequences have
+        finished, the scores of both teams are
+        calculated.
+      </p>
+
+      <div class="guide-highlight">
+        The team with the higher final score
+        wins the game.
+      </div>
+
+    </div>
+
+
+    <button
+      class="action-button"
+      type="button"
+      onclick="navigate('tableScreen')"
+    >
+      ♠ Back to Spade Trump
+    </button>
+
+    <button
+      class="back-button"
+      type="button"
+      onclick="navigate('gamesScreen')"
+    >
+      ← Back to Games
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- =======================================================
+     4 PLAYER GUIDE
+======================================================== -->
+
+<section
+  id="guide4Screen"
+  class="screen"
+>
+
+  <div class="screen-inner">
+
+    <header class="header">
+
+      <div class="spade">
+        ♣
+      </div>
+
+      <h1 class="title">
+        4 PLAYER GUIDE
+      </h1>
+
+      <div class="subtitle">
+        COMPLETE CLASSIC SPADES RULES
+      </div>
+
+    </header>
+
+
+    <div class="guide-intro">
+
+      <h2 class="guide-intro-title">
+        ♣ Classic Spades — 4 Players
+      </h2>
+
+      <p class="guide-intro-text">
+        A traditional four-player Spades game
+        played as two teams of two players.
+        Spades are the permanent trump suit.
+      </p>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 01
+      </div>
+
+      <h3 class="guide-title">
+        Players & Teams
+      </h3>
+
+      <ul class="guide-list">
+
+        <li>
+          Exactly 4 players participate.
+        </li>
+
+        <li>
+          The players are divided into two teams.
+        </li>
+
+        <li>
+          Each team contains two players.
+        </li>
+
+        <li>
+          Teammates work together to reach
+          their combined objective.
+        </li>
+
+      </ul>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 02
+      </div>
+
+      <h3 class="guide-title">
+        Deck & Distribution
+      </h3>
+
+      <p class="guide-text">
+        The standard 52-card deck is used.
+        Cards are distributed evenly between
+        the four players.
+      </p>
+
+      <div class="guide-highlight">
+        Each player receives 13 cards.
+      </div>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 03
+      </div>
+
+      <h3 class="guide-title">
+        Spades Are Trump
+      </h3>
+
+      <p class="guide-text">
+        Spades are always the trump suit.
+        A Spade can beat a card from another
+        suit when legally played.
+      </p>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 04
+      </div>
+
+      <h3 class="guide-title">
+        Bidding
+      </h3>
+
+      <p class="guide-text">
+        Before the play begins, players estimate
+        how many tricks they expect to win.
+        The bids of teammates determine the
+        team's target.
+      </p>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 05
+      </div>
+
+      <h3 class="guide-title">
+        Playing a Trick
+      </h3>
+
+      <ul class="guide-list">
+
+        <li>
+          One player leads the trick.
+        </li>
+
+        <li>
+          Other players follow the led suit
+          when possible.
+        </li>
+
+        <li>
+          If a player cannot follow suit,
+          another legal card may be played.
+        </li>
+
+        <li>
+          A Spade can trump another suit.
+        </li>
+
+        <li>
+          The strongest legal card wins the trick.
+        </li>
+
+      </ul>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 06
+      </div>
+
+      <h3 class="guide-title">
+        Winning Tricks
+      </h3>
+
+      <p class="guide-text">
+        The player who wins a trick normally
+        leads the next trick.
+      </p>
+
+      <p class="guide-text">
+        Teammates should coordinate their cards
+        and declarations to achieve their target.
+      </p>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 07
+      </div>
+
+      <h3 class="guide-title">
+        Scoring
+      </h3>
+
+      <p class="guide-text">
+        The final score is based on the team's
+        declared target and the number of tricks
+        actually won.
+      </p>
+
+      <div class="guide-rule">
+        Meet the target → positive score<br>
+        Miss the target → penalty according
+        to the selected scoring rules
+      </div>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 08
+      </div>
+
+      <h3 class="guide-title">
+        Time Limit
+      </h3>
+
+      <p class="guide-text">
+        Every move has a limited time.
+        Players should make their move before
+        the timer expires.
+      </p>
+
+      <div class="guide-highlight">
+        Timeout may cause the player to be
+        replaced by an automated Bot.
+      </div>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 09
+      </div>
+
+      <h3 class="guide-title">
+        Team Strategy
+      </h3>
+
+      <p class="guide-text">
+        Watch the cards already played,
+        estimate remaining Spades and manage
+        your bid carefully.
+      </p>
+
+      <ul class="guide-list">
+
+        <li>
+          Do not overestimate your tricks.
+        </li>
+
+        <li>
+          Track high Spades.
+        </li>
+
+        <li>
+          Protect your teammate when possible.
+        </li>
+
+        <li>
+          Use trump cards strategically.
+        </li>
+
+      </ul>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 10
+      </div>
+
+      <h3 class="guide-title">
+        Game Result
+      </h3>
+
+      <p class="guide-text">
+        When the complete hand is finished,
+        team scores are calculated and the team
+        with the higher final score wins.
+      </p>
+
+    </div>
+
+
+    <button
+      class="action-button"
+      type="button"
+      onclick="navigate('classicTableScreen')"
+    >
+      ♣ Back to Classic Spades
+    </button>
+
+    <button
+      class="back-button"
+      type="button"
+      onclick="navigate('gamesScreen')"
+    >
+      ← Back to Games
+    </button>
+
+  </div>
+
+</section>
+
+
+<!-- =======================================================
+     2 PLAYER GUIDE
+======================================================== -->
+
+<section
+  id="guide2Screen"
+  class="screen"
+>
+
+  <div class="screen-inner">
+
+    <header class="header">
+
+      <div class="spade">
+        🃏
+      </div>
+
+      <h1 class="title">
+        2 PLAYER GUIDE
+      </h1>
+
+      <div class="subtitle">
+        COMPLETE TWO PLAYER RULES
+      </div>
+
+    </header>
+
+
+    <div class="guide-intro">
+
+      <h2 class="guide-intro-title">
+        🃏 Two Player Spades
+      </h2>
+
+      <p class="guide-intro-text">
+        A fast head-to-head card game designed
+        specifically for two players.
+        Spades remain the permanent trump suit.
+      </p>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 01
+      </div>
+
+      <h3 class="guide-title">
+        Players
+      </h3>
+
+      <p class="guide-text">
+        The table contains exactly two active
+        players. Each player competes directly
+        against the other.
+      </p>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 02
+      </div>
+
+      <h3 class="guide-title">
+        Cards
+      </h3>
+
+      <p class="guide-text">
+        The game uses a standard card deck.
+        Cards are distributed between the two
+        players according to the active game
+        configuration.
+      </p>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 03
+      </div>
+
+      <h3 class="guide-title">
+        Trump Suit
+      </h3>
+
+      <p class="guide-text">
+        Spades are the permanent trump suit.
+        A legal Spade can defeat a card from
+        another suit.
+      </p>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 04
+      </div>
+
+      <h3 class="guide-title">
+        Starting the Trick
+      </h3>
+
+      <p class="guide-text">
+        One player starts the trick by playing
+        a legal card. The opponent then responds
+        according to the suit-following rules.
+      </p>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 05
+      </div>
+
+      <h3 class="guide-title">
+        Following Suit
+      </h3>
+
+      <ul class="guide-list">
+
+        <li>
+          Follow the led suit whenever possible.
+        </li>
+
+        <li>
+          If you cannot follow suit, a legal
+          alternative may be played.
+        </li>
+
+        <li>
+          Spades can trump another suit.
+        </li>
+
+        <li>
+          The strongest legal card wins the trick.
+        </li>
+
+      </ul>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 06
+      </div>
+
+      <h3 class="guide-title">
+        Trick Winner
+      </h3>
+
+      <p class="guide-text">
+        The player who wins the trick receives
+        the trick and normally leads the next one.
+      </p>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 07
+      </div>
+
+      <h3 class="guide-title">
+        Scoring
+      </h3>
+
+      <p class="guide-text">
+        The scoring system compares the player's
+        objective with the tricks actually won.
+        Successful play produces positive points,
+        while failing the required objective can
+        result in a penalty.
+      </p>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 08
+      </div>
+
+      <h3 class="guide-title">
+        Time Limit
+      </h3>
+
+      <p class="guide-text">
+        Each player has a limited amount of time
+        to make a move.
+      </p>
+
+      <div class="guide-highlight">
+        If the timer expires, the automated Bot
+        can take over the player's position.
+      </div>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+        RULE 09
+      </div>
+
+      <h3 class="guide-title">
+        Strategy
+      </h3>
+
+      <ul class="guide-list">
+
+        <li>
+          Remember which high cards have already
+          been played.
+        </li>
+
+        <li>
+          Track the remaining Spades.
+        </li>
+
+        <li>
+          Avoid wasting powerful trump cards.
+        </li>
+
+        <li>
+          Plan your next trick before playing.
+        </li>
+
+      </ul>
+
+    </div>
+
+
+    <div class="guide-section">
+
+      <div class="guide-number">
+     
