@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width,
+      initial-scale=1.0,
+      maximum-scale=1.0,
+      user-scalable=no">
+
+<title>SPADES GAME</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<!-- Socket.IO از همان سروری که game.html را سرو می‌کند -->
+<script src="/socket.io/socket.io.js"></script>
+
+<style>
+
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+html,
+body{
+
+    width:100%;
+    min-height:100%;
+
+    background:
+        radial-gradient(
+            circle at center,
+            #123a27 0%,
+            #092619 45%,
+            #04120c 100%
+        );
+
+    color:#fff;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+}
+
+body{
+    min-height:100vh;
+    overflow:hidden;
+}
+
+button{
+    font-family:inherit;
+}
+
+#gameScreen{
+
+    width:100%;
+    height:100vh;
+
+    display:flex;
+    flex-direction:column;
+
+}
+
+
+/* =========================
+   TOP BAR
+========================= */
+
+.topBar{
+
+    flex:0 0 auto;
+
+    width:100%;
+
+    min-height:62px;
+
+    padding:
+        8px
+        12px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    background:
+        rgba(3,12,8,.88);
+
+    border-bottom:
+        1px solid
+        rgba(255,255,255,.08);
+
+    z-index:20;
+
+}
+
+.backBtn{
+
+    width:42px;
+    height:42px;
+
+    border:none;
+    border-radius:12px;
+
+    background:
+        rgba(255,255,255,.08);
+
+    color:#fff;
+
+    font-size:21px;
+
+}
+
+.roomInfo{
+
+    text-align:center;
+
+    flex:1;
+
+}
+
+.gameType{
+
+    font-size:13px;
+    font-weight:900;
+
+}
+
+.roomText{
+
+    margin-top:3px;
+
+    font-size:10px;
+
+    color:#9bb4a5;
+
+}
+
+.connection{
+
+    width:42px;
+
+    text-align:right;
+
+    font-size:18px;
+
+}
+
+
+/* =========================
+   TABLE
+========================= */
+
+.tableArea{
+
+    position:relative;
+
+    flex:1;
+
+    min-height:0;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    padding:15px;
+
+}
+
+.table{
+
+    position:relative;
+
+    width:min(92vw,560px);
+
+    aspect-ratio:1.45;
+
+    border-radius:45%;
+
+    background:
+
+        radial-gradient(
+            ellipse at center,
+            #17643a 0%,
+            #0d492a 50%,
+            #092e1c 100%
+        );
+
+    border:
+        8px solid
+        #5b3b20;
+
+    box-shadow:
+
+        0 0 0 4px #24170d,
+        inset 0 0 35px rgba(0,0,0,.5),
+        0 20px 50px rgba(0,0,0,.5);
+
+}
+
+.center{
+
+    position:absolute;
+
+    left:50%;
+    top:50%;
+
+    transform:
+        translate(-50%,-50%);
+
+    width:42%;
+
+    height:45%;
+
+    border-radius:20px;
+
+    border:
+        1px solid
+        rgba(255,255,255,.1);
+
+    background:
+        rgba(0,0,0,.12);
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    text-align:center;
+
+    color:#a9c1b1;
+
+    font-size:11px;
+
+}
+
+
+/* =========================
+   PLAYERS
+========================= */
+
+.player{
+
+    position:absolute;
+
+    width:78px;
+
+    text-align:center;
+
+}
+
+.playerCard{
+
+    width:62px;
+    height:62px;
+
+    margin:auto;
+
+    border-radius:50%;
+
+    background:
+        linear-gradient(
+            145deg,
+            #20354a,
+            #0c1724
+        );
+
+    border:
+        2px solid
+        rgba(255,255,255,.1);
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:25px;
+
+}
+
+.playerName{
+
+    margin-top:4px;
+
+    font-size:10px;
+
+    font-weight:800;
+
+}
+
+.playerStatus{
+
+    margin-top:2px;
+
+    font-size:9px;
+
+    color:#92ad9d;
+
+}
+
+.p0{
+    left:50%;
+    top:-35px;
+    transform:translateX(-50%);
+}
+
+.p1{
+    right:-28px;
+    top:20%;
+}
+
+.p2{
+    right:-28px;
+    bottom:15%;
+}
+
+.p3{
+    left:50%;
+    bottom:-35px;
+    transform:translateX(-50%);
+}
+
+.p4{
+    left:-28px;
+    bottom:15%;
+}
+
+.p5{
+    left:-28px;
+    top:20%;
+}
+
+
+/* =========================
+   STATUS
+========================= */
+
+.statusPanel{
+
+    flex:0 0 auto;
+
+    width:100%;
+
+    padding:10px 12px 15px;
+
+    background:
+        rgba(3,12,8,.88);
+
+    border-top:
+        1px solid
+        rgba(255,255,255,.08);
+
+}
+
+.status{
+
+    text-align:center;
+
+    min-height:22px;
+
+    color:#dbe9df;
+
+    font-size:12px;
+
+}
+
+.actionArea{
+
+    margin-top:8px;
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:8px;
+
+}
+
+.actionBtn{
+
+    min-width:110px;
+
+    height:42px;
+
+    border:none;
+
+    border-radius:12px;
+
+    font-weight:900;
+
+    background:#fff;
+
+    color:#07111f;
+
+}
+
+.actionBtn.secondary{
+
+    background:#1b3325;
+
+    color:#fff;
+
+    border:
+        1px solid
+        rgba(255,255,255,.12);
+
+}
+
+
+/* =========================
+   LOADING
+========================= */
+
+.loading{
+
+    position:fixed;
+
+    inset:0;
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    justify-content:center;
+
+    background:
+        rgba(2,8,5,.95);
+
+    z-index:100;
+
+}
+
+.loading.hidden{
+    display:none;
+}
+
+.spinner{
+
+    width:42px;
+    height:42px;
+
+    border:
+        4px solid
+        rgba(255,255,255,.15);
+
+    border-top-color:#fff;
+
+    border-radius:50%;
+
+    animation:
+        spin .8s linear infinite;
+
+}
+
+.loadingText{
+
+    margin-top:14px;
+
+    font-size:13px;
+
+    color:#a9bcae;
+
+}
+
+@keyframes spin{
+
+    to{
+        transform:rotate(360deg);
+    }
+
+}
+
+
+/* =========================
+   MODAL
+========================= */
+
+.modal{
+
+    position:fixed;
+
+    inset:0;
+
+    display:none;
+
+    align-items:center;
+
+    justify-content:center;
+
+    padding:20px;
+
+    background:
+        rgba(0,0,0,.75);
+
+    z-index:200;
+
+}
+
+.modal.show{
+    display:flex;
+}
+
+.modalBox{
+
+    width:100%;
+    max-width:380px;
+
+    padding:24px;
+
+    border-radius:20px;
+
+    background:#0c1d14;
+
+    border:
+        1px solid
+        rgba(255,255,255,.12);
+
+    text-align:center;
+
+}
+
+.modalTitle{
+
+    font-size:21px;
+    font-weight:900;
+
+}
+
+.modalText{
+
+    margin-top:9px;
+
+    color:#9fb5a7;
+
+    font-size:12px;
+
+    line-height:1.5;
+
+}
+
+.modalBtn{
+
+    margin-top:18px;
+
+    width:100%;
+
+    height:45px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#fff;
+
+    color:#07111f;
+
+    font-weight:900;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="gameScreen">
+
+    <div class="topBar">
+
+        <button
+            class="backBtn"
+            onclick="leaveGame()">
+            ‹
+        </button>
+
+        <div class="roomInfo">
+
+            <div
+                id="gameType"
+                class="gameType">
+                SPADES
+            </div>
+
+            <div
+                id="roomText"
+                class="roomText">
+                Connecting...
+            </div>
+
+        </div>
+
+        <div
+            id="connection"
+            class="connection">
+            🔴
+        </div>
+
+    </div>
+
+
+    <div class="tableArea">
+
+        <div class="table">
+
+            <div
+                id="centerMessage"
+                class="center">
+                Waiting for players...
+            </div>
+
+
+            <div class="player p0">
+
+                <div
+                    id="player0"
+                    class="playerCard">
+                    👤
+                </div>
+
+                <div
+                    id="name0"
+                    class="playerName">
+                    WAITING
+                </div>
+
+                <div
+                    id="status0"
+                    class="playerStatus">
+                    —
+                </div>
+
+            </div>
+
+
+            <div class="player p1">
+
+                <div
+                    id="player1"
+                    class="playerCard">
+                    👤
+                </div>
+
+                <div
+                    id="name1"
+                    class="playerName">
+                    WAITING
+                </div>
+
+                <div
+                    id="status1"
+                    class="playerStatus">
+                    —
+                </div>
+
+            </div>
+
+
+            <div class="player p2">
+
+                <div
+                    id="player2"
+                    class="playerCard">
+                    👤
+                </div>
+
+                <div
+                    id="name2"
+                    class="playerName">
+                    WAITING
+                </div>
+
+                <div
+                    id="status2"
+                    class="playerStatus">
+                    —
+                </div>
+
+            </div>
+
+
+            <div class="player p3">
+
+                <div
+                    id="player3"
+                    class="playerCard">
+                    👤
+                </div>
+
+                <div
+                    id="name3"
+                    class="playerName">
+                    WAITING
+                </div>
+
+                <div
+                    id="status3"
+                    class="playerStatus">
+                    —
+                </div>
+
+            </div>
+
+
+            <div class="player p4">
+
+                <div
+                    id="player4"
+                    class="playerCard">
+                    👤
+                </div>
+
+                <div
+                    id="name4"
+                    class="playerName">
+                    WAITING
+                </div>
+
+                <div
+                    id="status4"
+                    class="playerStatus">
+                    —
+                </div>
+
+            </div>
+
+
+            <div class="player p5">
+
+                <div
+                    id="player5"
+                    class="playerCard">
+                    👤
+                </div>
+
+                <div
+                    id="name5"
+                    class="playerName">
+                    WAITING
+                </div>
+
+                <div
+                    id="status5"
+                    class="playerStatus">
+                    —
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="statusPanel">
+
+        <div
+            id="status"
+            class="status">
+            Connecting to server...
+        </div>
+
+        <div class="actionArea">
+
+            <button
+                id="backHomeBtn"
+                class="actionBtn secondary"
+                onclick="leaveGame()">
+                BACK TO HOME
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div
+    id="errorModal"
+    class="modal">
+
+    <div class="modalBox">
+
+        <div class="modalTitle">
+            CONNECTION ERROR
+        </div>
+
+        <div
+            id="errorText"
+            class="modalText">
+            Unable to connect.
+        </div>
+
+        <button
+            class="modalBtn"
+            onclick="leaveGame()">
+            BACK TO HOME
+        </button>
+
+    </div>
+
+</div>
+
+
+<div
+    id="loading"
+    class="loading">
+
+    <div class="spinner"></div>
+
+    <div
+        id="loadingText"
+        class="loadingText">
+        Connecting...
+    </div>
+
+</div>
+
+
+<script src="game.js"></script>
+
+</body>
+</html>
