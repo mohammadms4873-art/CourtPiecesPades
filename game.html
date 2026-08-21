@@ -1,0 +1,4274 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"
+>
+
+<title>SPADES • TABLE</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<script src="/socket.io/socket.io.js"></script>
+
+
+<style>
+
+/* =========================================================
+   RESET
+========================================================= */
+
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,
+body{
+  margin:0;
+  padding:0;
+  width:100%;
+  min-height:100%;
+  background:#03100a;
+}
+
+body{
+
+  min-height:100vh;
+
+  overflow:hidden;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  color:#fff;
+
+  background:
+    radial-gradient(
+      circle at 50% 40%,
+      #174d34 0%,
+      #0b2d1d 35%,
+      #061910 65%,
+      #020806 100%
+    );
+
+}
+
+
+/* =========================================================
+   APP
+========================================================= */
+
+.game-app{
+
+  width:100%;
+
+  max-width:900px;
+
+  height:100vh;
+
+  height:100dvh;
+
+  margin:auto;
+
+  position:relative;
+
+  overflow:hidden;
+
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.table{
+
+  position:absolute;
+
+  inset:0;
+
+  overflow:hidden;
+
+}
+
+
+/* =========================================================
+   TABLE FELT
+========================================================= */
+
+.table-felt{
+
+  position:absolute;
+
+  left:50%;
+
+  top:50%;
+
+  width:92%;
+
+  height:72%;
+
+  transform:
+    translate(-50%,-50%);
+
+  border-radius:48%;
+
+  background:
+
+    radial-gradient(
+      circle at 50% 50%,
+      #23704a 0%,
+      #185b3b 38%,
+      #10472e 65%,
+      #0a321f 100%
+    );
+
+  border:
+    10px solid #102b1d;
+
+  box-shadow:
+
+    inset
+      0 0 80px
+      rgba(0,0,0,.45),
+
+    0 20px 80px
+      rgba(0,0,0,.65);
+
+}
+
+
+/* =========================================================
+   TABLE INNER
+========================================================= */
+
+.table-felt:after{
+
+  content:"";
+
+  position:absolute;
+
+  inset:7%;
+
+  border-radius:48%;
+
+  border:
+    1px solid
+    rgba(255,255,255,.10);
+
+  box-shadow:
+    inset
+      0 0 30px
+      rgba(0,0,0,.25);
+
+}
+
+
+/* =========================================================
+   TOP BAR
+========================================================= */
+
+.top-bar{
+
+  position:absolute;
+
+  z-index:20;
+
+  top:0;
+
+  left:0;
+
+  right:0;
+
+  height:58px;
+
+  padding:
+    8px 12px;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:space-between;
+
+  gap:8px;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(3,12,8,.96),
+      rgba(3,12,8,.70),
+      transparent
+    );
+
+}
+
+
+/* =========================================================
+   ROOM
+========================================================= */
+
+.room-info{
+
+  min-width:0;
+
+}
+
+.room-label{
+
+  color:#789589;
+
+  font-size:8px;
+
+  font-weight:900;
+
+  letter-spacing:1px;
+
+}
+
+.room-code{
+
+  margin-top:2px;
+
+  color:#f1d879;
+
+  font-size:13px;
+
+  font-weight:900;
+
+  letter-spacing:1px;
+
+}
+
+
+/* =========================================================
+   TOP CENTER
+========================================================= */
+
+.game-name{
+
+  position:absolute;
+
+  left:50%;
+
+  transform:
+    translateX(-50%);
+
+  text-align:center;
+
+  font-size:12px;
+
+  font-weight:900;
+
+  letter-spacing:1px;
+
+  white-space:nowrap;
+
+}
+
+.game-round{
+
+  margin-top:2px;
+
+  color:#80968a;
+
+  font-size:8px;
+
+}
+
+
+/* =========================================================
+   EXIT
+========================================================= */
+
+.exit-button{
+
+  width:38px;
+
+  height:38px;
+
+  border-radius:12px;
+
+  background:
+    rgba(255,255,255,.07);
+
+  color:#d9e1dc;
+
+  font-size:18px;
+
+}
+
+
+/* =========================================================
+   SCOREBOARD
+========================================================= */
+
+.scoreboard{
+
+  position:absolute;
+
+  z-index:15;
+
+  top:62px;
+
+  left:50%;
+
+  transform:
+    translateX(-50%);
+
+  width:180px;
+
+  padding:7px;
+
+  border-radius:13px;
+
+  display:grid;
+
+  grid-template-columns:1fr 1fr;
+
+  gap:5px;
+
+  background:
+    rgba(2,10,6,.72);
+
+  border:
+    1px solid
+    rgba(255,255,255,.08);
+
+  backdrop-filter:
+    blur(8px);
+
+}
+
+.score-team{
+
+  padding:6px;
+
+  border-radius:9px;
+
+  text-align:center;
+
+  background:
+    rgba(255,255,255,.045);
+
+}
+
+.score-team.blue{
+
+  border-bottom:
+    2px solid #3c8fd1;
+
+}
+
+.score-team.red{
+
+  border-bottom:
+    2px solid #c95353;
+
+}
+
+.team-name{
+
+  color:#91a59a;
+
+  font-size:7px;
+
+  font-weight:900;
+
+}
+
+.team-score{
+
+  margin-top:2px;
+
+  font-size:16px;
+
+  font-weight:900;
+
+}
+
+.blue .team-score{
+
+  color:#67b9ff;
+
+}
+
+.red .team-score{
+
+  color:#ff7777;
+
+}
+
+
+/* =========================================================
+   PLAYER COMMON
+========================================================= */
+
+.player{
+
+  position:absolute;
+
+  z-index:12;
+
+  display:flex;
+
+  align-items:center;
+
+  gap:6px;
+
+  padding:6px;
+
+  border-radius:13px;
+
+  background:
+    rgba(3,12,8,.72);
+
+  border:
+    1px solid
+    rgba(255,255,255,.08);
+
+  backdrop-filter:
+    blur(8px);
+
+  box-shadow:
+    0 8px 20px
+    rgba(0,0,0,.25);
+
+  min-width:105px;
+
+}
+
+.player-avatar{
+
+  width:34px;
+
+  height:34px;
+
+  flex:0 0 34px;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  border-radius:50%;
+
+  background:
+    linear-gradient(
+      145deg,
+      #286446,
+      #123c28
+    );
+
+  border:
+    1px solid
+    rgba(255,255,255,.10);
+
+  font-size:18px;
+
+}
+
+.player-info{
+
+  min-width:0;
+
+}
+
+.player-name{
+
+  max-width:70px;
+
+  overflow:hidden;
+
+  text-overflow:ellipsis;
+
+  white-space:nowrap;
+
+  font-size:9px;
+
+  font-weight:900;
+
+}
+
+.player-status{
+
+  margin-top:2px;
+
+  color:#71877b;
+
+  font-size:7px;
+
+}
+
+.player-badge{
+
+  position:absolute;
+
+  top:-6px;
+
+  right:-6px;
+
+  padding:3px 5px;
+
+  border-radius:6px;
+
+  background:#f1d879;
+
+  color:#17130a;
+
+  font-size:6px;
+
+  font-weight:900;
+
+}
+
+
+/* =========================================================
+   ACTIVE PLAYER
+========================================================= */
+
+.player.active-turn{
+
+  border-color:
+    rgba(241,216,121,.65);
+
+  box-shadow:
+    0 0 0 2px
+      rgba(241,216,121,.10),
+
+    0 0 25px
+      rgba(241,216,121,.20);
+
+}
+
+
+/* =========================================================
+   PLAYER POSITIONS
+========================================================= */
+
+.player.p1{
+
+  left:50%;
+
+  top:12%;
+
+  transform:
+    translateX(-50%);
+
+}
+
+.player.p2{
+
+  left:6%;
+
+  top:29%;
+
+}
+
+.player.p3{
+
+  left:6%;
+
+  top:52%;
+
+}
+
+.player.p4{
+
+  right:6%;
+
+  top:52%;
+
+}
+
+.player.p5{
+
+  right:6%;
+
+  top:29%;
+
+}
+
+.player.p6{
+
+  left:50%;
+
+  bottom:15%;
+
+  transform:
+    translateX(-50%);
+
+}
+
+
+/* =========================================================
+   CENTER INFORMATION
+========================================================= */
+
+.center-info{
+
+  position:absolute;
+
+  z-index:10;
+
+  left:50%;
+
+  top:50%;
+
+  transform:
+    translate(-50%,-50%);
+
+  width:190px;
+
+  text-align:center;
+
+}
+
+.turn-label{
+
+  color:#80978b;
+
+  font-size:8px;
+
+  font-weight:900;
+
+  letter-spacing:1px;
+
+}
+
+.turn-name{
+
+  margin-top:3px;
+
+  color:#f1d879;
+
+  font-size:15px;
+
+  font-weight:900;
+
+}
+
+.trump{
+
+  margin-top:6px;
+
+  display:inline-flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  width:42px;
+
+  height:42px;
+
+  border-radius:50%;
+
+  background:
+    rgba(0,0,0,.25);
+
+  border:
+    1px solid
+    rgba(255,255,255,.10);
+
+  font-size:24px;
+
+}
+
+
+/* =========================================================
+   TRICK AREA
+========================================================= */
+
+.trick-area{
+
+  position:absolute;
+
+  z-index:9;
+
+  left:50%;
+
+  top:50%;
+
+  width:150px;
+
+  height:120px;
+
+  transform:
+    translate(-50%,-50%);
+
+}
+
+
+/* =========================================================
+   PLAYED CARD
+========================================================= */
+
+.played-card{
+
+  position:absolute;
+
+  width:45px;
+
+  height:64px;
+
+  border-radius:6px;
+
+  background:#f7f5ef;
+
+  color:#111;
+
+  border:
+    1px solid
+    rgba(0,0,0,.30);
+
+  box-shadow:
+    0 6px 15px
+    rgba(0,0,0,.45);
+
+  display:none;
+
+  align-items:center;
+
+  justify-content:center;
+
+  font-size:22px;
+
+  font-weight:900;
+
+}
+
+.played-card.show{
+
+  display:flex;
+
+}
+
+
+/* =========================================================
+   CARD POSITIONS
+========================================================= */
+
+.played-card.c1{
+
+  left:52px;
+
+  top:0;
+
+}
+
+.played-card.c2{
+
+  left:5px;
+
+  top:28px;
+
+}
+
+.played-card.c3{
+
+  right:5px;
+
+  top:28px;
+
+}
+
+.played-card.c4{
+
+  left:52px;
+
+  bottom:0;
+
+}
+
+
+/* =========================================================
+   HAND AREA
+========================================================= */
+
+.hand-area{
+
+  position:absolute;
+
+  z-index:30;
+
+  left:50%;
+
+  bottom:2px;
+
+  transform:
+    translateX(-50%);
+
+  width:100%;
+
+  max-width:620px;
+
+  min-height:130px;
+
+  padding:
+    5px 10px 8px;
+
+  display:flex;
+
+  flex-direction:column;
+
+  align-items:center;
+
+  justify-content:flex-end;
+
+  pointer-events:none;
+
+}
+
+
+/* =========================================================
+   MY PLAYER PANEL
+========================================================= */
+
+.my-player{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:8px;
+
+  margin-bottom:4px;
+
+  padding:5px 10px;
+
+  border-radius:10px;
+
+  background:
+    rgba(2,10,6,.75);
+
+  border:
+    1px solid
+    rgba(255,255,255,.08);
+
+}
+
+.my-name{
+
+  font-size:9px;
+
+  font-weight:900;
+
+}
+
+.my-team{
+
+  color:#6ca9d5;
+
+  font-size:7px;
+
+  font-weight:900;
+
+}
+
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+.hand{
+
+  width:100%;
+
+  display:flex;
+
+  align-items:flex-end;
+
+  justify-content:center;
+
+  height:88px;
+
+  pointer-events:auto;
+
+}
+
+.card{
+
+  position:relative;
+
+  width:54px;
+
+  height:78px;
+
+  flex:0 0 54px;
+
+  margin-left:-12px;
+
+  border-radius:7px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #fffefa,
+      #e7e5dc
+    );
+
+  color:#151515;
+
+  border:
+    1px solid
+    rgba(0,0,0,.30);
+
+  box-shadow:
+    0 7px 15px
+    rgba(0,0,0,.45);
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  font-size:17px;
+
+  font-weight:900;
+
+  transition:
+    transform .12s ease,
+    margin .12s ease;
+
+  user-select:none;
+
+}
+
+.card:first-child{
+
+  margin-left:0;
+
+}
+
+.card.red{
+
+  color:#c62929;
+
+}
+
+.card.selected{
+
+  transform:
+    translateY(-18px);
+
+  box-shadow:
+    0 12px 25px
+    rgba(0,0,0,.55);
+
+}
+
+.card.disabled{
+
+  opacity:.45;
+
+}
+
+
+/* =========================================================
+   CARD CORNERS
+========================================================= */
+
+.card-top{
+
+  position:absolute;
+
+  left:4px;
+
+  top:3px;
+
+  font-size:9px;
+
+  line-height:1.1;
+
+  text-align:center;
+
+}
+
+.card-center{
+
+  font-size:24px;
+
+}
+
+
+/* =========================================================
+   ACTION BAR
+========================================================= */
+
+.action-bar{
+
+  position:absolute;
+
+  z-index:40;
+
+  left:50%;
+
+  bottom:115px;
+
+  transform:
+    translateX(-50%);
+
+  width:calc(100% - 30px);
+
+  max-width:360px;
+
+  display:flex;
+
+  gap:7px;
+
+  justify-content:center;
+
+}
+
+.action-button{
+
+  flex:1;
+
+  min-height:39px;
+
+  padding:9px;
+
+  border-radius:11px;
+
+  background:
+    rgba(4,15,10,.90);
+
+  border:
+    1px solid
+    rgba(255,255,255,.10);
+
+  color:#dce5df;
+
+  font-size:9px;
+
+  font-weight:900;
+
+}
+
+.action-button.primary{
+
+  background:#347653;
+
+  color:#fff;
+
+}
+
+.action-button.gold{
+
+  background:#8d7624;
+
+  color:#fff;
+
+}
+
+.action-button:disabled{
+
+  opacity:.35;
+
+}
+
+
+/* =========================================================
+   BID PANEL
+========================================================= */
+
+.bid-panel{
+
+  position:absolute;
+
+  z-index:70;
+
+  left:50%;
+
+  bottom:130px;
+
+  transform:
+    translateX(-50%);
+
+  width:
+    min(330px,calc(100% - 30px));
+
+  padding:13px;
+
+  border-radius:17px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #193329,
+      #08150f
+    );
+
+  border:
+    1px solid
+    rgba(255,255,255,.10);
+
+  box-shadow:
+    0 18px 50px
+    rgba(0,0,0,.65);
+
+  display:none;
+
+}
+
+.bid-panel.show{
+
+  display:block;
+
+}
+
+.bid-title{
+
+  text-align:center;
+
+  font-size:13px;
+
+  font-weight:900;
+
+}
+
+.bid-subtitle{
+
+  margin-top:4px;
+
+  text-align:center;
+
+  color:#82958b;
+
+  font-size:8px;
+
+}
+
+.bid-values{
+
+  margin-top:11px;
+
+  display:grid;
+
+  grid-template-columns:
+    repeat(6,1fr);
+
+  gap:5px;
+
+}
+
+.bid{
+
+  min-height:35px;
+
+  border-radius:8px;
+
+  background:
+    rgba(255,255,255,.07);
+
+  color:#fff;
+
+  font-size:10px;
+
+  font-weight:900;
+
+}
+
+.bid:active{
+
+  transform:scale(.94);
+
+}
+
+
+/* =========================================================
+   STATUS MESSAGE
+========================================================= */
+
+.status-message{
+
+  position:absolute;
+
+  z-index:80;
+
+  left:50%;
+
+  top:17%;
+
+  transform:
+    translateX(-50%);
+
+  width:
+    min(320px,calc(100% - 40px));
+
+  padding:9px 13px;
+
+  border-radius:11px;
+
+  background:
+    rgba(2,10,6,.88);
+
+  border:
+    1px solid
+    rgba(255,255,255,.08);
+
+  color:#b7c5be;
+
+  text-align:center;
+
+  font-size:8px;
+
+  font-weight:700;
+
+  opacity:0;
+
+  pointer-events:none;
+
+  transition:
+    opacity .2s ease;
+
+}
+
+.status-message.show{
+
+  opacity:1;
+
+}
+
+
+/* =========================================================
+   WAITING OVERLAY
+========================================================= */
+
+.waiting-overlay{
+
+  position:absolute;
+
+  z-index:100;
+
+  inset:0;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  padding:20px;
+
+  background:
+    rgba(1,7,4,.76);
+
+  backdrop-filter:
+    blur(5px);
+
+}
+
+.waiting-box{
+
+  width:
+    min(340px,100%);
+
+  padding:22px;
+
+  border-radius:20px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #193329,
+      #08150f
+    );
+
+  border:
+    1px solid
+    rgba(255,255,255,.10);
+
+  text-align:center;
+
+  box-shadow:
+    0 20px 60px
+    rgba(0,0,0,.60);
+
+}
+
+.waiting-icon{
+
+  font-size:36px;
+
+}
+
+.waiting-title{
+
+  margin-top:8px;
+
+  font-size:18px;
+
+  font-weight:900;
+
+}
+
+.waiting-text{
+
+  margin-top:6px;
+
+  color:#92a59b;
+
+  font-size:10px;
+
+  line-height:1.6;
+
+}
+
+.waiting-count{
+
+  margin-top:15px;
+
+  color:#f1d879;
+
+  font-size:24px;
+
+  font-weight:900;
+
+}
+
+.waiting-code{
+
+  margin-top:8px;
+
+  padding:10px;
+
+  border-radius:9px;
+
+  background:
+    rgba(0,0,0,.22);
+
+  color:#f1d879;
+
+  font-size:13px;
+
+  font-weight:900;
+
+  letter-spacing:2px;
+
+}
+
+.waiting-button{
+
+  width:100%;
+
+  margin-top:13px;
+
+  padding:12px;
+
+  border-radius:11px;
+
+  background:
+    rgba(255,255,255,.07);
+
+  color:#d8e0db;
+
+  font-size:10px;
+
+  font-weight:900;
+
+}
+
+
+/* =========================================================
+   DISCONNECT
+========================================================= */
+
+.connection{
+
+  position:absolute;
+
+  z-index:200;
+
+  top:8px;
+
+  left:50%;
+
+  transform:
+    translateX(-50%);
+
+  padding:5px 9px;
+
+  border-radius:8px;
+
+  background:
+    rgba(0,0,0,.55);
+
+  color:#8ba197;
+
+  font-size:7px;
+
+  font-weight:900;
+
+}
+
+.connection.online{
+
+  color:#75c994;
+
+}
+
+.connection.offline{
+
+  color:#e76f6f;
+
+}
+
+
+/* =========================================================
+   MENU MODAL
+========================================================= */
+
+.menu-modal{
+
+  position:absolute;
+
+  z-index:150;
+
+  inset:0;
+
+  display:none;
+
+  align-items:center;
+
+  justify-content:center;
+
+  padding:20px;
+
+  background:
+    rgba(0,0,0,.78);
+
+  backdrop-filter:
+    blur(8px);
+
+}
+
+.menu-modal.show{
+
+  display:flex;
+
+}
+
+.menu-box{
+
+  width:
+    min(320px,100%);
+
+  padding:18px;
+
+  border-radius:19px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #193329,
+      #08150f
+    );
+
+  border:
+    1px solid
+    rgba(255,255,255,.10);
+
+}
+
+.menu-title{
+
+  text-align:center;
+
+  font-size:18px;
+
+  font-weight:900;
+
+}
+
+.menu-button{
+
+  width:100%;
+
+  margin-top:9px;
+
+  padding:13px;
+
+  border-radius:11px;
+
+  background:
+    rgba(255,255,255,.07);
+
+  color:#d8e0db;
+
+  font-size:10px;
+
+  font-weight:900;
+
+}
+
+.menu-button.danger{
+
+  background:
+    rgba(160,45,45,.30);
+
+  color:#ff8b8b;
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:500px){
+
+  .table-felt{
+
+    width:108%;
+
+    height:65%;
+
+    border-width:8px;
+
+  }
+
+
+  .player{
+
+    min-width:92px;
+
+  }
+
+
+  .player.p2,
+  .player.p3{
+
+    left:2%;
+
+  }
+
+
+  .player.p4,
+  .player.p5{
+
+    right:2%;
+
+  }
+
+
+  .card{
+
+    width:47px;
+
+    height:70px;
+
+    flex-basis:47px;
+
+    margin-left:-15px;
+
+  }
+
+
+  .hand{
+
+    height:78px;
+
+  }
+
+
+  .action-bar{
+
+    bottom:104px;
+
+  }
+
+
+  .bid-panel{
+
+    bottom:110px;
+
+  }
+
+}
+
+
+/* =========================================================
+   VERY SMALL
+========================================================= */
+
+@media(max-width:360px){
+
+  .player{
+
+    min-width:82px;
+
+    padding:4px;
+
+  }
+
+  .player-avatar{
+
+    width:29px;
+
+    height:29px;
+
+    flex-basis:29px;
+
+  }
+
+  .player-name{
+
+    max-width:55px;
+
+  }
+
+  .card{
+
+    width:43px;
+
+    height:66px;
+
+    flex-basis:43px;
+
+    margin-left:-17px;
+
+  }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div
+  id="gameApp"
+  class="game-app"
+>
+
+
+  <!-- =====================================================
+       TABLE
+  ===================================================== -->
+
+  <main class="table">
+
+
+    <div class="table-felt"></div>
+
+
+    <!-- ===================================================
+         TOP BAR
+    =================================================== -->
+
+    <div class="top-bar">
+
+      <div class="room-info">
+
+        <div class="room-label">
+          ROOM
+        </div>
+
+        <div
+          id="roomCode"
+          class="room-code"
+        >
+          ------
+        </div>
+
+      </div>
+
+
+      <div>
+
+        <div
+          id="gameName"
+          class="game-name"
+        >
+          SPADE TRUMP
+
+          <div
+            id="roundText"
+            class="game-round"
+          >
+            ROUND 1
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <button
+        id="exitButton"
+        class="exit-button"
+        type="button"
+      >
+        ×
+      </button>
+
+    </div>
+
+
+    <!-- ===================================================
+         CONNECTION
+    =================================================== -->
+
+    <div
+      id="connectionStatus"
+      class="connection offline"
+    >
+      CONNECTING
+    </div>
+
+
+    <!-- ===================================================
+         SCOREBOARD
+    =================================================== -->
+
+    <div class="scoreboard">
+
+      <div class="score-team blue">
+
+        <div class="team-name">
+          BLUE TEAM
+        </div>
+
+        <div
+          id="blueScore"
+          class="team-score"
+        >
+          0
+        </div>
+
+      </div>
+
+
+      <div class="score-team red">
+
+        <div class="team-name">
+          RED TEAM
+        </div>
+
+        <div
+          id="redScore"
+          class="team-score"
+        >
+          0
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- ===================================================
+         PLAYER 1
+    =================================================== -->
+
+    <div
+      id="player1"
+      class="player p1"
+    >
+
+      <div class="player-avatar">
+        👤
+      </div>
+
+      <div class="player-info">
+
+        <div
+          id="player1Name"
+          class="player-name"
+        >
+          Waiting
+        </div>
+
+        <div
+          id="player1Status"
+          class="player-status"
+        >
+          Player 1
+        </div>
+
+      </div>
+
+      <div
+        id="player1Badge"
+        class="player-badge hidden"
+      >
+        YOU
+      </div>
+
+    </div>
+
+
+    <!-- ===================================================
+         PLAYER 2
+    =================================================== -->
+
+    <div
+      id="player2"
+      class="player p2"
+    >
+
+      <div class="player-avatar">
+        👤
+      </div>
+
+      <div class="player-info">
+
+        <div
+          id="player2Name"
+          class="player-name"
+        >
+          Waiting
+        </div>
+
+        <div
+          id="player2Status"
+          class="player-status"
+        >
+          Player 2
+        </div>
+
+      </div>
+
+      <div
+        id="player2Badge"
+        class="player-badge hidden"
+      >
+        YOU
+      </div>
+
+    </div>
+
+
+    <!-- ===================================================
+         PLAYER 3
+    =================================================== -->
+
+    <div
+      id="player3"
+      class="player p3"
+    >
+
+      <div class="player-avatar">
+        👤
+      </div>
+
+      <div class="player-info">
+
+        <div
+          id="player3Name"
+          class="player-name"
+        >
+          Waiting
+        </div>
+
+        <div
+          id="player3Status"
+          class="player-status"
+        >
+          Player 3
+        </div>
+
+      </div>
+
+      <div
+        id="player3Badge"
+        class="player-badge hidden"
+      >
+        YOU
+      </div>
+
+    </div>
+
+
+    <!-- ===================================================
+         PLAYER 4
+    =================================================== -->
+
+    <div
+      id="player4"
+      class="player p4"
+    >
+
+      <div class="player-avatar">
+        👤
+      </div>
+
+      <div class="player-info">
+
+        <div
+          id="player4Name"
+          class="player-name"
+        >
+          Waiting
+        </div>
+
+        <div
+          id="player4Status"
+          class="player-status"
+        >
+          Player 4
+        </div>
+
+      </div>
+
+      <div
+        id="player4Badge"
+        class="player-badge hidden"
+      >
+        YOU
+      </div>
+
+    </div>
+
+
+    <!-- ===================================================
+         PLAYER 5
+    =================================================== -->
+
+    <div
+      id="player5"
+      class="player p5"
+    >
+
+      <div class="player-avatar">
+        👤
+      </div>
+
+      <div class="player-info">
+
+        <div
+          id="player5Name"
+          class="player-name"
+        >
+          Waiting
+        </div>
+
+        <div
+          id="player5Status"
+          class="player-status"
+        >
+          Player 5
+        </div>
+
+      </div>
+
+      <div
+        id="player5Badge"
+        class="player-badge hidden"
+      >
+        YOU
+      </div>
+
+    </div>
+
+
+    <!-- ===================================================
+         PLAYER 6
+    =================================================== -->
+
+    <div
+      id="player6"
+      class="player p6"
+    >
+
+      <div class="player-avatar">
+        👤
+      </div>
+
+      <div class="player-info">
+
+        <div
+          id="player6Name"
+          class="player-name"
+        >
+          You
+        </div>
+
+        <div
+          id="player6Status"
+          class="player-status"
+        >
+          Player 6
+        </div>
+
+      </div>
+
+      <div
+        id="player6Badge"
+        class="player-badge"
+      >
+        YOU
+      </div>
+
+    </div>
+
+
+    <!-- ===================================================
+         CENTER
+    =================================================== -->
+
+    <div class="center-info">
+
+      <div class="turn-label">
+        CURRENT TURN
+      </div>
+
+      <div
+        id="turnName"
+        class="turn-name"
+      >
+        Waiting...
+      </div>
+
+      <div class="trump">
+        ♠
+      </div>
+
+    </div>
+
+
+    <!-- ===================================================
+         TRICK AREA
+    =================================================== -->
+
+    <div class="trick-area">
+
+      <div
+        id="playedCard1"
+        class="played-card c1"
+      >
+        ♠
+      </div>
+
+      <div
+        id="playedCard2"
+        class="played-card c2"
+      >
+        ♠
+      </div>
+
+      <div
+        id="playedCard3"
+        class="played-card c3"
+      >
+        ♠
+      </div>
+
+      <div
+        id="playedCard4"
+        class="played-card c4"
+      >
+        ♠
+      </div>
+
+    </div>
+
+
+    <!-- ===================================================
+         STATUS MESSAGE
+    =================================================== -->
+
+    <div
+      id="statusMessage"
+      class="status-message"
+    >
+      Waiting for players...
+    </div>
+
+
+    <!-- ===================================================
+         ACTION BUTTONS
+    =================================================== -->
+
+    <div class="action-bar">
+
+      <button
+        id="bidButton"
+        class="action-button gold"
+        type="button"
+      >
+        ANNOUNCE
+      </button>
+
+      <button
+        id="playButton"
+        class="action-button primary"
+        type="button"
+        disabled
+      >
+        PLAY CARD
+      </button>
+
+      <button
+        id="menuButton"
+        class="action-button"
+        type="button"
+      >
+        MENU
+      </button>
+
+    </div>
+
+
+    <!-- ===================================================
+         MY HAND
+    =================================================== -->
+
+    <div class="hand-area">
+
+      <div class="my-player">
+
+        <div
+          id="myName"
+          class="my-name"
+        >
+          You
+        </div>
+
+        <div
+          id="myTeam"
+          class="my-team"
+        >
+          BLUE TEAM
+        </div>
+
+      </div>
+
+
+      <div
+        id="hand"
+        class="hand"
+      >
+
+        <!-- Cards inserted by JavaScript -->
+
+      </div>
+
+    </div>
+
+
+    <!-- ===================================================
+         BID PANEL
+    =================================================== -->
+
+    <div
+      id="bidPanel"
+      class="bid-panel"
+    >
+
+      <div class="bid-title">
+        ANNOUNCE YOUR TRICKS
+      </div>
+
+      <div class="bid-subtitle">
+        Choose your number
+      </div>
+
+
+      <div class="bid-values">
+
+        <button
+          class="bid"
+          data-bid="2"
+          type="button"
+        >
+          2
+        </button>
+
+        <button
+          class="bid"
+          data-bid="3"
+          type="button"
+        >
+          3
+        </button>
+
+        <button
+          class="bid"
+          data-bid="4"
+          type="button"
+        >
+          4
+        </button>
+
+        <button
+          class="bid"
+          data-bid="5"
+          type="button"
+        >
+          5
+        </button>
+
+        <button
+          class="bid"
+          data-bid="6"
+          type="button"
+        >
+          6
+        </button>
+
+        <button
+          class="bid"
+          data-bid="7"
+          type="button"
+        >
+          7
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- ===================================================
+         WAITING OVERLAY
+    =================================================== -->
+
+    <div
+      id="waitingOverlay"
+      class="waiting-overlay"
+    >
+
+      <div class="waiting-box">
+
+        <div class="waiting-icon">
+          ♠
+        </div>
+
+        <div class="waiting-title">
+          Waiting for Players
+        </div>
+
+        <div class="waiting-text">
+          The game will start automatically
+          when all 6 players have joined.
+        </div>
+
+        <div
+          id="waitingCount"
+          class="waiting-count"
+        >
+          1 / 6
+        </div>
+
+        <div
+          id="waitingCode"
+          class="waiting-code"
+        >
+          ------
+        </div>
+
+        <button
+          id="copyCodeButton"
+          class="waiting-button"
+          type="button"
+        >
+          COPY ROOM CODE
+        </button>
+
+        <button
+          id="leaveWaitingButton"
+          class="waiting-button"
+          type="button"
+        >
+          LEAVE ROOM
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- ===================================================
+         MENU MODAL
+    =================================================== -->
+
+    <div
+      id="menuModal"
+      class="menu-modal"
+    >
+
+      <div class="menu-box">
+
+        <div class="menu-title">
+          GAME MENU
+        </div>
+
+
+        <button
+          id="closeMenuButton"
+          class="menu-button"
+          type="button"
+        >
+          CONTINUE GAME
+        </button>
+
+
+        <button
+          id="leaveGameButton"
+          class="menu-button danger"
+          type="button"
+        >
+          LEAVE GAME
+        </button>
+
+      </div>
+
+    </div>
+
+
+  </main>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   TELEGRAM
+========================================================= */
+
+const tg =
+  window.Telegram &&
+  window.Telegram.WebApp
+    ? window.Telegram.WebApp
+    : null;
+
+
+try{
+
+  if(tg){
+
+    tg.ready();
+
+    tg.expand();
+
+  }
+
+}catch(error){
+
+  console.log(
+    "Telegram error:",
+    error
+  );
+
+}
+
+
+/* =========================================================
+   SOCKET.IO
+========================================================= */
+
+const socket =
+  typeof io === "function"
+    ? io()
+    : null;
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+const state = {
+
+  roomId:
+    null,
+
+  roomCode:
+    null,
+
+  game:
+    "suit",
+
+  capacity:
+    6,
+
+  started:
+    false,
+
+  mySocketId:
+    null,
+
+  mySeat:
+    null,
+
+  players:
+    [],
+
+  selectedCard:
+    null,
+
+  hand:
+    [],
+
+  currentTurn:
+    null,
+
+  blueScore:
+    0,
+
+  redScore:
+    0,
+
+  round:
+    1
+
+};
+
+
+/* =========================================================
+   DOM
+========================================================= */
+
+const $ =
+  id =>
+    document.getElementById(
+      id
+    );
+
+
+/* =========================================================
+   CONNECTION
+========================================================= */
+
+function setConnection(
+  online
+){
+
+  const element =
+    $("connectionStatus");
+
+  if(!element){
+
+    return;
+
+  }
+
+
+  element.classList.toggle(
+    "online",
+    online
+  );
+
+  element.classList.toggle(
+    "offline",
+    !online
+  );
+
+
+  element.textContent =
+    online
+      ? "ONLINE"
+      : "OFFLINE";
+
+}
+
+
+/* =========================================================
+   MESSAGE
+========================================================= */
+
+let messageTimer =
+  null;
+
+
+function showStatus(
+  message
+){
+
+  const element =
+    $("statusMessage");
+
+  if(!element){
+
+    return;
+
+  }
+
+
+  element.textContent =
+    message;
+
+
+  element.classList.add(
+    "show"
+  );
+
+
+  clearTimeout(
+    messageTimer
+  );
+
+
+  messageTimer =
+    setTimeout(
+      ()=>{
+
+        element.classList.remove(
+          "show"
+        );
+
+      },
+      2500
+    );
+
+}
+
+
+/* =========================================================
+   PLAYER DATA
+========================================================= */
+
+function getTelegramPlayer(){
+
+  try{
+
+    const user =
+      tg &&
+      tg.initDataUnsafe &&
+      tg.initDataUnsafe.user
+        ? tg.initDataUnsafe.user
+        : null;
+
+
+    if(user){
+
+      return {
+
+        userId:
+          String(
+            user.id
+          ),
+
+        username:
+          user.username
+            ? user.username
+            : (
+                user.first_name ||
+                "Player"
+              ),
+
+        firstName:
+          user.first_name ||
+          "Player",
+
+        avatar:
+          ""
+
+      };
+
+    }
+
+  }catch(error){
+
+    console.log(
+      error
+    );
+
+  }
+
+
+  return {
+
+    userId:
+      null,
+
+    username:
+      "Player",
+
+    firstName:
+      "Player",
+
+    avatar:
+      ""
+
+  };
+
+}
+
+
+/* =========================================================
+   READ URL PARAMETERS
+========================================================= */
+
+function readRoomFromURL(){
+
+  const params =
+    new URLSearchParams(
+      window.location.search
+    );
+
+
+  const room =
+    params.get(
+      "room"
+    );
+
+
+  const game =
+    params.get(
+      "game"
+    );
+
+
+  if(room){
+
+    state.roomId =
+      room;
+
+    state.roomCode =
+      room;
+
+  }
+
+
+  if(game){
+
+    state.game =
+      game;
+
+  }
+
+}
+
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+function initialize(){
+
+  readRoomFromURL();
+
+
+  if(socket){
+
+    state.mySocketId =
+      socket.id;
+
+  }
+
+
+  updateRoomUI();
+
+  updateScoreUI();
+
+  updatePlayersUI();
+
+
+  /*
+  If this page was opened
+  directly with a room code,
+  automatically join it.
+
+  */
+
+  if(
+    socket &&
+    state.roomCode
+  ){
+
+    joinRoomFromURL();
+
+  }
+
+}
+
+
+/* =========================================================
+   JOIN FROM URL
+========================================================= */
+
+function joinRoomFromURL(){
+
+  const player =
+    getTelegramPlayer();
+
+
+  socket.emit(
+    "join_private",
+    {
+
+      roomCode:
+        state.roomCode,
+
+      game:
+        state.game,
+
+      player:
+        player
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   ROOM UPDATE
+========================================================= */
+
+if(socket){
+
+  socket.on(
+    "connect",
+    ()=>{
+
+      state.mySocketId =
+        socket.id;
+
+      setConnection(
+        true
+      );
+
+
+      /*
+      If we have a room code,
+      reconnect automatically.
+      */
+
+      if(
+        state.roomCode &&
+        !state.started
+      ){
+
+        joinRoomFromURL();
+
+      }
+
+    }
+  );
+
+
+  socket.on(
+    "disconnect",
+    ()=>{
+
+      setConnection(
+        false
+      );
+
+      showStatus(
+        "Connection lost."
+      );
+
+    }
+  );
+
+
+  socket.on(
+    "room_joined",
+    data => {
+
+      handleRoomJoined(
+        data
+      );
+
+    }
+  );
+
+
+  socket.on(
+    "private_room_created",
+    data => {
+
+      handleRoomJoined(
+        data
+      );
+
+    }
+  );
+
+
+  socket.on(
+    "room_update",
+    data => {
+
+      handleRoomUpdate(
+        data
+      );
+
+    }
+  );
+
+
+  socket.on(
+    "game_start",
+    data => {
+
+      handleGameStart(
+        data
+      );
+
+    }
+  );
+
+
+  socket.on(
+    "join_error",
+    data => {
+
+      showStatus(
+        data &&
+        data.message
+          ? data.message
+          : "Unable to join room."
+      );
+
+    }
+  );
+
+
+  socket.on(
+    "room_error",
+    data => {
+
+      showStatus(
+        data &&
+        data.message
+          ? data.message
+          : "Room error."
+      );
+
+    }
+  );
+
+
+  socket.on(
+    "game_error",
+    data => {
+
+      showStatus(
+        data &&
+        data.message
+          ? data.message
+          : "Game error."
+      );
+
+    }
+  );
+
+
+  socket.on(
+    "player_disconnected",
+    data => {
+
+      if(
+        data &&
+        data.username
+      ){
+
+        showStatus(
+          data.username +
+          " disconnected."
+        );
+
+      }else{
+
+        showStatus(
+          "A player disconnected."
+        );
+
+      }
+
+    }
+  );
+
+
+  socket.on(
+    "room_closed",
+    data => {
+
+      showStatus(
+        data &&
+        data.message
+          ? data.message
+          : "Room closed."
+      );
+
+    }
+  );
+
+
+  socket.on(
+    "game_action",
+    data => {
+
+      handleGameAction(
+        data
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   ROOM JOINED
+========================================================= */
+
+function handleRoomJoined(
+  data
+){
+
+  if(!data){
+
+    return;
+
+  }
+
+
+  state.roomId =
+    data.roomId ||
+    data.roomCode ||
+    state.roomId;
+
+
+  state.roomCode =
+    data.roomCode ||
+    data.roomId ||
+    state.roomCode;
+
+
+  state.game =
+    data.game ||
+    state.game;
+
+
+  state.capacity =
+    Number(
+      data.capacity ||
+      6
+    );
+
+
+  state.mySeat =
+    Number.isFinite(
+      Number(
+        data.seat
+      )
+    )
+      ? Number(
+          data.seat
+        )
+      : null;
+
+
+  if(
+    data.roomState
+  ){
+
+    handleRoomUpdate(
+      data.roomState
+    );
+
+  }
+
+
+  updateRoomUI();
+
+
+  /*
+  Hide waiting only
+  when game starts.
+
+  */
+
+  showWaiting();
+
+
+  /*
+  Update browser URL
+  without reloading.
+
+  */
+
+  try{
+
+    const url =
+      new URL(
+        window.location.href
+      );
+
+
+    url.searchParams.set(
+      "room",
+      state.roomCode
+    );
+
+
+    url.searchParams.set(
+      "game",
+      state.game
+    );
+
+
+    history.replaceState(
+      {},
+      "",
+      url.toString()
+    );
+
+  }catch(error){}
+
+
+  showStatus(
+    "Room joined."
+  );
+
+}
+
+
+/* =========================================================
+   ROOM UPDATE
+========================================================= */
+
+function handleRoomUpdate(
+  data
+){
+
+  if(!data){
+
+    return;
+
+  }
+
+
+  state.roomId =
+    data.roomId ||
+    state.roomId;
+
+
+  state.roomCode =
+    data.roomId ||
+    state.roomCode;
+
+
+  state.game =
+    data.game ||
+    state.game;
+
+
+  state.capacity =
+    Number(
+      data.capacity ||
+      state.capacity
+    );
+
+
+  state.started =
+    Boolean(
+      data.started
+    );
+
+
+  state.players =
+    Array.isArray(
+      data.players
+    )
+      ? data.players
+      : [];
+
+
+  updateRoomUI();
+
+  updatePlayersUI();
+
+  updateWaitingUI();
+
+
+  if(
+    state.started
+  ){
+
+    hideWaiting();
+
+  }
+
+}
+
+
+/* =========================================================
+   GAME START
+========================================================= */
+
+function handleGameStart(
+  data
+){
+
+  if(!data){
+
+    return;
+
+  }
+
+
+  state.started =
+    true;
+
+
+  state.roomId =
+    data.roomId ||
+    state.roomId;
+
+
+  state.game =
+    data.game ||
+    state.game;
+
+
+  state.capacity =
+    Number(
+      data.capacity ||
+      state.capacity
+    );
+
+
+  state.players =
+    Array.isArray(
+      data.players
+    )
+      ? data.players
+      : state.players;
+
+
+  if(
+    data.gameState
+  ){
+
+    state.currentTurn =
+      data.gameState.currentPlayer;
+
+  }
+
+
+  hideWaiting();
+
+  updateRoomUI();
+
+  updatePlayersUI();
+
+  showStatus(
+    "All players joined. Game started!"
+  );
+
+
+  /*
+  Start local visual game.
+
+  The actual server-side card
+  engine can update this later.
+
+  */
+
+  startVisualGame();
+
+}
+
+
+/* =========================================================
+   WAITING
+========================================================= */
+
+function showWaiting(){
+
+  const overlay =
+    $("waitingOverlay");
+
+  if(overlay){
+
+    overlay.style.display =
+      "flex";
+
+  }
+
+}
+
+
+function hideWaiting(){
+
+  const overlay =
+    $("waitingOverlay");
+
+  if(overlay){
+
+    overlay.style.display =
+      "none";
+
+  }
+
+}
+
+
+/* =========================================================
+   WAITING UI
+========================================================= */
+
+function updateWaitingUI(){
+
+  const count =
+    $("waitingCount");
+
+
+  if(count){
+
+    count.textContent =
+      state.players.length +
+      " / " +
+      state.capacity;
+
+  }
+
+
+  const code =
+    $("waitingCode");
+
+
+  if(code){
+
+    code.textContent =
+      state.roomCode ||
+      "------";
+
+  }
+
+}
+
+
+/* =========================================================
+   ROOM UI
+========================================================= */
+
+function updateRoomUI(){
+
+  const code =
+    $("roomCode");
+
+  if(code){
+
+    code.textContent =
+      state.roomCode ||
+      "------";
+
+  }
+
+
+  const gameName =
+    $("gameName");
+
+
+  if(gameName){
+
+    if(
+      state.game ===
+      "suit"
+    ){
+
+      gameName.childNodes[0].nodeValue =
+        "SPADE TRUMP ";
+
+    }
+
+    else if(
+      state.game ===
+      "classic"
+    ){
+
+      gameName.childNodes[0].nodeValue =
+        "CLASSIC SPADES ";
+
+    }
+
+    else if(
+      state.game ===
+      "two"
+    ){
+
+      gameName.childNodes[0].nodeValue =
+        "TWO PLAYER ";
+
+    }
+
+  }
+
+
+  const round =
+    $("roundText");
+
+  if(round){
+
+    round.textContent =
+      "ROUND " +
+      state.round;
+
+  }
+
+}
+
+
+/* =========================================================
+   PLAYERS UI
+========================================================= */
+
+function updatePlayersUI(){
+
+  for(
+    let i = 1;
+    i <= 6;
+    i++
+  ){
+
+    const player =
+      state.players[
+        i - 1
+      ];
+
+
+    const name =
+      $("player" + i + "Name");
+
+
+    const status =
+      $("player" + i + "Status");
+
+
+    const badge =
+      $("player" + i + "Badge");
+
+
+    const box =
+      $("player" + i);
+
+
+    if(!player){
+
+      if(name){
+
+        name.textContent =
+          "Waiting";
+
+      }
+
+      if(status){
+
+        status.textContent =
+          "Player " + i;
+
+      }
+
+      if(badge){
+
+        badge.classList.add(
+          "hidden"
+        );
+
+      }
+
+      if(box){
+
+        box.classList.remove(
+          "active-turn"
+        );
+
+      }
+
+      continue;
+
+    }
+
+
+    if(name){
+
+      name.textContent =
+        player.username ||
+        player.firstName ||
+        "Player " + i;
+
+    }
+
+
+    if(status){
+
+      status.textContent =
+        "Player " +
+        (i);
+
+    }
+
+
+    if(badge){
+
+      const isMe =
+        player.socketId ===
+        state.mySocketId;
+
+
+      badge.classList.toggle(
+        "hidden",
+        !isMe
+      );
+
+    }
+
+
+    if(box){
+
+      box.classList.toggle(
+        "active-turn",
+        Number(
+          player.seat
+        ) ===
+        Number(
+          state.currentTurn
+        )
+      );
+
+    }
+
+  }
+
+
+  /*
+  Find current player.
+  */
+
+  const current =
+    state.players.find(
+      player =>
+        Number(
+          player.seat
+        ) ===
+        Number(
+          state.currentTurn
+        )
+    );
+
+
+  const turnName =
+    $("turnName");
+
+
+  if(turnName){
+
+    turnName.textContent =
+      current
+        ? (
+            current.username ||
+            current.firstName ||
+            "Player"
+          )
+        : "Waiting...";
+
+  }
+
+
+  /*
+  My information.
+  */
+
+  const me =
+    state.players.find(
+      player =>
+        player.socketId ===
+        state.mySocketId
+    );
+
+
+  if(me){
+
+    state.mySeat =
+      Number(
+        me.seat
+      );
+
+
+    const myName =
+      $("myName");
+
+
+    if(myName){
+
+      myName.textContent =
+        me.username ||
+        me.firstName ||
+        "You";
+
+    }
+
+
+    const myTeam =
+      $("myTeam");
+
+
+    if(myTeam){
+
+      /*
+      Seats:
+      0,2,4 = BLUE
+      1,3,5 = RED
+
+      */
+
+      const blue =
+        state.mySeat %
+        2 ===
+        0;
+
+
+      myTeam.textContent =
+        blue
+          ? "BLUE TEAM"
+          : "RED TEAM";
+
+
+      myTeam.style.color =
+        blue
+          ? "#67b9ff"
+          : "#ff7777";
+
+    }
+
+  }
+
+}
+
+
+/* =========================================================
+   SCORE UI
+========================================================= */
+
+function updateScoreUI(){
+
+  const blue =
+    $("blueScore");
+
+
+  const red =
+    $("redScore");
+
+
+  if(blue){
+
+    blue.textContent =
+      state.blueScore;
+
+  }
+
+
+  if(red){
+
+    red.textContent =
+      state.redScore;
+
+  }
+
+}
+
+
+/* =========================================================
+   START VISUAL GAME
+========================================================= */
+
+function startVisualGame(){
+
+  state.started =
+    true;
+
+
+  /*
+  First player starts.
+  */
+
+  state.currentTurn =
+    0;
+
+
+  updatePlayersUI();
+
+
+  /*
+  Create sample hand only
+  if server has not sent cards yet.
+
+  */
+
+  if(
+    state.hand.length ===
+    0 &&
+    state.mySeat !== null
+  ){
+
+    createLocalPlaceholderHand();
+
+  }
+
+
+  updateHandUI();
+
+}
+
+
+/* =========================================================
+   PLACEHOLDER HAND
+=========================================================
+
+This is only visual until the authoritative
+server card engine sends the real hand.
+
+========================================================= */
+
+function createLocalPlaceholderHand(){
+
+  const suits =
+    ["♠","♥","♦","♣"];
+
+  const ranks =
+    [
+      "2",
+      "3",
+      "4",
+      "5",
+      "6",
+      "7",
+      "8",
+      "9",
+      "10"
+    ];
+
+
+  state.hand = [];
+
+
+  for(
+    let i = 0;
+    i < 9;
+    i++
+  ){
+
+    const suit =
+      suits[
+        i % 4
+      ];
+
+    const rank =
+      ranks[
+        i
+      ];
+
+
+    state.hand.push({
+
+      id:
+        rank +
+        suit,
+
+      rank:
+        rank,
+
+      suit:
+        suit
+
+    });
+
+  }
+
+}
+
+
+/* =========================================================
+   HAND UI
+========================================================= */
+
+function updateHandUI(){
+
+  const hand =
+    $("hand");
+
+
+  if(!hand){
+
+    return;
+
+  }
+
+
+  hand.innerHTML =
+    "";
+
+
+  state.hand.forEach(
+    (card,index)=>{
+
+      const element =
+        document.createElement(
+          "button"
+        );
+
+
+      element.type =
+        "button";
+
+
+      element.className =
+        "card";
+
+
+      if(
+        card.suit ===
+        "♥" ||
+        card.suit ===
+        "♦"
+      ){
+
+        element.classList.add(
+          "red"
+        );
+
+      }
+
+
+      if(
+        state.selectedCard ===
+        index
+      ){
+
+        element.classList.add(
+          "selected"
+        );
+
+      }
+
+
+      const top =
+        document.createElement(
+          "div"
+        );
+
+
+      top.className =
+        "card-top";
+
+
+      top.innerHTML =
+        card.rank +
+        "<br>" +
+        card.suit;
+
+
+      const center =
+        document.createElement(
+          "div"
+        );
+
+
+      center.className =
+        "card-center";
+
+
+      center.textContent =
+        card.suit;
+
+
+      element.appendChild(
+        top
+      );
+
+
+      element.appendChild(
+        center
+      );
+
+
+      element.addEventListener(
+        "click",
+        ()=>{
+
+          selectCard(
+            index
+          );
+
+        }
+      );
+
+
+      hand.appendChild(
+        element
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   SELECT CARD
+========================================================= */
+
+function selectCard(
+  index
+){
+
+  if(
+    !state.started
+  ){
+
+    return;
+
+  }
+
+
+  if(
+    !Array.isArray(
+      state.hand
+    )
+  ){
+
+    return;
+
+  }
+
+
+  if(
+    !state.hand[index]
+  ){
+
+    return;
+
+  }
+
+
+  /*
+  Only current player can
+  select a card.
+
+  */
+
+  if(
+    Number(
+      state.currentTurn
+    ) !==
+    Number(
+      state.mySeat
+    )
+  ){
+
+    showStatus(
+      "It is not your turn."
+    );
+
+    return;
+
+  }
+
+
+  state.selectedCard =
+    index;
+
+
+  updateHandUI();
+
+}
+
+
+/* =========================================================
+   PLAY CARD
+========================================================= */
+
+function playSelectedCard(){
+
+  if(
+    state.selectedCard ===
+    null
+  ){
+
+    showStatus(
+      "Select a card first."
+    );
+
+    return;
+
+  }
+
+
+  if(
+    Number(
+      state.currentTurn
+    ) !==
+    Number(
+      state.mySeat
+    )
+  ){
+
+    showStatus(
+      "It is not your turn."
+    );
+
+    return;
+
+  }
+
+
+  const card =
+    state.hand[
+      state.selectedCard
+    ];
+
+
+  if(!card){
+
+    return;
+
+  }
+
+
+  /*
+  Send to server.
+
+  server.js broadcasts
+  game_action to room.
+
+  */
+
+  if(socket){
+
+    socket.emit(
+      "game_action",
+      {
+
+        type:
+          "play_card",
+
+        card:
+          card,
+
+        cardIndex:
+          state.selectedCard
+
+      }
+    );
+
+  }
+
+
+  /*
+  Local visual removal.
+
+  The authoritative server
+  game engine can later confirm
+  the action.
+
+  */
+
+  state.hand.splice(
+    state.selectedCard,
+    1
+  );
+
+
+  state.selectedCard =
+    null;
+
+
+  updateHandUI();
+
+}
+
+
+/* =========================================================
+   GAME ACTION
+========================================================= */
+
+function handleGameAction(
+  data
+){
+
+  if(!data){
+
+    return;
+
+  }
+
+
+  if(
+    data.action &&
+    data.action.type ===
+      "play_card"
+  ){
+
+    const seat =
+      Number(
+        data.seat
+      );
+
+
+    /*
+    Ignore our own action.
+    */
+
+    if(
+      data.playerId ===
+      state.mySocketId
+    ){
+
+      return;
+
+    }
+
+
+    const card =
+      data.action.card;
+
+
+    if(
+      card
+    ){
+
+      showPlayedCard(
+        seat,
+        card
+      );
+
+    }
+
+
+    /*
+    Move turn.
+
+    */
+
+    const next =
+      (
+        seat + 1
+      ) %
+      state.capacity;
+
+
+    state.currentTurn =
+      next;
+
+
+    updatePlayersUI();
+
+  }
+
+
+  if(
+    data.action &&
+    data.action.type ===
+      "bid"
+  ){
+
+    showStatus(
+      "Player " +
+      (
+        Number(
+          data.seat
+        ) + 1
+      ) +
+      " announced " +
+      data.action.value
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   SHOW PLAYED CARD
+========================================================= */
+
+function showPlayedCard(
+  seat,
+  card
+){
+
+  /*
+  Map six players into
+  four visual trick positions.
+
+  The actual full trick engine
+  can later replace this.
+
+  */
+
+  const visualIndex =
+    (
+      Number(
+        seat
+      ) %
+      4
+    ) + 1;
+
+
+  const element =
+    $("playedCard" +
+      visualIndex);
+
+
+  if(!element){
+
+    return;
+
+  }
+
+
+  element.textContent =
+    (
+      card.rank ||
+      ""
+    ) +
+    (
+      card.suit ||
+      "♠"
+    );
+
+
+  element.classList.add(
+    "show"
+  );
+
+
+  setTimeout(
+    ()=>{
+
+      element.classList.remove(
+        "show"
+      );
+
+    },
+    3000
+  );
+
+}
+
+
+/* =========================================================
+   BID
+========================================================= */
+
+function openBidPanel(){
+
+  if(
+    !state.started
+  ){
+
+    showStatus(
+      "The game has not started."
+    );
+
+    return;
+
+  }
+
+
+  if(
+    Number(
+      state.currentTurn
+    ) !==
+    Number(
+      state.mySeat
+    )
+  ){
+
+    showStatus(
+      "It is not your turn."
+    );
+
+    return;
+
+  }
+
+
+  const panel =
+    $("bidPanel");
+
+
+  if(panel){
+
+    panel.classList.add(
+      "show"
+    );
+
+  }
+
+}
+
+
+function closeBidPanel(){
+
+  const panel =
+    $("bidPanel");
+
+
+  if(panel){
+
+    panel.classList.remove(
+      "show"
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   SEND BID
+========================================================= */
+
+function sendBid(
+  value
+){
+
+  if(!socket){
+
+    return;
+
+  }
+
+
+  socket.emit(
+    "game_action",
+    {
+
+      type:
+        "bid",
+
+      value:
+        Number(
+          value
+        )
+
+    }
+  );
+
+
+  closeBidPanel();
+
+
+  showStatus(
+    "You announced " +
+    value
+  );
+
+}
+
+
+/* ===============================
