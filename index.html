@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"
+>
+
+<title>SPADES</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+html,body{
+    width:100%;
+    min-height:100%;
+    background:#080b12;
+    color:#fff;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+    overflow-x:hidden;
+}
+
+button{
+    font-family:inherit;
+    border:0;
+    outline:0;
+    cursor:pointer;
+}
+
+.app{
+    width:100%;
+    min-height:100vh;
+    min-height:100dvh;
+    background:
+        radial-gradient(
+            circle at 50% -10%,
+            rgba(64,84,145,.28),
+            transparent 40%
+        ),
+        linear-gradient(
+            180deg,
+            #0b0f18,
+            #080b12
+        );
+}
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.status-bar{
+    position:fixed;
+    top:0;
+    left:0;
+    right:0;
+    z-index:1000;
+    height:46px;
+
+    padding:
+        max(8px,env(safe-area-inset-top))
+        14px
+        8px;
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    background:rgba(7,10,17,.96);
+    border-bottom:1px solid rgba(255,255,255,.08);
+
+    backdrop-filter:blur(12px);
+}
+
+.status-left{
+    display:flex;
+    align-items:center;
+    gap:8px;
+}
+
+.online-dot{
+    width:9px;
+    height:9px;
+    border-radius:50%;
+    background:#39e58c;
+    box-shadow:0 0 12px rgba(57,229,140,.8);
+}
+
+.status-text{
+    font-size:11px;
+    color:#aab3c5;
+    letter-spacing:.5px;
+}
+
+.token-box{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    padding:5px 10px;
+    border-radius:20px;
+    background:rgba(255,193,7,.08);
+    border:1px solid rgba(255,193,7,.2);
+}
+
+.token-icon{
+    color:#ffd54a;
+}
+
+.token-value{
+    color:#ffd54a;
+    font-size:12px;
+    font-weight:700;
+}
+
+/* =========================================================
+   SCREEN
+========================================================= */
+
+.screen{
+    display:none;
+
+    width:100%;
+    min-height:100vh;
+    min-height:100dvh;
+
+    padding:
+        64px
+        16px
+        calc(24px + env(safe-area-inset-bottom));
+}
+
+.screen.active{
+    display:block;
+}
+
+/* =========================================================
+   HOME
+========================================================= */
+
+.home{
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+}
+
+.home.active{
+    display:flex;
+}
+
+.logo{
+    width:100px;
+    height:100px;
+    margin:25px auto 18px;
+
+    border-radius:28px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:58px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #202b48,
+            #111727
+        );
+
+    border:1px solid rgba(255,255,255,.1);
+
+    box-shadow:
+        0 20px 50px rgba(0,0,0,.45),
+        inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+.title{
+    font-size:42px;
+    font-weight:900;
+    letter-spacing:6px;
+}
+
+.subtitle{
+    margin-top:10px;
+    max-width:330px;
+
+    color:#8e99ad;
+
+    font-size:14px;
+    line-height:1.5;
+}
+
+.primary-btn,
+.secondary-btn{
+    width:100%;
+    max-width:360px;
+}
+
+.primary-btn{
+    min-height:56px;
+    margin-top:30px;
+
+    border-radius:17px;
+
+    color:#fff;
+    font-size:16px;
+    font-weight:800;
+
+    background:
+        linear-gradient(
+            135deg,
+            #5b6ee1,
+            #3948a4
+        );
+
+    box-shadow:
+        0 12px 30px rgba(70,84,190,.3);
+}
+
+.secondary-btn{
+    min-height:50px;
+    margin-top:12px;
+
+    border-radius:15px;
+
+    color:#cdd5e5;
+    font-size:14px;
+    font-weight:700;
+
+    background:#111724;
+
+    border:1px solid rgba(255,255,255,.08);
+}
+
+.home-info{
+    width:100%;
+    max-width:360px;
+
+    margin-top:30px;
+
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+}
+
+.info-card{
+    padding:13px 7px;
+
+    border-radius:13px;
+
+    background:rgba(255,255,255,.035);
+    border:1px solid rgba(255,255,255,.06);
+}
+
+.info-number{
+    font-size:17px;
+    font-weight:900;
+}
+
+.info-label{
+    margin-top:5px;
+
+    font-size:9px;
+    color:#7f8ba0;
+
+    text-transform:uppercase;
+}
+
+.footer{
+    margin-top:35px;
+
+    color:#566174;
+
+    font-size:10px;
+    text-align:center;
+}
+
+/* =========================================================
+   GAMES
+========================================================= */
+
+.page-top{
+    width:100%;
+    max-width:520px;
+
+    margin:0 auto 20px;
+
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.back-btn{
+    width:44px;
+    height:44px;
+
+    flex-shrink:0;
+
+    border-radius:13px;
+
+    background:#111724;
+    color:#fff;
+
+    border:1px solid rgba(255,255,255,.08);
+
+    font-size:20px;
+}
+
+.page-title{
+    font-size:27px;
+    font-weight:900;
+}
+
+.page-subtitle{
+    margin-top:5px;
+
+    color:#7f8ba0;
+
+    font-size:13px;
+}
+
+.section{
+    width:100%;
+    max-width:520px;
+    margin:0 auto;
+}
+
+.game-card{
+    width:100%;
+
+    margin-bottom:12px;
+    padding:18px;
+
+    border-radius:20px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(23,30,47,.98),
+            rgba(13,17,28,.98)
+        );
+
+    border:1px solid rgba(255,255,255,.07);
+
+    box-shadow:
+        0 12px 30px rgba(0,0,0,.22);
+}
+
+.game-icon{
+    width:52px;
+    height:52px;
+
+    border-radius:15px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:27px;
+
+    background:rgba(91,110,225,.12);
+    border:1px solid rgba(91,110,225,.2);
+}
+
+.game-card h3{
+    margin-top:13px;
+    font-size:18px;
+}
+
+.game-card p{
+    margin-top:5px;
+
+    color:#818ca0;
+
+    font-size:12px;
+    line-height:1.5;
+}
+
+.game-action{
+    width:100%;
+
+    min-height:44px;
+    margin-top:15px;
+
+    border-radius:13px;
+
+    color:#fff;
+    font-weight:800;
+
+    background:#202b49;
+}
+
+.private{
+    border-color:rgba(255,193,7,.15);
+}
+
+.private .game-icon{
+    background:rgba(255,193,7,.08);
+    border-color:rgba(255,193,7,.18);
+}
+
+.training{
+    border-color:rgba(57,229,140,.13);
+}
+
+.training .game-icon{
+    background:rgba(57,229,140,.08);
+    border-color:rgba(57,229,140,.18);
+}
+
+.hidden{
+    display:none!important;
+}
+
+@media(max-width:380px){
+
+    .title{
+        font-size:36px;
+    }
+
+    .logo{
+        width:86px;
+        height:86px;
+        font-size:50px;
+    }
+
+    .game-card{
+        padding:15px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- =====================================================
+         FIXED STATUS
+    ====================================================== -->
+
+    <div class="status-bar">
+
+        <div class="status-left">
+
+            <div class="online-dot"></div>
+
+            <div class="status-text">
+                SPADES ONLINE
+            </div>
+
+        </div>
+
+        <div class="token-box">
+
+            <span class="token-icon">◆</span>
+
+            <span
+                id="tokenValue"
+                class="token-value"
+            >
+                1000
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================================
+         HOME
+    ====================================================== -->
+
+    <section
+        id="homeScreen"
+        class="screen home active"
+    >
+
+        <div class="logo">
+            ♠
+        </div>
+
+        <h1 class="title">
+            SPADES
+        </h1>
+
+        <div class="subtitle">
+            Enter the table. Play smart. Win big.
+        </div>
+
+        <button
+            id="playNowButton"
+            class="primary-btn"
+        >
+            PLAY NOW
+        </button>
+
+        <button
+            id="trainingHomeButton"
+            class="secondary-btn"
+        >
+            TRAINING
+        </button>
+
+        <div class="home-info">
+
+            <div class="info-card">
+                <div class="info-number">6</div>
+                <div class="info-label">PLAYERS</div>
+            </div>
+
+            <div class="info-card">
+                <div class="info-number">3v3</div>
+                <div class="info-label">TEAMS</div>
+            </div>
+
+            <div class="info-card">
+                <div class="info-number">♠</div>
+                <div class="info-label">TRUMP</div>
+            </div>
+
+        </div>
+
+        <div class="footer">
+            SPADES • Play responsibly
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         GAMES
+    ====================================================== -->
+
+    <section
+        id="gamesScreen"
+        class="screen"
+    >
+
+        <div class="page-top">
+
+            <button
+                id="gamesBackButton"
+                class="back-btn"
+            >
+                ←
+            </button>
+
+            <div>
+
+                <div class="page-title">
+                    GAMES
+                </div>
+
+                <div class="page-subtitle">
+                    Choose your table
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="section">
+
+            <!-- 6 PLAYER -->
+
+            <div class="game-card">
+
+                <div class="game-icon">
+                    ♠
+                </div>
+
+                <h3>
+                    6 PLAYER
+                </h3>
+
+                <p>
+                    Classic SPADES • 3 vs 3
+                </p>
+
+                <button
+                    class="game-action"
+                    data-mode="six"
+                >
+                    ENTER TABLE
+                </button>
+
+            </div>
+
+
+            <!-- 4 PLAYER -->
+
+            <div class="game-card">
+
+                <div class="game-icon">
+                    ♣
+                </div>
+
+                <h3>
+                    4 PLAYER
+                </h3>
+
+                <p>
+                    Fast table • 2 vs 2
+                </p>
+
+                <button
+                    class="game-action"
+                    data-mode="four"
+                >
+                    ENTER TABLE
+                </button>
+
+            </div>
+
+
+            <!-- 2 PLAYER -->
+
+            <div class="game-card">
+
+                <div class="game-icon">
+                    ♦
+                </div>
+
+                <h3>
+                    2 PLAYER
+                </h3>
+
+                <p>
+                    Head-to-head table
+                </p>
+
+                <button
+                    class="game-action"
+                    data-mode="two"
+                >
+                    ENTER TABLE
+                </button>
+
+            </div>
+
+
+            <!-- PRIVATE -->
+
+            <div class="game-card private">
+
+                <div class="game-icon">
+                    🔒
+                </div>
+
+                <h3>
+                    PRIVATE ROOM
+                </h3>
+
+                <p>
+                    Create or join a private room
+                </p>
+
+                <button
+                    class="game-action"
+                    data-mode="private"
+                >
+                    PRIVATE ROOM
+                </button>
+
+            </div>
+
+
+            <!-- TRAINING -->
+
+            <div class="game-card training">
+
+                <div class="game-icon">
+                    🎯
+                </div>
+
+                <h3>
+                    TRAINING
+                </h3>
+
+                <p>
+                    Practice without tokens
+                </p>
+
+                <button
+                    class="game-action"
+                    data-mode="training"
+                >
+                    START TRAINING
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   TELEGRAM
+========================================================= */
+
+const tg =
+    window.Telegram &&
+    window.Telegram.WebApp
+        ? window.Telegram.WebApp
+        : null;
+
+if(tg){
+
+    try{
+        tg.ready();
+        tg.expand();
+    }catch(error){
+        console.warn(
+            "Telegram WebApp error:",
+            error
+        );
+    }
+
+}
+
+
+/* =========================================================
+   STORAGE
+========================================================= */
+
+const STORAGE_KEYS = {
+
+    tokens:
+        "spades_tokens",
+
+    user:
+        "spades_user",
+
+    lastMode:
+        "spades_last_mode"
+
+};
+
+
+/* =========================================================
+   USER
+========================================================= */
+
+function getUser(){
+
+    let raw =
+        localStorage.getItem(
+            STORAGE_KEYS.user
+        );
+
+    if(!raw){
+
+        const user = {
+
+            id:
+                "local_" +
+                Date.now(),
+
+            name:
+                "Player",
+
+            createdAt:
+                Date.now()
+
+        };
+
+        localStorage.setItem(
+            STORAGE_KEYS.user,
+            JSON.stringify(user)
+        );
+
+        return user;
+    }
+
+    try{
+
+        return JSON.parse(raw);
+
+    }catch(error){
+
+        localStorage.removeItem(
+            STORAGE_KEYS.user
+        );
+
+        return getUser();
+
+    }
+
+}
+
+
+/* =========================================================
+   TOKENS
+========================================================= */
+
+function getTokens(){
+
+    let value =
+        Number(
+            localStorage.getItem(
+                STORAGE_KEYS.tokens
+            )
+        );
+
+    if(!Number.isFinite(value)){
+
+        value = 1000;
+
+        localStorage.setItem(
+            STORAGE_KEYS.tokens,
+            String(value)
+        );
+
+    }
+
+    return value;
+}
+
+
+function updateTokenUI(){
+
+    const element =
+        document.getElementById(
+            "tokenValue"
+        );
+
+    if(element){
+
+        element.textContent =
+            getTokens().toLocaleString();
+
+    }
+
+}
+
+
+/* =========================================================
+   SCREEN
+========================================================= */
+
+function showScreen(id){
+
+    document
+        .querySelectorAll(".screen")
+        .forEach(
+            screen => {
+                screen.classList.remove(
+                    "active"
+                );
+            }
+        );
+
+    const screen =
+        document.getElementById(id);
+
+    if(screen){
+
+        screen.classList.add(
+            "active"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   OPEN GAME
+   FIXED 404-SAFE PATH
+========================================================= */
+
+function openGame(mode){
+
+    const allowedModes = [
+        "six",
+        "four",
+        "two",
+        "private",
+        "training"
+    ];
+
+    if(
+        !allowedModes.includes(mode)
+    ){
+        mode = "six";
+    }
+
+
+    localStorage.setItem(
+        STORAGE_KEYS.lastMode,
+        mode
+    );
+
+
+    /*
+     * IMPORTANT:
+     *
+     * game.html must be in the SAME DIRECTORY
+     * as index.html.
+     *
+     * new URL() prevents incorrect relative paths.
+     */
+
+    const gameURL =
+        new URL(
+            "./game.html",
+            document.baseURI
+        );
+
+
+    gameURL.searchParams.set(
+        "mode",
+        mode
+    );
+
+
+    gameURL.searchParams.set(
+        "stage",
+        "table"
+    );
+
+
+    console.log(
+        "SPADES opening:",
+        gameURL.href
+    );
+
+
+    window.location.assign(
+        gameURL.href
+    );
+
+}
+
+
+/* =========================================================
+   EVENTS
+========================================================= */
+
+document
+    .getElementById(
+        "playNowButton"
+    )
+    .addEventListener(
+        "click",
+        function(){
+
+            showScreen(
+                "gamesScreen"
+            );
+
+        }
+    );
+
+
+document
+    .getElementById(
+        "trainingHomeButton"
+    )
+    .addEventListener(
+        "click",
+        function(){
+
+            openGame(
+                "training"
+            );
+
+        }
+    );
+
+
+document
+    .getElementById(
+        "gamesBackButton"
+    )
+    .addEventListener(
+        "click",
+        function(){
+
+            showScreen(
+                "homeScreen"
+            );
+
+        }
+    );
+
+
+document
+    .querySelectorAll(
+        "[data-mode]"
+    )
+    .forEach(
+        button => {
+
+            button.addEventListener(
+                "click",
+                function(){
+
+                    openGame(
+                        button.dataset.mode
+                    );
+
+                }
+            );
+
+        }
+    );
+
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+getUser();
+
+getTokens();
+
+updateTokenUI();
+
+
+/* =========================================================
+   TELEGRAM BACK
+========================================================= */
+
+if(
+    tg &&
+    tg.BackButton
+){
+
+    tg.BackButton.onClick(
+        function(){
+
+            showScreen(
+                "homeScreen"
+            );
+
+            try{
+                tg.BackButton.hide();
+            }catch(error){}
+
+        }
+    );
+
+}
+
+
+console.log(
+    "SPADES index.html ready."
+);
+
+</script>
+
+</body>
+</html>
