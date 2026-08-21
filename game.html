@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width,initial-scale=1.0,
+      maximum-scale=1.0,user-scalable=no">
+
+<title>SPADES GAME</title>
+
+<script src="https://cdn.socket.io/4.8.1/socket.io.min.js"></script>
+
+<style>
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  font-family:Arial,sans-serif;
+  background:#06111c;
+  color:#fff;
+}
+
+body{
+  display:flex;
+  flex-direction:column;
+}
+
+#topbar{
+  height:54px;
+  min-height:54px;
+  background:#091b2a;
+  border-bottom:1px solid #29445b;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 12px;
+  z-index:100;
+}
+
+.brand{
+  font-size:20px;
+  font-weight:900;
+  letter-spacing:2px;
+}
+
+.token-box{
+  background:#122d42;
+  border:1px solid #3b617c;
+  border-radius:12px;
+  padding:7px 12px;
+  font-weight:800;
+}
+
+#game{
+  position:relative;
+  flex:1;
+  min-height:0;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at center,#174d3a 0,#0b382c 35%,#061b18 100%);
+}
+
+.felt{
+  position:absolute;
+  inset:20px;
+  border-radius:50%;
+  border:3px solid #b68b2c;
+  box-shadow:
+    0 0 0 5px #14291e,
+    inset 0 0 50px #0008,
+    0 0 35px #0008;
+}
+
+.center{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  text-align:center;
+  z-index:5;
+}
+
+.score{
+  font-size:30px;
+  font-weight:900;
+}
+
+.round{
+  margin-top:4px;
+  font-size:14px;
+  opacity:.8;
+}
+
+.status{
+  margin-top:8px;
+  color:#ffd66b;
+  font-weight:800;
+}
+
+.seat{
+  position:absolute;
+  width:125px;
+  min-height:80px;
+  transform:translate(-50%,-50%);
+  text-align:center;
+  z-index:8;
+}
+
+.avatar{
+  width:45px;
+  height:45px;
+  margin:auto;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  background:#17364d;
+  border:2px solid #607c90;
+  font-weight:900;
+}
+
+.name{
+  margin-top:5px;
+  font-size:12px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.bid{
+  font-size:11px;
+  color:#ffd66b;
+  min-height:14px;
+}
+
+.me .avatar{
+  border-color:#ffd34d;
+  box-shadow:0 0 15px #ffd34d88;
+}
+
+.teamA .avatar{
+  box-shadow:0 0 0 2px #218ad3;
+}
+
+.teamB .avatar{
+  box-shadow:0 0 0 2px #d33b51;
+}
+
+.s1{
+  left:50%;
+  top:8%;
+}
+
+.s2{
+  right:3%;
+  top:25%;
+}
+
+.s3{
+  right:3%;
+  bottom:20%;
+}
+
+.s4{
+  left:50%;
+  bottom:8%;
+}
+
+.s5{
+  left:3%;
+  bottom:20%;
+}
+
+.s6{
+  left:3%;
+  top:25%;
+}
+
+.hidden{
+  display:none!important;
+}
+
+.trick{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:220px;
+  height:170px;
+  transform:translate(-50%,-50%);
+  z-index:4;
+}
+
+.played{
+  position:absolute;
+  width:52px;
+  height:72px;
+  border-radius:8px;
+  background:#fff;
+  color:#111;
+  display:grid;
+  place-items:center;
+  font-weight:900;
+  box-shadow:0 5px 15px #0008;
+}
+
+.p1{left:84px;top:0}
+.p2{right:0;top:50px}
+.p3{right:42px;bottom:0}
+.p4{left:84px;bottom:0}
+.p5{left:0;top:50px}
+.p6{left:42px;top:50px}
+
+.hand{
+  position:absolute;
+  left:50%;
+  bottom:8px;
+  transform:translateX(-50%);
+  width:min(96vw,650px);
+  height:120px;
+  display:flex;
+  justify-content:center;
+  align-items:flex-end;
+  z-index:30;
+}
+
+.card{
+  width:58px;
+  height:88px;
+  margin:0 -7px;
+  border:1px solid #aaa;
+  border-radius:9px;
+  background:#fff;
+  color:#111;
+  padding:6px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  font-weight:900;
+  box-shadow:0 5px 12px #0008;
+  cursor:pointer;
+  transition:.15s;
+}
+
+.card.red{
+  color:#c7192e;
+}
+
+.card:hover,
+.card:active{
+  transform:translateY(-14px);
+}
+
+.card:disabled{
+  opacity:.45;
+}
+
+.controls{
+  position:absolute;
+  left:50%;
+  bottom:135px;
+  transform:translateX(-50%);
+  z-index:40;
+}
+
+button{
+  font:inherit;
+}
+
+.action{
+  border:1px solid #42647b;
+  background:#17344a;
+  color:#fff;
+  border-radius:12px;
+  padding:10px 18px;
+  font-weight:900;
+}
+
+.primary{
+  background:#a47718;
+  border-color:#e2b943;
+}
+
+.danger{
+  background:#712131;
+}
+
+.overlay{
+  position:fixed;
+  inset:0;
+  background:#020810dd;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  z-index:200;
+}
+
+.overlay.show{
+  display:flex;
+}
+
+.modal{
+  width:min(94vw,430px);
+  background:#0b1d2c;
+  border:1px solid #36536b;
+  border-radius:20px;
+  padding:22px;
+  box-shadow:0 25px 60px #000;
+  text-align:center;
+}
+
+.modal h2{
+  margin:0 0 10px;
+}
+
+.modal p{
+  color:#a9bac8;
+  line-height:1.5;
+}
+
+.bid-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-top:18px;
+}
+
+.bid{
+  min-height:42px;
+}
+
+.bid-choice{
+  border:1px solid #42647b;
+  background:#142f43;
+  color:#fff;
+  border-radius:10px;
+  padding:12px;
+  font-weight:900;
+}
+
+.bid-choice.active{
+  background:#a47718;
+  border-color:#ffd75d;
+}
+
+.modal-actions{
+  display:flex;
+  gap:8px;
+  margin-top:15px;
+}
+
+.modal-actions button{
+  flex:1;
+}
+
+.loader{
+  width:42px;
+  height:42px;
+  margin:18px auto;
+  border:4px solid #244258;
+  border-top-color:#ffd15a;
+  border-radius:50%;
+  animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+  to{transform:rotate(360deg)}
+}
+
+#notice{
+  position:fixed;
+  left:50%;
+  top:65px;
+  transform:translateX(-50%);
+  background:#102b3f;
+  border:1px solid #48687d;
+  border-radius:12px;
+  padding:9px 15px;
+  z-index:300;
+  font-weight:800;
+}
+
+#notice.hidden{
+  display:none;
+}
+
+@media(max-width:600px){
+
+  .felt{
+    inset:10px;
+  }
+
+  .seat{
+    width:90px;
+  }
+
+  .avatar{
+    width:39px;
+    height:39px;
+  }
+
+  .card{
+    width:50px;
+    height:78px;
+    margin:0 -8px;
+  }
+
+  .hand{
+    height:105px;
+  }
+
+  .controls{
+    bottom:118px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div id="topbar">
+  <div class="brand">♠ SPADES</div>
+  <div class="token-box">
+    🪙 <span id="tokenValue">0</span>
+  </div>
+</div>
+
+<div id="notice" class="hidden"></div>
+
+<main id="game">
+
+  <div class="felt"></div>
+
+  <div class="center">
+    <div class="score" id="score">0 : 0</div>
+    <div class="round" id="round">Round 1 / 6</div>
+    <div class="status" id="status">Connecting...</div>
+  </div>
+
+  <div class="trick" id="trick"></div>
+
+  <div class="seat s1 teamA" data-seat="1">
+    <div class="avatar">1</div>
+    <div class="name">Waiting</div>
+    <div class="bid"></div>
+  </div>
+
+  <div class="seat s2 teamB" data-seat="2">
+    <div class="avatar">2</div>
+    <div class="name">Waiting</div>
+    <div class="bid"></div>
+  </div>
+
+  <div class="seat s3 teamA" data-seat="3">
+    <div class="avatar">3</div>
+    <div class="name">Waiting</div>
+    <div class="bid"></div>
+  </div>
+
+  <div class="seat s4 teamB" data-seat="4">
+    <div class="avatar">4</div>
+    <div class="name">Waiting</div>
+    <div class="bid"></div>
+  </div>
+
+  <div class="seat s5 teamA" data-seat="5">
+    <div class="avatar">5</div>
+    <div class="name">Waiting</div>
+    <div class="bid"></div>
+  </div>
+
+  <div class="seat s6 teamB" data-seat="6">
+    <div class="avatar">6</div>
+    <div class="name">Waiting</div>
+    <div class="bid"></div>
+  </div>
+
+  <div class="controls" id="controls"></div>
+
+  <div class="hand" id="hand"></div>
+
+</main>
+
+<!-- BID -->
+
+<div class="overlay" id="bidModal">
+
+  <div class="modal">
+
+    <h2>Declare Tricks</h2>
+
+    <p>
+      Choose your declaration from 0 to 7.
+    </p>
+
+    <div class="bid-grid" id="bidButtons"></div>
+
+    <div class="modal-actions">
+      <button
+        class="action primary"
+        id="confirmBid"
+        disabled>
+        Confirm
+      </button>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- WAITING -->
+
+<div class="overlay" id="waitingModal">
+
+  <div class="modal">
+
+    <h2 id="waitTitle">
+      Waiting for Players
+    </h2>
+
+    <div class="loader"></div>
+
+    <p id="waitText">
+      The room starts automatically when full.
+    </p>
+
+    <div class="modal-actions">
+
+      <button
+        class="action danger"
+        id="leaveBtn">
+        Leave Room
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+(function(){
+
+"use strict";
+
+/* =========================================================
+   URL
+========================================================= */
+
+const qs = new URLSearchParams(location.search);
+
+const mode =
+  (qs.get("mode") || "spade6").toLowerCase();
+
+const roomId =
+  qs.get("room") ||
+  qs.get("roomId") ||
+  "";
+
+const privateRoom =
+  qs.get("private") === "1" ||
+  qs.get("type") === "private";
+
+const socketUrl =
+  qs.get("server") ||
+  "";
+
+const capacity =
+  mode.includes("4") ? 4 :
+  mode.includes("2") ? 2 :
+  6;
+
+
+/* =========================================================
+   STATE
+========================================================= */
+
+const state = {
+
+  players:[],
+
+  hand:[],
+
+  played:[],
+
+  mySeat:null,
+
+  playerId:null,
+
+  myBid:null,
+
+  round:1,
+
+  scoreA:0,
+
+  scoreB:0,
+
+  turn:null,
+
+  started:false,
+
+  connected:false
+
+};
+
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+const $ =
+  id => document.getElementById(id);
+
+
+function notify(text){
+
+  $("notice").textContent = text;
+
+  $("notice").classList.remove("hidden");
+
+  clearTimeout(notify.timer);
+
+  notify.timer =
+    setTimeout(
+      () => $("notice").classList.add("hidden"),
+      2500
+    );
+}
+
+
+function setStatus(text){
+
+  $("status").textContent = text;
+
+}
+
+
+function updateScore(){
+
+  $("score").textContent =
+    `${state.scoreA} : ${state.scoreB}`;
+
+  $("round").textContent =
+    `Round ${state.round} / 6`;
+
+}
+
+
+function token(){
+
+  const n =
+    Number(
+      localStorage.getItem("spades_tokens") ||
+      1000
+    );
+
+  $("tokenValue").textContent =
+    n.toLocaleString();
+
+}
+
+
+function esc(value){
+
+  return String(value ?? "")
+    .replace(
+      /[&<>"']/g,
+      m => ({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#39;"
+      }[m])
+    );
+
+}
+
+
+/* =========================================================
+   SEATS
+========================================================= */
+
+function seatRender(){
+
+  for(let i=1;i<=6;i++){
+
+    const el =
+      document.querySelector(
+        `[data-seat="${i}"]`
+      );
+
+    if(!el) continue;
+
+    if(i > capacity){
+
+      el.classList.add("hidden");
+
+      continue;
+    }
+
+    el.classList.remove("hidden");
+
+    const p =
+      state.players.find(
+        x =>
+          Number(
+            x.seat ??
+            x.position
+          ) === i
+      );
+
+    el.querySelector(".name")
+      .textContent =
+      p
+      ? (
+          p.name ||
+          p.username ||
+          `Player ${i}`
+        )
+      : "Waiting";
+
+    el.querySelector(".avatar")
+      .textContent =
+      p
+      ? (
+          p.avatar ||
+          String(i)
+        )
+      : String(i);
+
+    el.querySelector(".bid")
+      .textContent =
+      p && p.bid != null
+      ? `Bid: ${p.bid}`
+      : "";
+
+    el.classList.toggle(
+      "me",
+      !!(
+        p &&
+        state.playerId &&
+        p.id === state.playerId
+      )
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   HAND
+========================================================= */
+
+function renderHand(){
+
+  const h = $("hand");
+
+  h.innerHTML = "";
+
+  state.hand.forEach(
+    (card,index)=>{
+
+      const b =
+        document.createElement("button");
+
+      b.className =
+        "card " +
+        (
+          card.suit === "♥" ||
+          card.suit === "♦"
+          ? "red"
+          : ""
+        );
+
+      b.innerHTML =
+        `<span>${esc(card.rank || card.value)}</span>
+         <span>${esc(card.suit || "♠")}</span>`;
+
+      b.onclick =
+        () => playCard(index);
+
+      b.disabled =
+        !state.started ||
+        state.turn !== state.mySeat;
+
+      h.appendChild(b);
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   TRICK
+========================================================= */
+
+function renderTrick(){
+
+  const t = $("trick");
+
+  t.innerHTML = "";
+
+  state.played.forEach(
+    (card,index)=>{
+
+      const b =
+        document.createElement("div");
+
+      const seat =
+        Number(card.seat) ||
+        ((index % capacity)+1);
+
+      b.className =
+        `played p${seat}`;
+
+      b.textContent =
+        `${card.rank || card.value || "?"}${card.suit || ""}`;
+
+      t.appendChild(b);
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   BID
+========================================================= */
+
+function openBid(){
+
+  state.myBid = null;
+
+  const modal =
+    $("bidModal");
+
+  const buttons =
+    $("bidButtons");
+
+  const confirm =
+    $("confirmBid");
+
+  buttons.innerHTML = "";
+
+  confirm.disabled = true;
+
+  for(let n=0;n<=7;n++){
+
+    const b =
+      document.createElement("button");
+
+    b.className =
+      "bid-choice";
+
+    b.textContent = n;
+
+    b.onclick = ()=>{
+
+      state.myBid = n;
+
+      document
+        .querySelectorAll(".bid-choice")
+        .forEach(
+          x => x.classList.remove("active")
+        );
+
+      b.classList.add("active");
+
+      confirm.disabled = false;
+
+    };
+
+    buttons.appendChild(b);
+
+  }
+
+  modal.classList.add("show");
+
+}
+
+
+function closeBid(){
+
+  $("bidModal")
+    .classList.remove("show");
+
+}
+
+
+$("confirmBid").onclick =
+  ()=>{
+
+    if(state.myBid === null)
+      return;
+
+    send(
+      "BID",
+      {
+        roomId,
+        seat:state.mySeat,
+        bid:state.myBid
+      }
+    );
+
+    closeBid();
+
+    notify(
+      "Bid submitted: " +
+      state.myBid
+    );
+
+  };
+
+
+/* =========================================================
+   PLAY
+========================================================= */
+
+function playCard(index){
+
+  if(!state.started)
+    return;
+
+  if(state.turn !== state.mySeat)
+    return;
+
+  const card =
+    state.hand[index];
+
+  if(!card)
+    return;
+
+  send(
+    "PLAY_CARD",
+    {
+      roomId,
+      seat:state.mySeat,
+      card,
+      index
+    }
+  );
+
+}
+
+
+/* =========================================================
+   SERVER STATE
+========================================================= */
+
+function applyGame(data){
+
+  if(!data)
+    return;
+
+  Object.assign(
+    state,
+    data
+  );
+
+  if(data.players)
+    state.players =
+      data.players;
+
+  if(data.hand)
+    state.hand =
+      data.hand;
+
+  if(data.played)
+    state.played =
+      data.played;
+
+  if(data.playerId)
+    state.playerId =
+      data.playerId;
+
+  if(data.mySeat)
+    state.mySeat =
+      data.mySeat;
+
+  seatRender();
+
+  renderHand();
+
+  renderTrick();
+
+  updateScore();
+
+  if(state.turn != null){
+
+    setStatus(
+      state.turn === state.mySeat
+      ? "Your turn"
+      : `Waiting for player ${state.turn}`
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   SOCKET
+========================================================= */
+
+function send(event,data){
+
+  if(
+    window.socket &&
+    socket.connected
+  ){
+
+    socket.emit(
+      event,
+      data
+    );
+
+  }
+
+}
+
+
+function connect(){
+
+  if(typeof io === "undefined"){
+
+    notify(
+      "Socket.IO could not load."
+    );
+
+    return;
+
+  }
+
+  const options = {
+
+    transports:[
+      "websocket",
+      "polling"
+    ],
+
+    reconnection:true,
+
+    reconnectionAttempts:Infinity,
+
+    reconnectionDelay:1000
+
+  };
+
+  window.socket =
+    io(
+      socketUrl || undefined,
+      options
+    );
+
+
+  socket.on(
+    "connect",
+    ()=>{
+
+      state.connected = true;
+
+      notify("Connected");
+
+      send(
+        "JOIN_ROOM",
+        {
+          roomId,
+          mode,
+          private:privateRoom,
+          capacity
+        }
+      );
+
+      setStatus(
+        "Joining room..."
+      );
+
+    }
+  );
+
+
+  socket.on(
+    "disconnect",
+    ()=>{
+
+      state.connected = false;
+
+      setStatus(
+        "Disconnected..."
+      );
+
+      notify(
+        "Connection lost. Reconnecting..."
+      );
+
+    }
+  );
+
+
+  socket.on(
+    "ROOM_UPDATE",
+    data=>{
+
+      if(!data)
+        return;
+
+      state.players =
+        data.players ||
+        data.room?.players ||
+        [];
+
+      state.mySeat =
+        data.seat ??
+        data.mySeat ??
+        state.mySeat;
+
+      state.playerId =
+        data.playerId ||
+        state.playerId;
+
+      seatRender();
+
+      const count =
+        state.players.length;
+
+      setStatus(
+        `${count} / ${capacity} players`
+      );
+
+      if(count < capacity){
+
+        $("waitingModal")
+          .classList.add("show");
+
+      }else{
+
+        $("waitingModal")
+          .classList.remove("show");
+
+      }
+
+    }
+  );
+
+
+  socket.on(
+    "GAME_START",
+    data=>{
+
+      $("waitingModal")
+        .classList.remove("show");
+
+      state.started = true;
+
+      applyGame(data);
+
+      notify(
+        "Game started!"
+      );
+
+    }
+  );
+
+
+  socket.on(
+    "GAME_STATE",
+    applyGame
+  );
+
+  socket.on(
+    "STATE_UPDATE",
+    applyGame
+  );
+
+  socket.on(
+    "UPDATE_GAME",
+    applyGame
+  );
+
+
+  socket.on(
+    "DEAL",
+    data=>{
+
+      if(data?.hand)
+        state.hand =
+          data.hand;
+
+      state.started = true;
+
+      renderHand();
+
+    }
+  );
+
+
+  socket.on(
+    "YOUR_TURN",
+    data=>{
+
+      if(data?.seat != null)
+        state.turn =
+          Number(data.seat);
+
+      setStatus(
+        state.turn === state.mySeat
+        ? "Your turn"
+        : "Waiting"
+      );
+
+      renderHand();
+
+    }
+  );
+
+
+  socket.on(
+    "BID_REQUEST",
+    openBid
+  );
+
+  socket.on(
+    "REQUEST_BID",
+    openBid
+  );
+
+
+  socket.on(
+    "BID_UPDATE",
+    data=>{
+
+      if(data?.players)
+        state.players =
+          data.players;
+
+      seatRender();
+
+    }
+  );
+
+
+  socket.on(
+    "TRICK_UPDATE",
+    data=>{
+
+      state.played =
+        data?.played ||
+        data?.trick ||
+        [];
+
+      renderTrick();
+
+    }
+  );
+
+
+  socket.on(
+    "ROUND_UPDATE",
+    data=>{
+
+      if(!data)
+        return;
+
+      state.round =
+        data.round ??
+        state.round;
+
+      state.scoreA =
+        data.scoreA ??
+        state.scoreA;
+
+      state.scoreB =
+        data.scoreB ??
+        state.scoreB;
+
+      state.hand =
+        data.hand ||
+        state.hand;
+
+      state.played = [];
+
+      updateScore();
+
+      renderTrick();
+
+      renderHand();
+
+    }
+  );
+
+
+  socket.on(
+    "GAME_OVER",
+    data=>{
+
+      state.started = false;
+
+      applyGame(data);
+
+      $("waitTitle")
+        .textContent =
+        "Game Finished";
+
+      $("waitText")
+        .textContent =
+        "The game has ended.";
+
+      $("waitingModal")
+        .classList.add("show");
+
+    }
+  );
+
+
+  socket.on(
+    "SERVER_ERROR",
+    data=>{
+
+      notify(
+        data?.message ||
+        "Server error"
+      );
+
+    }
+  );
+
+
+  socket.on(
+    "ROOM_ERROR",
+    data=>{
+
+      notify(
+        data?.message ||
+        "Room error"
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   LEAVE
+========================================================= */
+
+$("leaveBtn").onclick =
+  ()=>{
+
+    send(
+      "LEAVE_ROOM",
+      {roomId}
+    );
+
+    location.href =
+      "index.html";
+
+  };
+
+
+/* =========================================================
+   INIT
+========================================================= */
+
+$("waitTitle")
+  .textContent =
+  privateRoom
+  ? "Private Room"
+  : "Waiting for Players";
+
+$("waitText")
+  .textContent =
+  `Room ${roomId || "AUTO"} • ${capacity} seats required`;
+
+token();
+
+seatRender();
+
+updateScore();
+
+connect();
+
+window.SPADES = {
+  state,
+  mode,
+  roomId,
+  capacity
+};
+
+})();
+
+</script>
+
+</body>
+</html>
