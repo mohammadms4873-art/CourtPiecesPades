@@ -2753,3 +2753,292 @@ document.querySelectorAll(
 
 </body>
 </html>
+
+<section
+  id="classicTableScreen"
+  class="screen"
+>
+
+  <div class="screen-inner">
+
+    <header class="header">
+
+      <div class="spade">
+        ♣
+      </div>
+
+      <h1 class="title">
+        CLASSIC SPADES
+      </h1>
+
+      <div class="subtitle">
+        Choose your 4-player table
+      </div>
+
+    </header>
+
+
+    <button
+      class="table-card featured"
+      type="button"
+      onclick="openGameMode('4','public')"
+    >
+
+      <div class="card-row">
+
+        <div class="icon">
+          🌐
+        </div>
+
+        <div class="info">
+
+          <h2 class="name">
+            Public Game
+          </h2>
+
+          <p class="description">
+            Join a classic four-player table.
+          </p>
+
+          <span class="meta">
+            4 PLAYERS • 2 VS 2 • 50 TOKENS
+          </span>
+
+        </div>
+
+        <div class="arrow">
+          ›
+        </div>
+
+      </div>
+
+    </button>
+
+
+    <button
+      class="table-card"
+      type="button"
+      onclick="openGameMode('4','private')"
+    >
+
+      <div class="card-row">
+
+        <div class="icon">
+          🔒
+        </div>
+
+        <div class="info">
+
+          <h2 class="name">
+            Private Game
+          </h2>
+
+          <p class="description">
+            Play with friends in a private room.
+          </p>
+
+          <span class="meta">
+            4 PLAYERS • 50 TOKENS
+          </span>
+
+        </div>
+
+        <div class="arrow">
+          ›
+        </div>
+
+      </div>
+
+    </button>
+
+
+    <button
+      class="back-button"
+      type="button"
+      onclick="navigate('gamesScreen')"
+    >
+      ← Back to Games
+    </button>
+
+  </div>
+
+</section>
+
+
+<section
+  id="twoTableScreen"
+  class="screen"
+>
+
+  <div class="screen-inner">
+
+    <header class="header">
+
+      <div class="spade">
+        🃏
+      </div>
+
+      <h1 class="title">
+        TWO PLAYER
+      </h1>
+
+      <div class="subtitle">
+        Choose your 2-player table
+      </div>
+
+    </header>
+
+
+    <button
+      class="table-card featured"
+      type="button"
+      onclick="openGameMode('2','public')"
+    >
+
+      <div class="card-row">
+
+        <div class="icon">
+          🌐
+        </div>
+
+        <div class="info">
+
+          <h2 class="name">
+            Public Game
+          </h2>
+
+          <p class="description">
+            Play head-to-head with another player.
+          </p>
+
+          <span class="meta">
+            2 PLAYERS • 50 TOKENS
+          </span>
+
+        </div>
+
+        <div class="arrow">
+          ›
+        </div>
+
+      </div>
+
+    </button>
+
+
+    <button
+      class="table-card"
+      type="button"
+      onclick="openGameMode('2','private')"
+    >
+
+      <div class="card-row">
+
+        <div class="icon">
+          🔒
+        </div>
+
+        <div class="info">
+
+          <h2 class="name">
+            Private Game
+          </h2>
+
+          <p class="description">
+            Play head-to-head using a private room.
+          </p>
+
+          <span class="meta">
+            2 PLAYERS • 50 TOKENS
+          </span>
+
+        </div>
+
+        <div class="arrow">
+          ›
+        </div>
+
+      </div>
+
+    </button>
+
+
+    <button
+      class="back-button"
+      type="button"
+      onclick="navigate('gamesScreen')"
+    >
+      ← Back to Games
+    </button>
+
+  </div>
+
+</section>
+function openGameMode(mode, table){
+
+  const entryFee = 50;
+
+  if(tokens < entryFee){
+
+    showToast(
+      "Not enough tokens. You need 50 tokens."
+    );
+
+    return;
+
+  }
+
+  tokens -= entryFee;
+
+  localStorage.setItem(
+    "spades_tokens",
+    String(tokens)
+  );
+
+  updateTokens();
+
+
+  let room =
+    "PUBLIC";
+
+
+  if(table === "private"){
+
+    room =
+      prompt(
+        "Enter private room code:"
+      );
+
+    if(!room){
+
+      tokens += entryFee;
+
+      localStorage.setItem(
+        "spades_tokens",
+        String(tokens)
+      );
+
+      updateTokens();
+
+      return;
+
+    }
+
+    room =
+      room
+        .trim()
+        .toUpperCase();
+
+  }
+
+
+  window.location.href =
+    "game.html" +
+    "?mode=" +
+    encodeURIComponent(mode) +
+    "&table=" +
+    encodeURIComponent(table) +
+    "&room=" +
+    encodeURIComponent(room);
+
+}
