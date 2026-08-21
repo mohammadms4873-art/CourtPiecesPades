@@ -1,0 +1,2110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width,initial-scale=1.0,
+      maximum-scale=1.0,user-scalable=no">
+
+<title>SPADE TRUMP • 6 PLAYER</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,
+body{
+  margin:0;
+  padding:0;
+  width:100%;
+  min-height:100%;
+  background:#030303;
+  color:#fff;
+  font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+  overflow-x:hidden;
+}
+
+button{
+  font:inherit;
+  cursor:pointer;
+}
+
+#gameApp{
+  width:100%;
+  min-height:100vh;
+  padding-bottom:30px;
+  background:
+    radial-gradient(
+      circle at 50% 35%,
+      rgba(202,155,48,.08),
+      transparent 40%
+    ),
+    #030303;
+}
+
+/* ================= TOP ================= */
+
+.game-top{
+  position:sticky;
+  top:0;
+  z-index:100;
+  height:62px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:8px 12px;
+  background:rgba(3,3,3,.96);
+  border-bottom:1px solid rgba(215,174,74,.22);
+  backdrop-filter:blur(12px);
+}
+
+.top-title{
+  color:#d9ad45;
+  font-size:13px;
+  font-weight:1000;
+  letter-spacing:1px;
+}
+
+.top-info{
+  color:#777;
+  font-size:8px;
+  text-align:right;
+}
+
+.top-button{
+  border:1px solid rgba(215,174,74,.2);
+  border-radius:9px;
+  padding:8px 10px;
+  background:#121212;
+  color:#d8ad49;
+  font-size:8px;
+  font-weight:900;
+}
+
+/* ================= GAME WRAPPER ================= */
+
+.game-wrap{
+  width:100%;
+  max-width:650px;
+  margin:auto;
+  padding:8px;
+}
+
+/* ================= STATUS ================= */
+
+.round-info{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:8px 4px;
+}
+
+.round-label{
+  color:#888;
+  font-size:8px;
+  font-weight:900;
+}
+
+.round-value{
+  color:#d9ad45;
+  font-size:11px;
+  font-weight:1000;
+}
+
+/* ================= TABLE ================= */
+
+.table{
+  position:relative;
+  width:100%;
+  height:min(118vw,620px);
+  min-height:510px;
+  border-radius:48%;
+  border:5px solid #7c5a1d;
+  background:
+    radial-gradient(
+      ellipse at center,
+      #182219 0%,
+      #0b140d 50%,
+      #060b07 100%
+    );
+  box-shadow:
+    inset 0 0 50px rgba(0,0,0,.8),
+    0 20px 60px rgba(0,0,0,.6);
+  overflow:hidden;
+}
+
+/* gold inner line */
+
+.table:after{
+  content:"";
+  position:absolute;
+  inset:18px;
+  border:1px solid rgba(214,170,67,.28);
+  border-radius:48%;
+  pointer-events:none;
+}
+
+/* ================= CENTER ================= */
+
+.center{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:46%;
+  height:34%;
+  min-width:180px;
+  min-height:160px;
+  border-radius:50%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  border:2px solid rgba(215,174,74,.3);
+  background:rgba(0,0,0,.23);
+}
+
+.center-title{
+  color:#d8ad49;
+  font-size:13px;
+  font-weight:1000;
+  letter-spacing:1px;
+}
+
+.center-trump{
+  margin-top:7px;
+  font-size:34px;
+  color:#fff;
+}
+
+.center-status{
+  margin-top:7px;
+  color:#888;
+  font-size:8px;
+}
+
+/* ================= PLAYERS ================= */
+
+.player{
+  position:absolute;
+  width:105px;
+  text-align:center;
+  z-index:20;
+}
+
+.player-box{
+  padding:7px 6px;
+  border-radius:13px;
+  background:rgba(5,5,5,.9);
+  border:1px solid rgba(255,255,255,.08);
+}
+
+.player.active .player-box{
+  border-color:#d9ad45;
+  box-shadow:0 0 18px rgba(217,173,69,.18);
+}
+
+.player-name{
+  font-size:9px;
+  font-weight:900;
+}
+
+.player-team{
+  margin-top:3px;
+  color:#777;
+  font-size:7px;
+}
+
+.player-bid{
+  margin-top:4px;
+  color:#d9ad45;
+  font-size:8px;
+  font-weight:900;
+}
+
+/* positions */
+
+.p1{
+  left:50%;
+  bottom:20px;
+  transform:translateX(-50%);
+}
+
+.p2{
+  right:4px;
+  bottom:27%;
+}
+
+.p3{
+  right:6px;
+  top:20%;
+}
+
+.p4{
+  left:50%;
+  top:18px;
+  transform:translateX(-50%);
+}
+
+.p5{
+  left:6px;
+  top:20%;
+}
+
+.p6{
+  left:4px;
+  bottom:27%;
+}
+
+/* ================= TRICK ================= */
+
+.trick{
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:160px;
+  height:160px;
+  transform:translate(-50%,-50%);
+  z-index:15;
+  pointer-events:none;
+}
+
+.played-card{
+  position:absolute;
+  width:55px;
+  height:78px;
+  padding:5px;
+  border-radius:7px;
+  background:#fff;
+  color:#111;
+  border:1px solid #d5b15d;
+  box-shadow:0 4px 10px rgba(0,0,0,.5);
+  text-align:center;
+  font-weight:900;
+}
+
+.played-card.red{
+  color:#b61e1e;
+}
+
+.played-card:nth-child(1){
+  left:52px;
+  top:0;
+}
+
+.played-card:nth-child(2){
+  right:0;
+  top:40px;
+}
+
+.played-card:nth-child(3){
+  right:15px;
+  bottom:0;
+}
+
+.played-card:nth-child(4){
+  left:15px;
+  bottom:0;
+}
+
+.played-card:nth-child(5){
+  left:0;
+  top:40px;
+}
+
+.played-card:nth-child(6){
+  left:52px;
+  top:40px;
+}
+
+/* ================= HAND ================= */
+
+.hand-section{
+  margin-top:12px;
+  padding:10px;
+  border-radius:18px;
+  background:#0d0d0d;
+  border:1px solid rgba(215,174,74,.2);
+}
+
+.hand-title{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:8px;
+  color:#888;
+  font-size:8px;
+  font-weight:900;
+}
+
+.hand-title strong{
+  color:#d9ad45;
+}
+
+.hand{
+  position:relative;
+  width:100%;
+  min-height:128px;
+  display:flex;
+  justify-content:center;
+  align-items:flex-end;
+  overflow-x:auto;
+  overflow-y:hidden;
+  padding:8px 2px 4px;
+}
+
+.card{
+  position:relative;
+  width:52px;
+  height:78px;
+  flex:0 0 52px;
+  margin-left:-10px;
+  padding:5px;
+  border-radius:8px;
+  background:
+    linear-gradient(145deg,#fff,#e9e9e9);
+  color:#111;
+  border:1px solid #c5a14d;
+  box-shadow:0 5px 10px rgba(0,0,0,.45);
+  transition:.15s;
+}
+
+.card:first-child{
+  margin-left:0;
+}
+
+.card.red{
+  color:#bd2222;
+}
+
+.card.disabled{
+  opacity:.42;
+}
+
+.card.selectable:active{
+  transform:translateY(-14px);
+}
+
+.card.selected{
+  transform:translateY(-16px);
+  box-shadow:
+    0 0 0 2px #d9ad45,
+    0 12px 20px rgba(0,0,0,.5);
+}
+
+.card-rank{
+  font-size:15px;
+  font-weight:1000;
+}
+
+.card-suit{
+  font-size:20px;
+  text-align:center;
+  margin-top:6px;
+}
+
+/* ================= CONTROLS ================= */
+
+.controls{
+  margin-top:10px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+
+.control{
+  min-height:44px;
+  border:1px solid rgba(215,174,74,.25);
+  border-radius:11px;
+  background:#17130b;
+  color:#d9ad45;
+  font-size:9px;
+  font-weight:900;
+}
+
+.control.primary{
+  background:linear-gradient(135deg,#bd8b27,#795714);
+  color:#fff;
+}
+
+.control:disabled{
+  opacity:.35;
+}
+
+/* ================= SCORE ================= */
+
+.score{
+  margin-top:10px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+
+.score-box{
+  padding:11px;
+  border-radius:13px;
+  background:#0d0d0d;
+  border:1px solid rgba(255,255,255,.07);
+  text-align:center;
+}
+
+.score-label{
+  color:#777;
+  font-size:7px;
+  font-weight:900;
+}
+
+.score-number{
+  margin-top:4px;
+  color:#d9ad45;
+  font-size:18px;
+  font-weight:1000;
+}
+
+/* ================= LOG ================= */
+
+.log{
+  margin-top:10px;
+  padding:11px;
+  border-radius:13px;
+  background:#090909;
+  border:1px solid rgba(255,255,255,.06);
+}
+
+.log-title{
+  color:#d9ad45;
+  font-size:8px;
+  font-weight:900;
+}
+
+.log-text{
+  margin-top:6px;
+  height:55px;
+  overflow:auto;
+  color:#777;
+  font-size:8px;
+  line-height:1.6;
+}
+
+/* ================= BID MODAL ================= */
+
+.modal{
+  position:fixed;
+  inset:0;
+  z-index:500;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:rgba(0,0,0,.82);
+}
+
+.modal.show{
+  display:flex;
+}
+
+.modal-box{
+  width:min(92vw,380px);
+  padding:20px;
+  border-radius:20px;
+  background:#111;
+  border:1px solid rgba(215,174,74,.3);
+}
+
+.modal-title{
+  margin:0;
+  color:#d9ad45;
+  text-align:center;
+  font-size:19px;
+}
+
+.modal-text{
+  color:#888;
+  text-align:center;
+  font-size:9px;
+  line-height:1.6;
+}
+
+.bid-buttons{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:6px;
+  margin-top:15px;
+}
+
+.bid{
+  min-height:42px;
+  border:1px solid rgba(215,174,74,.2);
+  border-radius:9px;
+  background:#181818;
+  color:#d9ad45;
+  font-size:11px;
+  font-weight:900;
+}
+
+.bid:hover{
+  background:#8b681f;
+  color:#fff;
+}
+
+/* ================= TOAST ================= */
+
+#toast{
+  position:fixed;
+  left:50%;
+  bottom:18px;
+  z-index:1000;
+  transform:translate(-50%,20px);
+  opacity:0;
+  padding:10px 14px;
+  border-radius:10px;
+  background:#211b0e;
+  color:#fff;
+  font-size:9px;
+  font-weight:900;
+  pointer-events:none;
+  transition:.25s;
+}
+
+#toast.show{
+  opacity:1;
+  transform:translate(-50%,0);
+}
+
+@media(max-width:380px){
+
+  .table{
+    min-height:480px;
+  }
+
+  .player{
+    width:90px;
+  }
+
+  .card{
+    width:47px;
+    flex-basis:47px;
+    height:73px;
+  }
+
+  .center{
+    min-width:160px;
+  }
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="gameApp">
+
+<!-- TOP -->
+
+<div class="game-top">
+
+<button class="top-button"
+        onclick="goHome()">
+  ← HOME
+</button>
+
+<div class="top-title">
+  SPADE TRUMP
+</div>
+
+<div class="top-info">
+  <div id="roomText">PUBLIC</div>
+  <div>6 PLAYERS</div>
+</div>
+
+</div>
+
+<div class="game-wrap">
+
+<div class="round-info">
+  <div class="round-label">
+    ROUND <span id="roundNumber">1</span> / 6
+  </div>
+
+  <div class="round-value">
+    TRICKS <span id="trickNumber">0</span> / 9
+  </div>
+</div>
+
+<!-- TABLE -->
+
+<div class="table">
+
+<div class="center">
+
+<div class="center-title">
+  SPADE TRUMP
+</div>
+
+<div class="center-trump">
+  ♠
+</div>
+
+<div id="centerStatus"
+     class="center-status">
+  Waiting...
+</div>
+
+</div>
+
+<!-- PLAYERS -->
+
+<div id="player1"
+     class="player p1 active">
+  <div class="player-box">
+    <div class="player-name">YOU</div>
+    <div class="player-team">BLUE TEAM</div>
+    <div class="player-bid">BID: —</div>
+  </div>
+</div>
+
+<div id="player2"
+     class="player p2">
+  <div class="player-box">
+    <div class="player-name">PLAYER 2</div>
+    <div class="player-team">RED TEAM</div>
+    <div class="player-bid">BID: —</div>
+  </div>
+</div>
+
+<div id="player3"
+     class="player p3">
+  <div class="player-box">
+    <div class="player-name">PLAYER 3</div>
+    <div class="player-team">BLUE TEAM</div>
+    <div class="player-bid">BID: —</div>
+  </div>
+</div>
+
+<div id="player4"
+     class="player p4">
+  <div class="player-box">
+    <div class="player-name">PLAYER 4</div>
+    <div class="player-team">RED TEAM</div>
+    <div class="player-bid">BID: —</div>
+  </div>
+</div>
+
+<div id="player5"
+     class="player p5">
+  <div class="player-box">
+    <div class="player-name">PLAYER 5</div>
+    <div class="player-team">BLUE TEAM</div>
+    <div class="player-bid">BID: —</div>
+  </div>
+</div>
+
+<div id="player6"
+     class="player p6">
+  <div class="player-box">
+    <div class="player-name">PLAYER 6</div>
+    <div class="player-team">RED TEAM</div>
+    <div class="player-bid">BID: —</div>
+  </div>
+</div>
+
+<div id="trick"
+     class="trick">
+</div>
+
+</div>
+
+<!-- HAND -->
+
+<div class="hand-section">
+
+<div class="hand-title">
+
+<span>
+YOUR CARDS
+</span>
+
+<strong>
+<span id="cardsLeft">9</span>
+CARDS
+</strong>
+
+</div>
+
+<div id="hand"
+     class="hand">
+</div>
+
+</div>
+
+<!-- CONTROLS -->
+
+<div class="controls">
+
+<button id="bidButton"
+        class="control primary"
+        onclick="openBidModal()">
+  ANNOUNCE TRICKS
+</button>
+
+<button id="playButton"
+        class="control"
+        onclick="playSelectedCard()"
+        disabled>
+  PLAY CARD
+</button>
+
+</div>
+
+<!-- SCORE -->
+
+<div class="score">
+
+<div class="score-box">
+
+<div class="score-label">
+BLUE TEAM
+</div>
+
+<div id="blueScore"
+     class="score-number">
+0
+</div>
+
+</div>
+
+<div class="score-box">
+
+<div class="score-label">
+RED TEAM
+</div>
+
+<div id="redScore"
+     class="score-number">
+0
+</div>
+
+</div>
+
+</div>
+
+<!-- LOG -->
+
+<div class="log">
+
+<div class="log-title">
+GAME LOG
+</div>
+
+<div id="gameLog"
+     class="log-text">
+Game loading...
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- BID MODAL -->
+
+<div id="bidModal"
+     class="modal">
+
+<div class="modal-box">
+
+<h2 class="modal-title">
+ANNOUNCE TRICKS
+</h2>
+
+<p class="modal-text">
+Choose your bid from 0 to 7.
+The three teammates' bids form the team total.
+</p>
+
+<div id="bidButtons"
+     class="bid-buttons">
+</div>
+
+<button class="control"
+        style="width:100%;margin-top:10px;"
+        onclick="closeBidModal()">
+  CANCEL
+</button>
+
+</div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+
+/* =========================================================
+   TELEGRAM
+========================================================= */
+
+const tg =
+window.Telegram &&
+window.Telegram.WebApp
+? window.Telegram.WebApp
+: null;
+
+if(tg){
+
+  try{
+    tg.ready();
+    tg.expand();
+  }catch(e){}
+
+}
+
+/* =========================================================
+   GAME STATE
+========================================================= */
+
+const params =
+new URLSearchParams(
+  window.location.search
+);
+
+const gameMode =
+params.get("mode") || "6";
+
+const tableType =
+params.get("table") || "public";
+
+const room =
+params.get("room") || "PUBLIC";
+
+const PLAYER_COUNT = 6;
+
+const SUITS = [
+  "♠",
+  "♥",
+  "♦",
+  "♣"
+];
+
+const SUIT_NAMES = [
+  "spades",
+  "hearts",
+  "diamonds",
+  "clubs"
+];
+
+const RANKS = [
+  "2","3","4","5","6","7",
+  "8","9","10","J","Q","K","A"
+];
+
+let deck = [];
+
+let players = [];
+
+let currentPlayer = 0;
+
+let selectedCardIndex = -1;
+
+let currentTrick = [];
+
+let trickNumber = 0;
+
+let roundNumber = 1;
+
+let blueScore = 0;
+
+let redScore = 0;
+
+let blueTricks = 0;
+
+let redTricks = 0;
+
+let gameStarted = false;
+
+let biddingDone = false;
+
+let roundWinner = null;
+
+/* =========================================================
+   INIT
+========================================================= */
+
+function init(){
+
+  if(gameMode !== "6"){
+    log("This test page is configured for 6 players.");
+  }
+
+  document.getElementById(
+    "roomText"
+  ).textContent =
+    tableType.toUpperCase() +
+    " • " +
+    room;
+
+  createPlayers();
+
+  createDeck();
+
+  shuffleDeck();
+
+  dealCards();
+
+  renderHand();
+
+  renderScores();
+
+  createBidButtons();
+
+  log(
+    "Six-player test table created. " +
+    "Choose your bid to begin."
+  );
+
+  setStatus(
+    "Your turn to announce"
+  );
+
+}
+
+/* =========================================================
+   PLAYERS
+========================================================= */
+
+function createPlayers(){
+
+  players = [];
+
+  for(let i=0;i<PLAYER_COUNT;i++){
+
+    players.push({
+
+      id:i,
+
+      name:
+        i === 0
+        ? "YOU"
+        : "PLAYER " + (i+1),
+
+      team:
+        i % 2 === 0
+        ? "blue"
+        : "red",
+
+      hand:[],
+
+      bid:null,
+
+      tricks:0
+
+    });
+
+  }
+
+}
+
+/* =========================================================
+   DECK
+========================================================= */
+
+function createDeck(){
+
+  deck = [];
+
+  for(let s=0;s<SUITS.length;s++){
+
+    for(let r=0;r<RANKS.length;r++){
+
+      deck.push({
+
+        suit:SUITS[s],
+
+        suitName:SUIT_NAMES[s],
+
+        rank:RANKS[r],
+
+        value:r + 2
+
+      });
+
+    }
+
+  }
+
+}
+
+/* =========================================================
+   SHUFFLE
+========================================================= */
+
+function shuffleDeck(){
+
+  for(
+    let i=deck.length-1;
+    i>0;
+    i--
+  ){
+
+    const j =
+      Math.floor(
+        Math.random() * (i+1)
+      );
+
+    [
+      deck[i],
+      deck[j]
+    ] =
+    [
+      deck[j],
+      deck[i]
+    ];
+
+  }
+
+}
+
+/* =========================================================
+   DEAL
+========================================================= */
+
+function dealCards(){
+
+  players.forEach(
+    p => p.hand = []
+  );
+
+  for(let i=0;i<54;i++){
+
+    const player =
+      players[
+        i % PLAYER_COUNT
+      ];
+
+    if(deck[i]){
+      player.hand.push(
+        deck[i]
+      );
+    }
+
+  }
+
+  players.forEach(
+    p =>
+      p.hand.sort(
+        sortCards
+      )
+  );
+
+}
+
+/* =========================================================
+   SORT
+========================================================= */
+
+function sortCards(a,b){
+
+  const suitOrder = {
+    "♠":0,
+    "♥":1,
+    "♦":2,
+    "♣":3
+  };
+
+  if(
+    suitOrder[a.suit] !==
+    suitOrder[b.suit]
+  ){
+
+    return (
+      suitOrder[a.suit] -
+      suitOrder[b.suit]
+    );
+
+  }
+
+  return a.value - b.value;
+
+}
+
+/* =========================================================
+   HAND
+========================================================= */
+
+function renderHand(){
+
+  const hand =
+    document.getElementById("hand");
+
+  hand.innerHTML = "";
+
+  const cards =
+    players[0].hand;
+
+  document.getElementById(
+    "cardsLeft"
+  ).textContent =
+    cards.length;
+
+  cards.forEach(
+    (card,index) => {
+
+      const button =
+        document.createElement("button");
+
+      button.className =
+        "card selectable";
+
+      if(
+        card.suit === "♥" ||
+        card.suit === "♦"
+      ){
+        button.classList.add("red");
+      }
+
+      button.innerHTML =
+        '<div class="card-rank">' +
+        card.rank +
+        '</div>' +
+        '<div class="card-suit">' +
+        card.suit +
+        '</div>';
+
+      button.onclick =
+        () => selectCard(index);
+
+      hand.appendChild(button);
+
+    }
+  );
+
+}
+
+/* =========================================================
+   SELECT CARD
+========================================================= */
+
+function selectCard(index){
+
+  if(currentPlayer !== 0){
+    showToast("Wait for your turn.");
+    return;
+  }
+
+  if(!biddingDone){
+    showToast("Announce your tricks first.");
+    return;
+  }
+
+  selectedCardIndex = index;
+
+  document
+    .querySelectorAll(".card")
+    .forEach(
+      (card,i) => {
+        card.classList.toggle(
+          "selected",
+          i === index
+        );
+      }
+    );
+
+  document.getElementById(
+    "playButton"
+  ).disabled = false;
+
+}
+
+/* =========================================================
+   PLAY CARD
+========================================================= */
+
+function playSelectedCard(){
+
+  if(
+    currentPlayer !== 0 ||
+    selectedCardIndex < 0
+  ){
+    return;
+  }
+
+  const player =
+    players[0];
+
+  const card =
+    player.hand[
+      selectedCardIndex
+    ];
+
+  if(!card){
+    return;
+  }
+
+  if(!isLegalCard(player,card)){
+    showToast(
+      "You must follow the leading suit."
+    );
+    return;
+  }
+
+  playCard(
+    0,
+    selectedCardIndex
+  );
+
+}
+
+/* =========================================================
+   LEGAL CARD
+========================================================= */
+
+function isLegalCard(player,card){
+
+  if(currentTrick.length === 0){
+    return true;
+  }
+
+  const lead =
+    currentTrick[0].card.suit;
+
+  const hasLead =
+    player.hand.some(
+      c => c.suit === lead
+    );
+
+  if(hasLead){
+    return card.suit === lead;
+  }
+
+  return true;
+
+}
+
+/* =========================================================
+   PLAY CARD
+========================================================= */
+
+function playCard(
+  playerIndex,
+  cardIndex
+){
+
+  const player =
+    players[playerIndex];
+
+  const card =
+    player.hand[
+      cardIndex
+    ];
+
+  if(!card) return;
+
+  player.hand.splice(
+    cardIndex,
+    1
+  );
+
+  currentTrick.push({
+    player:playerIndex,
+    card:card
+  });
+
+  addPlayedCard(
+    playerIndex,
+    card
+  );
+
+  selectedCardIndex = -1;
+
+  renderHand();
+
+  document.getElementById(
+    "playButton"
+  ).disabled = true;
+
+  trickNumber++;
+
+  document.getElementById(
+    "trickNumber"
+  ).textContent =
+    Math.min(
+      currentTrick.length,
+      9
+    );
+
+  log(
+    player.name +
+    " played " +
+    card.rank +
+    card.suit
+  );
+
+  if(
+    currentTrick.length ===
+    PLAYER_COUNT
+  ){
+
+    setTimeout(
+      resolveTrick,
+      900
+    );
+
+    return;
+
+  }
+
+  currentPlayer =
+    (currentPlayer + 1) %
+    PLAYER_COUNT;
+
+  updateActivePlayer();
+
+  if(currentPlayer !== 0){
+
+    setTimeout(
+      botPlay,
+      700
+    );
+
+  }
+
+}
+
+/* =========================================================
+   ADD PLAYED CARD
+========================================================= */
+
+function addPlayedCard(
+  playerIndex,
+  card
+){
+
+  const trick =
+    document.getElementById("trick");
+
+  const div =
+    document.createElement("div");
+
+  div.className =
+    "played-card";
+
+  if(
+    card.suit === "♥" ||
+    card.suit === "♦"
+  ){
+    div.classList.add("red");
+  }
+
+  div.innerHTML =
+    card.rank +
+    "<br>" +
+    card.suit;
+
+  trick.appendChild(div);
+
+}
+
+/* =========================================================
+   BOT
+========================================================= */
+
+function botPlay(){
+
+  if(
+    currentPlayer === 0
+  ){
+    return;
+  }
+
+  const player =
+    players[currentPlayer];
+
+  if(
+    !player ||
+    player.hand.length === 0
+  ){
+    return;
+  }
+
+  let choices =
+    player.hand
+    .map(
+      (card,index) => ({
+        card,
+        index
+      })
+    )
+    .filter(
+      item =>
+        isLegalCard(
+          player,
+          item.card
+        )
+    );
+
+  if(choices.length === 0){
+    choices =
+      player.hand.map(
+        (card,index) => ({
+          card,
+          index
+        })
+      );
+  }
+
+  choices.sort(
+    (a,b) =>
+      a.card.value -
+      b.card.value
+  );
+
+  const choice =
+    choices[0];
+
+  playCard(
+    currentPlayer,
+    choice.index
+  );
+
+}
+
+/* =========================================================
+   TRICK WINNER
+========================================================= */
+
+function resolveTrick(){
+
+  let winner =
+    currentTrick[0];
+
+  const leadSuit =
+    currentTrick[0].card.suit;
+
+  for(
+    let i=1;
+    i<currentTrick.length;
+    i++
+  ){
+
+    const item =
+      currentTrick[i];
+
+    if(
+      beats(
+        item.card,
+        winner.card,
+        leadSuit
+      )
+    ){
+
+      winner = item;
+
+    }
+
+  }
+
+  players[
+    winner.player
+  ].tricks++;
+
+  if(
+    players[
+      winner.player
+    ].team === "blue"
+  ){
+
+    blueTricks++;
+
+  }else{
+
+    redTricks++;
+
+  }
+
+  log(
+    players[winner.player].name +
+    " wins the trick."
+  );
+
+  showToast(
+    players[winner.player].name +
+    " wins"
+  );
+
+  currentTrick = [];
+
+  document.getElementById(
+    "trick"
+  ).innerHTML = "";
+
+  if(
+    trickNumber >= 9
+  ){
+
+    finishRound();
+
+    return;
+
+  }
+
+  trickNumber = 0;
+
+  document.getElementById(
+    "trickNumber"
+  ).textContent = "0";
+
+  currentPlayer =
+    (winner.player + 1) %
+    PLAYER_COUNT;
+
+  updateActivePlayer();
+
+  if(currentPlayer !== 0){
+
+    setTimeout(
+      botPlay,
+      700
+    );
+
+  }else{
+
+    setStatus(
+      "Your turn"
+    );
+
+  }
+
+}
+
+/* =========================================================
+   CARD COMPARISON
+========================================================= */
+
+function beats(
+  a,
+  b,
+  leadSuit
+){
+
+  if(
+    a.suit === "♠" &&
+    b.suit !== "♠"
+  ){
+    return true;
+  }
+
+  if(
+    a.suit !== "♠" &&
+    b.suit === "♠"
+  ){
+    return false;
+  }
+
+  if(
+    a.suit === b.suit
+  ){
+
+    return a.value >
+           b.value;
+
+  }
+
+  if(
+    a.suit === leadSuit &&
+    b.suit !== leadSuit
+  ){
+    return true;
+  }
+
+  return false;
+
+}
+
+/* =========================================================
+   BIDDING
+========================================================= */
+
+function createBidButtons(){
+
+  const box =
+    document.getElementById(
+      "bidButtons"
+    );
+
+  box.innerHTML = "";
+
+  for(let i=0;i<=7;i++){
+
+    const button =
+      document.createElement("button");
+
+    button.className = "bid";
+
+    button.textContent = i;
+
+    button.onclick =
+      () => chooseBid(i);
+
+    box.appendChild(button);
+
+  }
+
+}
+
+function openBidModal(){
+
+  if(biddingDone){
+    showToast("Bidding already completed.");
+    return;
+  }
+
+  document
+    .getElementById("bidModal")
+    .classList.add("show");
+
+}
+
+function closeBidModal(){
+
+  document
+    .getElementById("bidModal")
+    .classList.remove("show");
+
+}
+
+function chooseBid(value){
+
+  players[0].bid = value;
+
+  document.querySelector(
+    "#player1 .player-bid"
+  ).textContent =
+    "BID: " + value;
+
+  closeBidModal();
+
+  log(
+    "You announced " +
+    value +
+    " tricks."
+  );
+
+  botBids();
+
+  biddingDone = true;
+
+  document.getElementById(
+    "bidButton"
+  ).disabled = true;
+
+  setStatus(
+    "Game started • Your turn"
+  );
+
+  gameStarted = true;
+
+  currentPlayer = 0;
+
+  updateActivePlayer();
+
+}
+
+/* =========================================================
+   BOT BIDS
+========================================================= */
+
+function botBids(){
+
+  players
+    .slice(1)
+    .forEach(
+      player => {
+
+        const spades =
+          player.hand.filter(
+            c => c.suit === "♠"
+          ).length;
+
+        let bid =
+          Math.max(
+            0,
+            Math.min(
+              7,
+              Math.floor(
+                spades / 2
+              )
+            )
+          );
+
+        if(
+          bid === 0 &&
+          Math.random() > .5
+        ){
+          bid = 1;
+        }
+
+        player.bid = bid;
+
+        const el =
+          document.querySelector(
+            "#player" +
+            (player.id + 1) +
+            " .player-bid"
+          );
+
+        if(el){
+          el.textContent =
+            "BID: " + bid;
+        }
+
+      }
+    );
+
+}
+
+/* =========================================================
+   ACTIVE PLAYER
+========================================================= */
+
+function updateActivePlayer(){
+
+  document
+    .querySelectorAll(".player")
+    .forEach(
+      p => p.classList.remove("active")
+    );
+
+  const active =
+    document.getElementById(
+      "player" +
+      (currentPlayer + 1)
+    );
+
+  if(active){
+    active.classList.add("active");
+  }
+
+  setStatus(
+    currentPlayer === 0
+    ? "Your turn"
+    : players[currentPlayer].name +
+      " is playing..."
+  );
+
+}
+
+/* =========================================================
+   ROUND
+========================================================= */
+
+function finishRound(){
+
+  log(
+    "Round " +
+    roundNumber +
+    " finished. Blue: " +
+    blueTricks +
+    " | Red: " +
+    redTricks
+  );
+
+  if(
+    blueTricks >=
+    redTricks
+  ){
+
+    blueScore +=
+      blueTricks * 10;
+
+  }else{
+
+    redScore +=
+      redTricks * 10;
+
+  }
+
+  renderScores();
+
+  if(roundNumber >= 6){
+
+    finishGame();
+
+    return;
+
+  }
+
+  setTimeout(
+    startNextRound,
+    1400
+  );
+
+}
+
+/* =========================================================
+   NEXT ROUND
+========================================================= */
+
+function startNextRound(){
+
+  roundNumber++;
+
+  document.getElementById(
+    "roundNumber"
+  ).textContent =
+    roundNumber;
+
+  trickNumber = 0;
+
+  blueTricks = 0;
+
+  redTricks = 0;
+
+  currentTrick = [];
+
+  currentPlayer =
+    roundNumber % PLAYER_COUNT;
+
+  createDeck();
+
+  shuffleDeck();
+
+  dealCards();
+
+  players.forEach(
+    p => p.bid = null
+  );
+
+  biddingDone = false;
+
+  document.getElementById(
+    "bidButton"
+  ).disabled = false;
+
+  document.getElementById(
+    "playButton"
+  ).disabled = true;
+
+  document.getElementById(
+    "trick"
+  ).innerHTML = "";
+
+  players.forEach(
+    p => {
+
+      const el =
+        document.querySelector(
+          "#player" +
+          (p.id+1) +
+          " .player-bid"
+        );
+
+      if(el){
+        el.textContent =
+          "BID: —";
+      }
+
+    }
+  );
+
+  renderHand();
+
+  setStatus(
+    "Announce your tricks"
+  );
+
+  log(
+    "Round " +
+    roundNumber +
+    " started."
+  );
+
+}
+
+/* =========================================================
+   FINISH GAME
+========================================================= */
+
+function finishGame(){
+
+  setStatus(
+    "GAME FINISHED"
+  );
+
+  if(blueScore > redScore){
+
+    log(
+      "BLUE TEAM WINS! " +
+      blueScore +
+      " - " +
+      redScore
+    );
+
+    showToast(
+      "BLUE TEAM WINS!"
+    );
+
+  }else if(redScore > blueScore){
+
+    log(
+      "RED TEAM WINS! " +
+      redScore +
+      " - " +
+      blueScore
+    );
+
+    showToast(
+      "RED TEAM WINS!"
+    );
+
+  }else{
+
+    log("GAME DRAW");
+
+    showToast(
+      "GAME DRAW"
+    );
+
+  }
+
+  document.getElementById(
+    "bidButton"
+  ).disabled = true;
+
+  document.getElementById(
+    "playButton"
+  ).disabled = true;
+
+}
+
+/* =========================================================
+   SCORE
+========================================================= */
+
+function renderScores(){
+
+  document.getElementById(
+    "blueScore"
+  ).textContent =
+    blueScore;
+
+  document.getElementById(
+    "redScore"
+  ).textContent =
+    redScore;
+
+}
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+function setStatus(text){
+
+  document.getElementById(
+    "centerStatus"
+  ).textContent =
+    text;
+
+}
+
+/* =========================================================
+   LOG
+========================================================= */
+
+function log(text){
+
+  const el =
+    document.getElementById(
+      "gameLog"
+    );
+
+  if(!el) return;
+
+  const line =
+    document.createElement("div");
+
+  line.textContent =
+    "• " + text;
+
+  el.appendChild(line);
+
+  el.scrollTop =
+    el.scrollHeight;
+
+}
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+let toastTimer = null;
+
+function showToast(message){
+
+  const toast =
+    document.getElementById(
+      "toast"
+    );
+
+  toast.textContent =
+    message;
+
+  toast.classList.add("show");
+
+  clearTimeout(toastTimer);
+
+  toastTimer =
+    setTimeout(
+      () =>
+        toast.classList.remove("show"),
+      2200
+    );
+
+}
+
+/* =========================================================
+   HOME
+========================================================= */
+
+function goHome(){
+
+  /*
+    Same-folder navigation.
+    This is important for GitHub Pages.
+  */
+
+  const path =
+    window.location.pathname;
+
+  const slash =
+    path.lastIndexOf("/");
+
+  const folder =
+    slash >= 0
+    ? path.substring(0,slash+1)
+    : "";
+
+  window.location.href =
+    folder + "index.html";
+
+}
+
+/* =========================================================
+   START
+========================================================= */
+
+init();
+
+</script>
+
+</body>
+</html>
