@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"
+>
+
+<title>SPADES</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,
+body{
+  margin:0;
+  padding:0;
+  width:100%;
+  min-height:100%;
+  background:#050806;
+}
+
+body{
+  min-height:100vh;
+  font-family:Arial,Helvetica,sans-serif;
+  color:#fff;
+
+  background:
+    radial-gradient(
+      circle at 50% -15%,
+      #315b48 0%,
+      #173126 28%,
+      #0b1712 65%,
+      #050806 100%
+    );
+
+  overflow-x:hidden;
+}
+
+button,
+input{
+  font-family:inherit;
+}
+
+button{
+  border:0;
+  cursor:pointer;
+}
+
+.app{
+  width:100%;
+  max-width:520px;
+  min-height:100vh;
+  margin:auto;
+  padding:0 15px 100px;
+}
+
+
+/* =========================
+   SCREENS
+========================= */
+
+.screen{
+  display:none;
+  width:100%;
+  min-height:calc(100vh - 60px);
+}
+
+.screen.active{
+  display:block;
+  animation:screenIn .2s ease;
+}
+
+@keyframes screenIn{
+  from{
+    opacity:0;
+    transform:translateY(8px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+
+/* =========================
+   TOP BAR
+========================= */
+
+.top-status{
+  position:relative;
+  z-index:10;
+
+  width:calc(100% + 30px);
+  margin-left:-15px;
+
+  padding:12px 15px;
+
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(20,48,37,.98),
+      rgba(8,19,14,.97)
+    );
+
+  border-bottom:1px solid rgba(255,255,255,.1);
+}
+
+.status-label,
+.status-value-label{
+  color:#91a39a;
+  font-size:9px;
+  font-weight:700;
+}
+
+.status-token{
+  margin-top:3px;
+  color:#f4d879;
+  font-size:20px;
+  font-weight:900;
+}
+
+.status-value{
+  margin-top:3px;
+  color:#f4d879;
+  font-size:12px;
+  font-weight:900;
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+.header{
+  text-align:center;
+  padding:28px 0 20px;
+}
+
+.spade{
+  font-size:48px;
+}
+
+.title{
+  margin:7px 0 0;
+  font-size:27px;
+  font-weight:900;
+  letter-spacing:2px;
+}
+
+.subtitle{
+  margin-top:7px;
+  color:#9faea7;
+  font-size:11px;
+  line-height:1.5;
+}
+
+
+/* =========================
+   HERO
+========================= */
+
+.hero{
+  padding:24px 19px;
+  margin-bottom:15px;
+  border-radius:23px;
+
+  background:
+    radial-gradient(
+      circle at 85% 15%,
+      rgba(241,216,121,.17),
+      transparent 32%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(55,116,84,.58),
+      rgba(255,255,255,.045)
+    );
+
+  border:1px solid rgba(255,255,255,.1);
+  box-shadow:0 18px 45px rgba(0,0,0,.3);
+}
+
+.hero-kicker{
+  color:#f1d879;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:2px;
+}
+
+.hero-title{
+  margin:8px 0 5px;
+  font-size:27px;
+  font-weight:900;
+}
+
+.hero-text{
+  margin:0;
+  color:#aebdb5;
+  font-size:11px;
+  line-height:1.6;
+}
+
+.hero-badge{
+  display:inline-flex;
+  margin-top:15px;
+  padding:7px 10px;
+  border-radius:10px;
+  background:rgba(0,0,0,.18);
+  color:#e5ece8;
+  font-size:9px;
+  font-weight:800;
+}
+
+
+/* =========================
+   CARDS
+========================= */
+
+.games{
+  display:flex;
+  flex-direction:column;
+  gap:11px;
+}
+
+.game-card{
+  width:100%;
+  padding:16px;
+
+  border-radius:19px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.085),
+      rgba(255,255,255,.035)
+    );
+
+  border:1px solid rgba(255,255,255,.085);
+
+  color:#fff;
+  text-align:left;
+}
+
+.game-card.featured{
+  background:
+    linear-gradient(
+      145deg,
+      rgba(48,106,78,.6),
+      rgba(255,255,255,.045)
+    );
+
+  border-color:rgba(241,216,121,.15);
+}
+
+.game-card:active{
+  transform:scale(.975);
+}
+
+.card-row{
+  display:flex;
+  align-items:center;
+  gap:13px;
+}
+
+.icon{
+  width:55px;
+  height:55px;
+  flex:0 0 55px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  border-radius:15px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.13),
+      rgba(255,255,255,.04)
+    );
+
+  font-size:29px;
+}
+
+.info{
+  flex:1;
+  min-width:0;
+}
+
+.name{
+  margin:0;
+  font-size:16px;
+  font-weight:900;
+}
+
+.description{
+  margin:5px 0 0;
+  color:#95a59d;
+  font-size:10px;
+  line-height:1.5;
+}
+
+.meta{
+  display:inline-block;
+  margin-top:7px;
+  padding:5px 8px;
+  border-radius:7px;
+
+  background:rgba(255,255,255,.07);
+
+  color:#d3ddd8;
+  font-size:8px;
+  font-weight:900;
+}
+
+.arrow{
+  color:#82928a;
+  font-size:27px;
+}
+
+
+/* =========================
+   PANEL
+========================= */
+
+.panel{
+  padding:18px;
+  margin-bottom:12px;
+
+  border-radius:19px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255,255,255,.085),
+      rgba(255,255,255,.035)
+    );
+
+  border:1px solid rgba(255,255,255,.08);
+}
+
+.panel-title{
+  margin:0 0 7px;
+  font-size:17px;
+  font-weight:900;
+}
+
+.panel-text{
+  margin:0;
+  color:#aebdb5;
+  font-size:11px;
+  line-height:1.7;
+}
+
+
+/* =========================
+   BUTTON
+========================= */
+
+.action-button{
+  width:100%;
+  padding:14px;
+  margin-top:9px;
+
+  border-radius:13px;
+
+  background:#347653;
+  color:#fff;
+
+  font-size:12px;
+  font-weight:900;
+}
+
+.action-button.secondary{
+  background:rgba(255,255,255,.07);
+  color:#d4ddd8;
+}
+
+.action-button.gold{
+  background:#8d7624;
+}
+
+.back-button{
+  width:100%;
+  margin-top:12px;
+  padding:13px;
+
+  border-radius:13px;
+
+  background:rgba(255,255,255,.055);
+  color:#c5d0cb;
+
+  font-size:12px;
+  font-weight:700;
+}
+
+
+/* =========================
+   NAVIGATION
+========================= */
+
+.bottom-nav{
+  position:fixed;
+  z-index:50;
+
+  left:50%;
+  bottom:0;
+
+  transform:translateX(-50%);
+
+  width:100%;
+  max-width:520px;
+
+  padding:
+    8px 7px
+    calc(8px + env(safe-area-inset-bottom));
+
+  background:rgba(5,12,9,.97);
+
+  backdrop-filter:blur(16px);
+
+  border-top:1px solid rgba(255,255,255,.08);
+
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:3px;
+}
+
+.nav-button{
+  padding:6px 1px;
+  border-radius:11px;
+
+  background:transparent;
+  color:#708079;
+
+  font-size:7px;
+  font-weight:700;
+}
+
+.nav-icon{
+  display:block;
+  margin-bottom:3px;
+  font-size:18px;
+}
+
+.nav-button.active{
+  color:#f1d879;
+  background:rgba(255,255,255,.065);
+}
+
+
+/* =========================
+   INPUT
+========================= */
+
+.input{
+  width:100%;
+  padding:13px;
+  margin-top:9px;
+
+  border-radius:12px;
+
+  border:1px solid rgba(255,255,255,.11);
+  outline:none;
+
+  background:rgba(0,0,0,.25);
+
+  color:#fff;
+
+  font-size:12px;
+  text-align:center;
+}
+
+
+/* =========================
+   TASK
+========================= */
+
+.task{
+  display:flex;
+  align-items:center;
+  gap:11px;
+
+  padding:13px;
+  margin-bottom:9px;
+
+  border-radius:14px;
+
+  background:rgba(255,255,255,.045);
+  border:1px solid rgba(255,255,255,.06);
+}
+
+.task-icon{
+  width:42px;
+  height:42px;
+  flex:0 0 42px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  border-radius:11px;
+  background:rgba(255,255,255,.075);
+
+  font-size:20px;
+}
+
+.task-info{
+  flex:1;
+}
+
+.task-name{
+  font-size:12px;
+  font-weight:900;
+}
+
+.task-description{
+  margin-top:3px;
+  color:#788880;
+  font-size:9px;
+}
+
+.task-status{
+  color:#f1d879;
+  font-size:10px;
+  font-weight:900;
+}
+
+
+/* =========================
+   HIDDEN
+========================= */
+
+.hidden{
+  display:none!important;
+}
+
+</style>
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+<!-- TOP STATUS -->
+
+<div class="top-status">
+
+  <div>
+    <div class="status-label">
+      AVAILABLE TOKENS
+    </div>
+
+    <div
+      id="globalTokens"
+      class="status-token"
+    >
+      100
+    </div>
+  </div>
+
+  <div style="text-align:right">
+
+    <div class="status-value-label">
+      TOKEN VALUE
+    </div>
+
+    <div class="status-value">
+      1,000 = $1
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =========================
+     HOME
+========================= -->
+
+<section
+  id="homeScreen"
+  class="screen active"
+>
+
+<header class="header">
+
+  <div class="spade">♠</div>
+
+  <h1 class="title">
+    SPADES
+  </h1>
+
+  <div class="subtitle">
+    Enter the table. Play smart. Win big.
+  </div>
+
+</header>
+
+
+<div class="hero">
+
+  <div class="hero-kicker">
+    WELCOME TO SPADES
+  </div>
+
+  <div class="hero-title">
+    Enter The Table
+  </div>
+
+  <p class="hero-text">
+    Choose your game and enter a random
+    or private room.
+  </p>
+
+  <div class="hero-badge">
+    ♠ PLAY • COMPETE • EARN
+  </div>
+
+</div>
+
+
+<div class="panel">
+
+  <h2 class="panel-title">
+    Welcome
+  </h2>
+
+  <p class="panel-text">
+    Select Games below to start playing.
+  </p>
+
+</div>
+
+
+<button
+  class="action-button"
+  onclick="navigate('gamesScreen')"
+>
+  🎮 OPEN GAMES
+</button>
+
+</section>
+
+
+<!-- =========================
+     GAMES
+========================= -->
+
+<section
+  id="gamesScreen"
+  class="screen"
+>
+
+<header class="header">
+
+  <div class="spade">
+    🎮
+  </div>
+
+  <h1 class="title">
+    GAMES
+  </h1>
+
+  <div class="subtitle">
+    Select your game
+  </div>
+
+</header>
+
+
+<div class="games">
+
+
+<button
+  class="game-card featured"
+  onclick="selectGame('suit')"
+>
+
+<div class="card-row">
+
+  <div class="icon">
+    ♠
+  </div>
+
+  <div class="info">
+
+    <h2 class="name">
+      Spade Trump
+    </h2>
+
+    <p class="description">
+      Six players • 3 vs 3 team game.
+    </p>
+
+    <span class="meta">
+      6 PLAYERS
+    </span>
+
+  </div>
+
+  <div class="arrow">
+    ›
+  </div>
+
+</div>
+
+</button>
+
+
+<button
+  class="game-card"
+  onclick="selectGame('classic')"
+>
+
+<div class="card-row">
+
+  <div class="icon">
+    ♣
+  </div>
+
+  <div class="info">
+
+    <h2 class="name">
+      Classic Spades
+    </h2>
+
+    <p class="description">
+      Four players • classic team game.
+    </p>
+
+    <span class="meta">
+      4 PLAYERS
+    </span>
+
+  </div>
+
+  <div class="arrow">
+    ›
+  </div>
+
+</div>
+
+</button>
+
+
+<button
+  class="game-card"
+  onclick="selectGame('two')"
+>
+
+<div class="card-row">
+
+  <div class="icon">
+    🃏
+  </div>
+
+  <div class="info">
+
+    <h2 class="name">
+      Two Player
+    </h2>
+
+    <p class="description">
+      Fast two-player card game.
+    </p>
+
+    <span class="meta">
+      2 PLAYERS
+    </span>
+
+  </div>
+
+  <div class="arrow">
+    ›
+  </div>
+
+</div>
+
+</button>
+
+
+</div>
+
+
+<button
+  class="back-button"
+  onclick="navigate('homeScreen')"
+>
+  ← BACK HOME
+</button>
+
+</section>
+
+
+<!-- =========================
+     AIRDROP
+========================= -->
+
+<section
+  id="airdropScreen"
+  class="screen"
+>
+
+<header class="header">
+
+  <div class="spade">🎁</div>
+
+  <h1 class="title">
+    AIRDROP
+  </h1>
+
+  <div class="subtitle">
+    Watch videos and earn tokens
+  </div>
+
+</header>
+
+
+<div class="panel">
+
+<h2 class="panel-title">
+  Earn Tokens
+</h2>
+
+<p class="panel-text">
+  Watch the official video completely
+  and receive 25 tokens.
+</p>
+
+</div>
+
+
+<div class="task">
+
+<div class="task-icon">
+  📺
+</div>
+
+<div class="task-info">
+
+<div class="task-name">
+  Watch Video
+</div>
+
+<div class="task-description">
+  Complete the video
+</div>
+
+</div>
+
+<div
+  id="videoStatus"
+  class="task-status"
+>
+  +25
+</div>
+
+</div>
+
+
+<button
+  class="action-button"
+  onclick="watchAirdropVideo()"
+>
+  ▶ WATCH VIDEO
+</button>
+
+
+<div class="task">
+
+<div class="task-icon">
+  📢
+</div>
+
+<div class="task-info">
+
+<div class="task-name">
+  Telegram
+</div>
+
+<div class="task-description">
+  @CourtPiecesPades
+</div>
+
+</div>
+
+</div>
+
+
+<button
+  class="action-button secondary"
+  onclick="openTelegram()"
+>
+  OPEN TELEGRAM
+</button>
+
+
+<div class="task">
+
+<div class="task-icon">
+  📸
+</div>
+
+<div class="task-info">
+
+<div class="task-name">
+  Instagram
+</div>
+
+<div class="task-description">
+  @CourtPiecesPades
+</div>
+
+</div>
+
+</div>
+
+
+<button
+  class="action-button secondary"
+  onclick="openInstagram()"
+>
+  OPEN INSTAGRAM
+</button>
+
+</section>
+
+
+<!-- =========================
+     INVITE
+========================= -->
+
+<section
+  id="inviteScreen"
+  class="screen"
+>
+
+<header class="header">
+
+<div class="spade">
+  👥
+</div>
+
+<h1 class="title">
+  INVITE
+</h1>
+
+<div class="subtitle">
+  Invite your friends
+</div>
+
+</header>
+
+
+<div class="panel">
+
+<h2 class="panel-title">
+  Referral
+</h2>
+
+<p class="panel-text">
+  Your referral code:
+</p>
+
+<div
+  id="referralCode"
+  style="
+    margin-top:15px;
+    padding:14px;
+    border-radius:12px;
+    background:rgba(0,0,0,.25);
+    text-align:center;
+    color:#f1d879;
+    font-weight:900;
+  "
+>
+  SPADES-PLAYER
+</div>
+
+
+<button
+  class="action-button"
+  onclick="copyReferral()"
+>
+  COPY CODE
+</button>
+
+</div>
+
+</section>
+
+
+<!-- =========================
+     WALLET
+========================= -->
+
+<section
+  id="walletScreen"
+  class="screen"
+>
+
+<header class="header">
+
+<div class="spade">
+  👛
+</div>
+
+<h1 class="title">
+  WALLET
+</h1>
+
+<div class="subtitle">
+  Your tokens
+</div>
+
+</header>
+
+
+<div class="panel">
+
+<div
+  id="walletTokens"
+  style="
+    text-align:center;
+    color:#f1d879;
+    font-size:35px;
+    font-weight:900;
+  "
+>
+  100
+</div>
+
+<div
+  style="
+    text-align:center;
+    color:#899991;
+    font-size:10px;
+    margin-top:5px;
+  "
+>
+  AVAILABLE TOKENS
+</div>
+
+</div>
+
+
+<div class="panel">
+
+<h2 class="panel-title">
+  Wallet
+</h2>
+
+<input
+  id="walletAddress"
+  class="input"
+  placeholder="Wallet address"
+>
+
+<button
+  class="action-button"
+  onclick="connectWallet()"
+>
+  CONNECT WALLET
+</button>
+
+</div>
+
+</section>
+
+
+</div>
+
+
+<!-- =========================
+     BOTTOM NAV
+========================= -->
+
+<nav class="bottom-nav">
+
+<button
+  class="nav-button active"
+  data-screen="homeScreen"
+  onclick="navigate('homeScreen')"
+>
+<span class="nav-icon">🏠</span>
+Home
+</button>
+
+
+<button
+  class="nav-button"
+  data-screen="gamesScreen"
+  onclick="navigate('gamesScreen')"
+>
+<span class="nav-icon">🎮</span>
+Games
+</button>
+
+
+<button
+  class="nav-button"
+  data-screen="airdropScreen"
+  onclick="navigate('airdropScreen')"
+>
+<span class="nav-icon">🎁</span>
+Airdrop
+</button>
+
+
+<button
+  class="nav-button"
+  data-screen="inviteScreen"
+  onclick="navigate('inviteScreen')"
+>
+<span class="nav-icon">👥</span>
+Invite
+</button>
+
+
+<button
+  class="nav-button"
+  data-screen="walletScreen"
+  onclick="navigate('walletScreen')"
+>
+<span class="nav-icon">👛</span>
+Wallet
+</button>
+
+</nav>
+
+
+<script>
+
+const BOT_USERNAME =
+  "CourtPiecesPades_bot";
+
+const TELEGRAM_CHANNEL =
+  "https://t.me/CourtPiecesPades";
+
+const INSTAGRAM =
+  "https://instagram.com/CourtPiecesPades";
+
+
+const GAME_NAMES = {
+
+  suit:"Spade Trump",
+
+  classic:"Classic Spades",
+
+  two:"Two Player"
+
+};
+
+
+const GAME_PLAYERS = {
+
+  suit:6,
+
+  classic:4,
+
+  two:2
+
+};
+
+
+let currentGame = null;
+
+
+/* =========================
+   TELEGRAM
+========================= */
+
+const tg =
+  window.Telegram &&
+  window.Telegram.WebApp
+    ? window.Telegram.WebApp
+    : null;
+
+if(tg){
+
+  try{
+
+    tg.ready();
+    tg.expand();
+
+  }catch(e){}
+
+}
+
+
+/* =========================
+   NAVIGATION
+========================= */
+
+function navigate(screenId){
+
+  const target =
+    document.getElementById(screenId);
+
+  if(!target){
+
+    console.error(
+      "Screen not found:",
+      screenId
+    );
+
+    return;
+
+  }
+
+
+  document
+    .querySelectorAll(".screen")
+    .forEach(screen=>{
+
+      screen.classList.remove("active");
+
+    });
+
+
+  target.classList.add("active");
+
+
+  document
+    .querySelectorAll(".nav-button")
+    .forEach(button=>{
+
+      button.classList.toggle(
+        "active",
+        button.dataset.screen === screenId
+      );
+
+    });
+
+
+  window.scrollTo(0,0);
+
+}
+
+
+/* =========================
+   GAME SELECTION
+========================= */
+
+function selectGame(game){
+
+  if(!GAME_NAMES[game]){
+
+    return;
+
+  }
+
+
+  currentGame =
+    game;
+
+
+  const players =
+    GAME_PLAYERS[game];
+
+
+  /*
+     Always go to game.html.
+     Never manipulate index.html screens
+     after this point.
+  */
+
+  const url =
+    "game.html" +
+    "?game=" +
+    encodeURIComponent(game) +
+    "&players=" +
+    players;
+
+
+  window.location.href =
+    url;
+
+}
+
+
+/* =========================
+   TOKENS
+========================= */
+
+function getTokens(){
+
+  const value =
+    Number(
+      localStorage.getItem(
+        "spadesTokens"
+      )
+    );
+
+
+  if(!Number.isFinite(value)){
+
+    localStorage.setItem(
+      "spadesTokens",
+      "100"
+    );
+
+    return 100;
+
+  }
+
+
+  return value;
+
+}
+
+
+function updateTokens(){
+
+  const tokens =
+    getTokens();
+
+
+  const global =
+    document.getElementById(
+      "globalTokens"
+    );
+
+  const wallet =
+    document.getElementById(
+      "walletTokens"
+    );
+
+
+  if(global){
+
+    global.textContent =
+      tokens.toLocaleString();
+
+  }
+
+
+  if(wallet){
+
+    wallet.textContent =
+      tokens.toLocaleString();
+
+  }
+
+}
+
+
+/* =========================
+   AIRDROP VIDEO
+========================= */
+
+function watchAirdropVideo(){
+
+  /*
+     This opens the video page only.
+     Game entry does NOT require a video.
+  */
+
+  const videoUrl =
+    "https://www.youtube.com/";
+
+  if(tg){
+
+    try{
+
+      tg.openLink(
+        videoUrl
+      );
+
+    }catch(e){
+
+      window.open(
+        videoUrl,
+        "_blank"
+      );
+
+    }
+
+  }else{
+
+    window.open(
+      videoUrl,
+      "_blank"
+    );
+
+  }
+
+
+  /*
+     Demo reward:
+     25 tokens are added once.
+     Replace with server-side verification later.
+  */
+
+  const done =
+    localStorage.getItem(
+      "airdropVideoDone"
+    );
+
+
+  if(!done){
+
+    const tokens =
+      getTokens() + 25;
+
+    localStorage.setItem(
+      "spadesTokens",
+      String(tokens)
+    );
+
+    localStorage.setItem(
+      "airdropVideoDone",
+      "1"
+    );
+
+    updateTokens();
+
+  }
+
+}
+
+
+/* =========================
+   EXTERNAL LINKS
+========================= */
+
+function openTelegram(){
+
+  if(tg){
+
+    try{
+
+      tg.openTelegramLink(
+        TELEGRAM_CHANNEL
+      );
+
+      return;
+
+    }catch(e){}
+
+  }
+
+
+  window.open(
+    TELEGRAM_CHANNEL,
+    "_blank"
+  );
+
+}
+
+
+function openInstagram(){
+
+  window.open(
+    INSTAGRAM,
+    "_blank"
+  );
+
+}
+
+
+/* =========================
+   REFERRAL
+========================= */
+
+function getReferralCode(){
+
+  try{
+
+    if(
+      tg &&
+      tg.initDataUnsafe &&
+      tg.initDataUnsafe.user
+    ){
+
+      return(
+        "SPADES-" +
+        tg.initDataUnsafe.user.id
+      );
+
+    }
+
+  }catch(e){}
+
+
+  return "SPADES-PLAYER";
+
+}
+
+
+function copyReferral(){
+
+  const code =
+    getReferralCode();
+
+
+  const element =
+    document.getElementById(
+      "referralCode"
+    );
+
+
+  if(element){
+
+    element.textContent =
+      code;
+
+  }
+
+
+  if(
+    navigator.clipboard
+  ){
+
+    navigator.clipboard
+      .writeText(code)
+      .then(()=>{
+
+        alert(
+          "Referral code copied."
+        );
+
+      })
+      .catch(()=>{
+
+        alert(code);
+
+      });
+
+  }else{
+
+    alert(code);
+
+  }
+
+}
+
+
+/* =========================
+   WALLET
+========================= */
+
+function connectWallet(){
+
+  const input =
+    document.getElementById(
+      "walletAddress"
+    );
+
+
+  if(!input){
+
+    return;
+
+  }
+
+
+  const address =
+    input.value.trim();
+
+
+  if(!address){
+
+    alert(
+      "Enter wallet address."
+    );
+
+    return;
+
+  }
+
+
+  localStorage.setItem(
+    "spadesWallet",
+    address
+  );
+
+
+  alert(
+    "Wallet saved."
+  );
+
+}
+
+
+/* =========================
+   START
+========================= */
+
+window.addEventListener(
+  "load",
+  ()=>{
+
+    updateTokens();
+
+  }
+);
+
+</script>
+
+</body>
+</html>
