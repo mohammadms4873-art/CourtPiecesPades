@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"
+>
+
+<title>SPADES • 6 PLAYER</title>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+
+/* =========================================================
+   RESET
+========================================================= */
+
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+html,
+body{
+  margin:0;
+  padding:0;
+  width:100%;
+  min-height:100%;
+}
+
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(
+      ellipse at 50% 20%,
+      #26382d 0%,
+      #111a14 42%,
+      #050705 100%
+    );
+  color:#fff;
+  font-family:Arial,Helvetica,sans-serif;
+  overflow-x:hidden;
+}
+
+button{
+  border:0;
+  font-family:inherit;
+  cursor:pointer;
+}
+
+
+/* =========================================================
+   APP
+========================================================= */
+
+.app{
+  width:100%;
+  max-width:760px;
+  min-height:100vh;
+  margin:auto;
+  padding:0 10px 25px;
+}
+
+
+/* =========================================================
+   TOP
+========================================================= */
+
+.topbar{
+  height:52px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 6px;
+}
+
+.back{
+  width:38px;
+  height:38px;
+  border-radius:50%;
+  background:rgba(255,255,255,.06);
+  color:#d9c56d;
+  font-size:25px;
+}
+
+.round-info{
+  text-align:center;
+}
+
+.round-label{
+  color:#748078;
+  font-size:8px;
+  letter-spacing:2px;
+  font-weight:900;
+}
+
+.round-number{
+  margin-top:3px;
+  color:#e5cf70;
+  font-size:12px;
+  font-weight:900;
+}
+
+.token{
+  color:#5bcf8b;
+  font-size:10px;
+  font-weight:900;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.game-header{
+  text-align:center;
+  padding:2px 0 8px;
+}
+
+.suit-symbol{
+  color:#d9c56d;
+  font-size:30px;
+  line-height:1;
+  text-shadow:0 5px 18px rgba(0,0,0,.7);
+}
+
+.game-title{
+  margin-top:5px;
+  font-size:19px;
+  letter-spacing:2px;
+  font-weight:900;
+}
+
+.game-subtitle{
+  margin-top:4px;
+  color:#68756e;
+  font-size:7px;
+  letter-spacing:1.2px;
+}
+
+
+/* =========================================================
+   GAME AREA
+========================================================= */
+
+.game-area{
+  position:relative;
+  width:100%;
+  height:620px;
+  margin-top:2px;
+  overflow:hidden;
+}
+
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.table{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:95%;
+  height:57%;
+  border-radius:50%;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      #1d5b3e 0%,
+      #123b29 45%,
+      #0b2619 72%,
+      #06130c 100%
+    );
+
+  border:8px solid #151411;
+
+  box-shadow:
+    inset 0 0 0 2px rgba(218,194,91,.5),
+    inset 0 0 35px rgba(0,0,0,.65),
+    0 22px 55px rgba(0,0,0,.7);
+}
+
+.table:before{
+  content:"";
+  position:absolute;
+  inset:9px;
+  border-radius:50%;
+  border:1px solid rgba(231,207,111,.25);
+  pointer-events:none;
+}
+
+
+/* =========================================================
+   CENTER
+========================================================= */
+
+.center{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+
+  width:175px;
+  height:115px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+
+  border-radius:50%;
+
+  background:
+    radial-gradient(
+      ellipse,
+      rgba(0,0,0,.3),
+      rgba(0,0,0,.08)
+    );
+
+  border:1px solid rgba(255,255,255,.07);
+}
+
+.center-symbol{
+  color:#d9c56d;
+  font-size:33px;
+}
+
+.center-text{
+  margin-top:5px;
+  color:#9aa59f;
+  font-size:8px;
+  letter-spacing:1.5px;
+  text-align:center;
+}
+
+
+/* =========================================================
+   PLAYER
+========================================================= */
+
+.player{
+  position:absolute;
+  width:105px;
+  text-align:center;
+  z-index:12;
+}
+
+.player-card{
+  width:105px;
+  min-height:61px;
+  padding:7px 5px;
+
+  border-radius:12px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(24,25,22,.98),
+      rgba(7,9,7,.97)
+    );
+
+  border:1px solid rgba(255,255,255,.09);
+
+  box-shadow:
+    0 9px 25px rgba(0,0,0,.5);
+
+  transition:.22s ease;
+}
+
+.player.active .player-card{
+  transform:translateY(-4px);
+
+  border-color:#e3cd6e;
+
+  box-shadow:
+    0 0 0 1px rgba(217,197,109,.2),
+    0 10px 30px rgba(0,0,0,.7);
+}
+
+.player.blue .player-card{
+  border-left:3px solid #287bd4;
+}
+
+.player.red .player-card{
+  border-left:3px solid #c84242;
+}
+
+.player-number{
+  font-size:8px;
+  font-weight:900;
+  color:#d8d0ad;
+}
+
+.player-name{
+  margin-top:3px;
+  font-size:9px;
+  font-weight:900;
+}
+
+.team-label{
+  margin-top:3px;
+  font-size:6px;
+  letter-spacing:.7px;
+}
+
+.blue .team-label{
+  color:#5799e1;
+}
+
+.red .team-label{
+  color:#e16060;
+}
+
+
+/* =========================================================
+   POSITIONS
+========================================================= */
+
+.p1{
+  left:50%;
+  top:1%;
+  transform:translateX(-50%);
+}
+
+.p2{
+  right:2%;
+  top:22%;
+}
+
+.p3{
+  right:2%;
+  bottom:22%;
+}
+
+.p4{
+  left:50%;
+  bottom:1%;
+  transform:translateX(-50%);
+}
+
+.p5{
+  left:2%;
+  bottom:22%;
+}
+
+.p6{
+  left:2%;
+  top:22%;
+}
+
+
+/* =========================================================
+   HANDS
+========================================================= */
+
+.hand{
+  position:absolute;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  height:58px;
+  pointer-events:none;
+  z-index:8;
+}
+
+.hand-top{
+  left:50%;
+  top:10%;
+  transform:translateX(-50%);
+}
+
+.hand-bottom{
+  left:50%;
+  bottom:10%;
+  transform:translateX(-50%);
+}
+
+.hand-left{
+  left:11%;
+  top:50%;
+  transform:translateY(-50%) rotate(90deg);
+}
+
+.hand-right{
+  right:11%;
+  top:50%;
+  transform:translateY(-50%) rotate(90deg);
+}
+
+
+/* =========================================================
+   MINI CARD
+========================================================= */
+
+.mini-card{
+  position:relative;
+
+  width:27px;
+  height:40px;
+
+  margin-left:-12px;
+
+  border-radius:4px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #151515,
+      #050505
+    );
+
+  border:1px solid #b79b43;
+
+  box-shadow:
+    0 3px 7px rgba(0,0,0,.55);
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  color:#d9bd55;
+  font-size:9px;
+  font-weight:900;
+}
+
+.mini-card:first-child{
+  margin-left:0;
+}
+
+.mini-card.hidden-card{
+  background:
+    repeating-linear-gradient(
+      45deg,
+      #101010,
+      #101010 3px,
+      #252525 3px,
+      #252525 6px
+    );
+}
+
+.mini-card.played{
+  opacity:.35;
+}
+
+
+/* =========================================================
+   HUMAN HAND
+========================================================= */
+
+.human-hand{
+  position:absolute;
+
+  left:50%;
+  bottom:1%;
+
+  transform:translateX(-50%);
+
+  width:96%;
+
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+
+  z-index:30;
+
+  pointer-events:auto;
+}
+
+.human-card{
+  position:relative;
+
+  width:39px;
+  height:59px;
+
+  margin-left:-8px;
+
+  border-radius:6px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #ffffff,
+      #e8e7df
+    );
+
+  border:1px solid #aaa;
+
+  box-shadow:
+    0 5px 13px rgba(0,0,0,.55);
+
+  color:#151515;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+
+  font-size:14px;
+  font-weight:900;
+
+  transition:.18s ease;
+}
+
+.human-card:first-child{
+  margin-left:0;
+}
+
+.human-card.red-suit{
+  color:#c93434;
+}
+
+.human-card.black-suit{
+  color:#171717;
+}
+
+.human-card.selected{
+  transform:translateY(-14px);
+
+  border-color:#e3c85e;
+
+  box-shadow:
+    0 0 0 2px rgba(227,200,94,.25),
+    0 12px 20px rgba(0,0,0,.7);
+}
+
+.human-card.illegal{
+  opacity:.38;
+}
+
+.card-rank{
+  font-size:12px;
+}
+
+.card-suit{
+  font-size:17px;
+  line-height:17px;
+}
+
+
+/* =========================================================
+   PLAYED CARDS
+========================================================= */
+
+.played{
+  position:absolute;
+
+  left:50%;
+  top:50%;
+
+  width:230px;
+  height:150px;
+
+  transform:translate(-50%,-50%);
+
+  pointer-events:none;
+
+  z-index:25;
+}
+
+.played-card{
+  position:absolute;
+
+  width:54px;
+  height:78px;
+
+  border-radius:7px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #fff,
+      #e9e9e4
+    );
+
+  border:1px solid #bdbdbd;
+
+  color:#111;
+
+  box-shadow:
+    0 7px 15px rgba(0,0,0,.6);
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+
+  font-size:19px;
+  font-weight:900;
+
+  opacity:0;
+
+  transform:scale(.6);
+
+  transition:.28s ease;
+}
+
+.played-card.show{
+  opacity:1;
+  transform:scale(1);
+}
+
+.played-card.red-suit{
+  color:#c52d2d;
+}
+
+.played-card:nth-child(1){
+  left:50%;
+  top:0;
+  transform:translateX(-50%) rotate(-4deg) scale(.6);
+}
+
+.played-card:nth-child(2){
+  right:4%;
+  top:50%;
+  transform:translateY(-50%) rotate(7deg) scale(.6);
+}
+
+.played-card:nth-child(3){
+  left:50%;
+  bottom:0;
+  transform:translateX(-50%) rotate(3deg) scale(.6);
+}
+
+.played-card:nth-child(4){
+  left:4%;
+  top:50%;
+  transform:translateY(-50%) rotate(-7deg) scale(.6);
+}
+
+.played-card:nth-child(5){
+  left:21%;
+  top:18%;
+  transform:rotate(-10deg) scale(.6);
+}
+
+.played-card:nth-child(6){
+  right:21%;
+  bottom:18%;
+  transform:rotate(10deg) scale(.6);
+}
+
+
+/* =========================================================
+   BOTTOM PANEL
+========================================================= */
+
+.game-panel{
+  position:relative;
+  z-index:40;
+
+  padding:11px;
+
+  border-radius:17px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(24,25,22,.97),
+      rgba(7,9,7,.99)
+    );
+
+  border:1px solid rgba(255,255,255,.08);
+
+  box-shadow:
+    0 12px 35px rgba(0,0,0,.5);
+}
+
+.team-score{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+
+.score-box{
+  padding:8px;
+  border-radius:11px;
+  text-align:center;
+  background:rgba(255,255,255,.035);
+}
+
+.score-box.blue{
+  border:1px solid rgba(55,133,222,.3);
+}
+
+.score-box.red{
+  border:1px solid rgba(202,64,64,.3);
+}
+
+.score-team{
+  font-size:7px;
+  font-weight:900;
+  letter-spacing:1px;
+}
+
+.score-box.blue .score-team{
+  color:#5b9de2;
+}
+
+.score-box.red .score-team{
+  color:#e15c5c;
+}
+
+.score-number{
+  margin-top:2px;
+  color:#e3d17a;
+  font-size:19px;
+  font-weight:900;
+}
+
+
+/* =========================================================
+   BUTTON
+========================================================= */
+
+.primary{
+  width:100%;
+  margin-top:9px;
+  padding:12px;
+
+  border-radius:11px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #b09538,
+      #6e591a
+    );
+
+  color:#fff;
+
+  font-size:10px;
+  font-weight:900;
+
+  letter-spacing:.5px;
+
+  box-shadow:
+    0 7px 18px rgba(0,0,0,.4);
+}
+
+.primary:active{
+  transform:scale(.98);
+}
+
+.primary:disabled{
+  opacity:.5;
+}
+
+
+/* =========================================================
+   OVERLAY
+========================================================= */
+
+.overlay{
+  position:fixed;
+  inset:0;
+  z-index:100;
+
+  display:none;
+
+  align-items:center;
+  justify-content:center;
+
+  padding:14px;
+
+  background:rgba(0,0,0,.86);
+
+  backdrop-filter:blur(10px);
+}
+
+.overlay.show{
+  display:flex;
+}
+
+.modal{
+  width:100%;
+  max-width:470px;
+  max-height:92vh;
+  overflow-y:auto;
+
+  padding:19px;
+
+  border-radius:21px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #181b17,
+      #080a08
+    );
+
+  border:1px solid rgba(222,200,103,.2);
+
+  box-shadow:
+    0 25px 80px rgba(0,0,0,.8);
+}
+
+.modal-title{
+  margin:0;
+
+  text-align:center;
+
+  color:#e5cf70;
+
+  font-size:19px;
+  font-weight:900;
+}
+
+.modal-subtitle{
+  margin:6px 0 14px;
+
+  text-align:center;
+
+  color:#77837c;
+
+  font-size:8px;
+}
+
+
+/* =========================================================
+   VIDEO
+========================================================= */
+
+.video-modal{
+  max-width:520px;
+  padding:15px;
+}
+
+.video-title{
+  text-align:center;
+  color:#e5cf70;
+  font-size:21px;
+  font-weight:900;
+  letter-spacing:2px;
+}
+
+.video-subtitle{
+  margin-top:5px;
+  text-align:center;
+  color:#77837c;
+  font-size:8px;
+}
+
+.video-container{
+  position:relative;
+
+  width:100%;
+  aspect-ratio:16/9;
+
+  margin-top:15px;
+
+  overflow:hidden;
+
+  border-radius:12px;
+
+  background:#000;
+
+  border:1px solid rgba(218,197,109,.25);
+}
+
+#spadesPlayer{
+  width:100%;
+  height:100%;
+}
+
+.video-status{
+  margin-top:10px;
+  text-align:center;
+  color:#858f89;
+  font-size:8px;
+}
+
+.video-continue{
+  display:none;
+}
+
+.video-continue.show{
+  display:block;
+}
+
+
+/* =========================================================
+   BIDDING
+========================================================= */
+
+.bid-team{
+  margin-bottom:12px;
+
+  padding:11px;
+
+  border-radius:13px;
+
+  background:rgba(255,255,255,.035);
+}
+
+.bid-team.blue{
+  border:1px solid rgba(55,133,222,.18);
+}
+
+.bid-team.red{
+  border:1px solid rgba(202,64,64,.18);
+}
+
+.bid-title{
+  text-align:center;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.7px;
+}
+
+.bid-team.blue .bid-title{
+  color:#5798dc;
+}
+
+.bid-team.red .bid-title{
+  color:#dc5c5c;
+}
+
+.bid-buttons{
+  display:grid;
+  grid-template-columns:repeat(6,1fr);
+  gap:5px;
+  margin-top:9px;
+}
+
+.bid-button{
+  padding:10px 2px;
+
+  border-radius:8px;
+
+  background:rgba(255,255,255,.07);
+
+  color:#c8cec9;
+
+  font-size:10px;
+  font-weight:900;
+}
+
+.bid-button.selected{
+  background:#a5892e;
+  color:#fff;
+}
+
+.bid-total{
+  text-align:center;
+  margin-top:8px;
+  color:#7e8983;
+  font-size:8px;
+}
+
+.bid-total strong{
+  color:#e4cf70;
+  font-size:13px;
+}
+
+
+/* =========================================================
+   SCORE TABLE
+========================================================= */
+
+.score-table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+}
+
+.score-table th,
+.score-table td{
+  padding:9px 4px;
+  text-align:center;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+
+.score-table th{
+  color:#6f7c75;
+  font-size:7px;
+}
+
+.score-table td{
+  font-size:10px;
+  font-weight:900;
+}
+
+.blue-text{
+  color:#579be1;
+}
+
+.red-text{
+  color:#dd5c5c;
+}
+
+.gold-text{
+  color:#e4cf70;
+}
+
+
+/* =========================================================
+   RESULT
+========================================================= */
+
+.result-crown{
+  text-align:center;
+  font-size:40px;
+  margin-bottom:5px;
+}
+
+.result-title{
+  text-align:center;
+  font-size:21px;
+  font-weight:900;
+}
+
+.result-sub{
+  text-align:center;
+  margin-top:5px;
+  color:#7d8881;
+  font-size:8px;
+}
+
+.final-teams{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:17px;
+}
+
+.final-team{
+  padding:15px 7px;
+  border-radius:15px;
+  text-align:center;
+}
+
+.final-team.blue{
+  background:
+    linear-gradient(
+      145deg,
+      rgba(26,75,125,.35),
+      rgba(10,20,31,.55)
+    );
+
+  border:1px solid rgba(65,140,222,.3);
+}
+
+.final-team.red{
+  background:
+    linear-gradient(
+      145deg,
+      rgba(121,32,32,.35),
+      rgba(31,10,10,.55)
+    );
+
+  border:1px solid rgba(219,71,71,.3);
+}
+
+.final-name{
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:1px;
+}
+
+.final-team.blue .final-name{
+  color:#5d9de0;
+}
+
+.final-team.red .final-name{
+  color:#df6262;
+}
+
+.final-score{
+  margin-top:7px;
+  color:#ead579;
+  font-size:30px;
+  font-weight:900;
+}
+
+.final-tricks{
+  margin-top:4px;
+  color:#7f8a84;
+  font-size:7px;
+}
+
+.winner{
+  margin-top:15px;
+  padding:12px;
+  border-radius:13px;
+  text-align:center;
+
+  background:rgba(217,197,109,.07);
+  border:1px solid rgba(217,197,109,.18);
+}
+
+.winner-label{
+  color:#78847d;
+  font-size:7px;
+  letter-spacing:2px;
+}
+
+.winner-name{
+  margin-top:5px;
+  color:#e4cf70;
+  font-size:18px;
+  font-weight:900;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media(max-width:430px){
+
+  .game-area{
+    height:570px;
+  }
+
+  .table{
+    width:99%;
+    height:57%;
+  }
+
+  .player{
+    width:88px;
+  }
+
+  .player-card{
+    width:88px;
+    min-height:57px;
+  }
+
+  .hand-top,
+  .hand-bottom{
+    transform:translateX(-50%) scale(.78);
+  }
+
+  .hand-left,
+  .hand-right{
+    transform:
+      translateY(-50%)
+      rotate(90deg)
+      scale(.78);
+  }
+
+  .human-card{
+    width:36px;
+    height:56px;
+    margin-left:-9px;
+  }
+
+  .played{
+    transform:
+      translate(-50%,-50%)
+      scale(.8);
+  }
+}
+
+.hidden{
+  display:none!important;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <div class="topbar">
+
+    <button class="back" onclick="goBack()">‹</button>
+
+    <div class="round-info">
+      <div class="round-label">
+        SPADES • 6 PLAYERS
+      </div>
+
+      <div id="roundNumber" class="round-number">
+        VIDEO
+      </div>
+    </div>
+
+    <div class="token">
+      ♠
+    </div>
+
+  </div>
+
+
+  <header class="game-header">
+
+    <div class="suit-symbol">♠</div>
+
+    <div class="game-title">
+      SPADE TRUMP
+    </div>
+
+    <div class="game-subtitle">
+      SIX PLAYER • TWO TEAMS • SPADES ALWAYS TRUMP
+    </div>
+
+  </header>
+
+
+  <div id="gameArea" class="game-area">
+
+    <div class="table">
+
+      <div class="center">
+
+        <div class="center-symbol">♠</div>
+
+        <div id="centerText" class="center-text">
+          WAITING
+        </div>
+
+      </div>
+
+
+      <!-- PLAYERS -->
+
+      <div class="player p1 blue" id="player1">
+        <div class="player-card">
+          <div class="player-number">PLAYER 1</div>
+          <div class="player-name">YOU</div>
+          <div class="team-label">BLUE TEAM</div>
+        </div>
+      </div>
+
+      <div class="player p2 red" id="player2">
+        <div class="player-card">
+          <div class="player-number">PLAYER 2</div>
+          <div class="player-name">PLAYER 2</div>
+          <div class="team-label">RED TEAM</div>
+        </div>
+      </div>
+
+      <div class="player p3 blue" id="player3">
+        <div class="player-card">
+          <div class="player-number">PLAYER 3</div>
+          <div class="player-name">PLAYER 3</div>
+          <div class="team-label">BLUE TEAM</div>
+        </div>
+      </div>
+
+      <div class="player p4 red" id="player4">
+        <div class="player-card">
+          <div class="player-number">PLAYER 4</div>
+          <div class="player-name">PLAYER 4</div>
+          <div class="team-label">RED TEAM</div>
+        </div>
+      </div>
+
+      <div class="player p5 blue" id="player5">
+        <div class="player-card">
+          <div class="player-number">PLAYER 5</div>
+          <div class="player-name">PLAYER 5</div>
+          <div class="team-label">BLUE TEAM</div>
+        </div>
+      </div>
+
+      <div class="player p6 red" id="player6">
+        <div class="player-card">
+          <div class="player-number">PLAYER 6</div>
+          <div class="player-name">PLAYER 6</div>
+          <div class="team-label">RED TEAM</div>
+        </div>
+      </div>
+
+
+      <!-- HIDDEN OPPONENT HANDS -->
+
+      <div id="handP2" class="hand hand-right"></div>
+      <div id="handP3" class="hand hand-right"></div>
+      <div id="handP4" class="hand hand-bottom"></div>
+      <div id="handP5" class="hand hand-left"></div>
+      <div id="handP6" class="hand hand-left"></div>
+
+
+      <!-- PLAYED CARDS -->
+
+      <div id="playedCards" class="played">
+
+        <div class="played-card"></div>
+        <div class="played-card"></div>
+        <div class="played-card"></div>
+        <div class="played-card"></div>
+        <div class="played-card"></div>
+        <div class="played-card"></div>
+
+      </div>
+
+
+      <!-- HUMAN HAND -->
+
+      <div id="humanHand" class="human-hand"></div>
+
+    </div>
+
+  </div>
+
+
+  <!-- BOTTOM -->
+
+  <div class="game-panel">
+
+    <div class="team-score">
+
+      <div class="score-box blue">
+        <div class="score-team">BLUE TEAM • 1/3/5</div>
+        <div id="blueScore" class="score-number">0</div>
+      </div>
+
+      <div class="score-box red">
+        <div class="score-team">RED TEAM • 2/4/6</div>
+        <div id="redScore" class="score-number">0</div>
+      </div>
+
+    </div>
+
+
+    <button
+      id="mainButton"
+      class="primary"
+      onclick="startGame()"
+    >
+      WATCH VIDEO
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- =====================================================
+     VIDEO
+===================================================== -->
+
+<div id="spadesVideoOverlay" class="overlay show">
+
+  <div class="modal video-modal">
+
+    <div class="video-title">
+      ♠ SPADES
+    </div>
+
+    <div class="video-subtitle">
+      SIX PLAYER GAME
+    </div>
+
+    <div class="video-container">
+      <div id="spadesPlayer"></div>
+    </div>
+
+    <div id="videoStatus" class="video-status">
+      Watch the video before entering the table.
+    </div>
+
+    <button
+      id="videoContinue"
+      class="primary video-continue"
+      onclick="enterGameTable()"
+    >
+      ENTER TABLE
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- =====================================================
+     BIDDING
+===================================================== -->
+
+<div id="bidOverlay" class="overlay">
+
+  <div class="modal">
+
+    <h2 class="modal-title">
+      TEAM BIDDING
+    </h2>
+
+    <div class="modal-subtitle">
+      SELECT YOUR BLUE TEAM DECLARATION
+    </div>
+
+    <div class="bid-team blue">
+
+      <div class="bid-title">
+        🔵 BLUE TEAM • P1 + P3 + P5
+      </div>
+
+      <div id="blueBidButtons" class="bid-buttons"></div>
+
+      <div class="bid-total">
+        TEAM BID:
+        <strong id="blueBidTotal">2</strong>
+      </div>
+
+    </div>
+
+    <div class="bid-team red">
+
+      <div class="bid-title">
+        🔴 RED TEAM • AI DECLARATION
+      </div>
+
+      <div class="bid-total">
+        AI BID:
+        <strong id="redBidTotal">2</strong>
+      </div>
+
+    </div>
+
+    <button
+      class="primary"
+      onclick="confirmBids()"
+    >
+      CONFIRM BIDS
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- =====================================================
+     SCOREBOARD
+===================================================== -->
+
+<div id="scoreOverlay" class="overlay">
+
+  <div class="modal">
+
+    <h2 class="modal-title">
+      SCOREBOARD
+    </h2>
+
+    <div id="scoreSubtitle" class="modal-subtitle">
+      TRICK 1 / 9
+    </div>
+
+    <table class="score-table">
+
+      <thead>
+        <tr>
+          <th>TEAM</th>
+          <th>BID</th>
+          <th>TRICKS</th>
+          <th>ROUND</th>
+          <th>TOTAL</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <tr>
+          <td class="blue-text">BLUE</td>
+          <td id="scoreBlueBid">0</td>
+          <td id="scoreBlueTricks">0</td>
+          <td id="scoreBlueRound" class="gold-text">0</td>
+          <td id="scoreBlueTotal" class="gold-text">0</td>
+        </tr>
+
+        <tr>
+          <td class="red-text">RED</td>
+          <td id="scoreRedBid">0</td>
+          <td id="scoreRedTricks">0</td>
+          <td id="scoreRedRound" class="gold-text">0</td>
+          <td id="scoreRedTotal" class="gold-text">0</td>
+        </tr>
+
+      </tbody>
+
+    </table>
+
+    <button
+      id="scoreNextButton"
+      class="primary"
+      onclick="nextTrick()"
+    >
+      NEXT TRICK
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- =====================================================
+     FINAL
+===================================================== -->
+
+<div id="resultOverlay" class="overlay">
+
+  <div class="modal">
+
+    <div class="result-crown">
+      🏆
+    </div>
+
+    <div class="result-title">
+      FINAL RESULT
+    </div>
+
+    <div class="result-sub">
+      9 TRICKS COMPLETED
+    </div>
+
+    <div class="final-teams">
+
+      <div class="final-team blue">
+
+        <div class="final-name">
+          BLUE TEAM
+        </div>
+
+        <div id="finalBlueScore" class="final-score">
+          0
+        </div>
+
+        <div id="finalBlueTricks" class="final-tricks">
+          0 TRICKS
+        </div>
+
+      </div>
+
+      <div class="final-team red">
+
+        <div class="final-name">
+          RED TEAM
+        </div>
+
+        <div id="finalRedScore" class="final-score">
+          0
+        </div>
+
+        <div id="finalRedTricks" class="final-tricks">
+          0 TRICKS
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="winner">
+
+      <div class="winner-label">
+        WINNER
+      </div>
+
+      <div id="winnerName" class="winner-name">
+        BLUE TEAM
+      </div>
+
+    </div>
+
+    <button
+      class="primary"
+      onclick="playAgain()"
+    >
+      PLAY AGAIN
+    </button>
+
+    <button
+      class="primary"
+      onclick="goHome()"
+    >
+      HOME
+    </button>
+
+  </div>
+
+</div>
+
+
+<script src="spades.js"></script>
+
+</body>
+  </html>
